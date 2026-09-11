@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { t } from "@lingui/core/macro";
 import {
   HiMiniXMark,
+  HiOutlineCheckCircle,
   HiOutlineClock,
   HiOutlineSquare3Stack3D,
   HiOutlineTag,
@@ -64,6 +65,7 @@ const Filters = ({
           labels: [],
           lists: [],
           dueDate: [],
+          completion: [],
         },
       });
     } catch (error) {
@@ -136,11 +138,25 @@ const Filters = ({
     },
   ];
 
+  const completionItems = [
+    {
+      key: "complete",
+      value: t({ message: "Complete", context: "card status" }),
+      selected: formatToArray(router.query.completion).includes("complete"),
+    },
+    {
+      key: "incomplete",
+      value: t`Incomplete`,
+      selected: formatToArray(router.query.completion).includes("incomplete"),
+    },
+  ];
+
   const filterCounts = {
     members: formatToArray(router.query.members).length,
     labels: formatToArray(router.query.labels).length,
     lists: formatToArray(router.query.lists).length,
     dueDate: formatToArray(router.query.dueDate).length,
+    completion: formatToArray(router.query.completion).length,
   };
 
   const groups = [
@@ -173,6 +189,13 @@ const Filters = ({
           },
         ]
       : []),
+    {
+      key: "completion",
+      label: t`Card status`,
+      icon: <HiOutlineCheckCircle size={16} />,
+      items: completionItems,
+      selectedCount: filterCounts.completion,
+    },
     {
       key: "dueDate",
       label: t`Due date`,

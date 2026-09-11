@@ -60,6 +60,7 @@ describe("webhook utilities", () => {
         title: "Test Card",
         description: undefined,
         dueDate: null,
+        completed: undefined,
         listId: "list-456",
         boardId: "board-789",
       });
@@ -76,6 +77,7 @@ describe("webhook utilities", () => {
           title: "Test Card",
           description: "A description",
           dueDate,
+          completed: true,
           listId: "list-456",
         },
         {
@@ -85,6 +87,7 @@ describe("webhook utilities", () => {
 
       expect(payload.data.card.description).toBe("A description");
       expect(payload.data.card.dueDate).toBe("2024-02-01T10:00:00.000Z");
+      expect(payload.data.card.completed).toBe(true);
     });
 
     it("includes board context when provided", () => {

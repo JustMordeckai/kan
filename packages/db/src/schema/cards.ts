@@ -3,6 +3,7 @@ import { relations, sql } from "drizzle-orm";
 import {
   bigint,
   bigserial,
+  boolean,
   check,
   index,
   integer,
@@ -51,6 +52,8 @@ export const activityTypes = [
   "card.updated.dueDate.updated",
   "card.updated.dueDate.removed",
   "card.updated.cover",
+  "card.updated.completed",
+  "card.updated.uncompleted",
   "card.archived",
   "card.updated.board.added",
   "card.updated.board.removed",
@@ -89,6 +92,7 @@ export const cards = pgTable(
       () => imports.id,
     ),
     dueDate: timestamp("dueDate"),
+    completed: boolean("completed").default(false).notNull(),
     coverColourCode: varchar("coverColourCode", { length: 7 }),
     coverAttachmentId: bigint("coverAttachmentId", {
       mode: "number",

@@ -25,6 +25,7 @@ export default function CardPreview({ card, cardPrefix }: CardPreviewProps) {
       cover={card.cover}
       homeLabels={card.homeLabels}
       externalUrl={card.externalUrl}
+      completed={card.completed}
     />
   );
 }

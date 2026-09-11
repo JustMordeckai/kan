@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { t } from "@lingui/core/macro";
 import { useEffect, useRef, useState } from "react";
-import { HiLink, HiXMark } from "react-icons/hi2";
+import { HiCheckCircle, HiLink, HiXMark } from "react-icons/hi2";
 
 import Badge from "~/components/Badge";
 import Editor from "~/components/Editor";
@@ -119,9 +119,20 @@ export function CardModal({
                           {data.cardNumber}
                         </span>
                       )}
-                    <h1 className="font-bold leading-[2.3rem] tracking-tight text-neutral-900 dark:text-dark-1000 sm:text-[1.2rem]">
-                      {data?.title}
-                    </h1>
+                    <div className="flex items-start gap-2">
+                      {data?.completed && (
+                        <HiCheckCircle
+                          className="mt-2 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400"
+                          aria-label={t({
+                            message: "Complete",
+                            context: "card status",
+                          })}
+                        />
+                      )}
+                      <h1 className="font-bold leading-[2.3rem] tracking-tight text-neutral-900 dark:text-dark-1000 sm:text-[1.2rem]">
+                        {data?.title}
+                      </h1>
+                    </div>
                   </>
                 )}
               </div>

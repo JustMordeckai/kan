@@ -195,6 +195,7 @@ describe("avatar URL resolution in routers", () => {
       index: 1,
       dueDate: null,
       externalUrl: null,
+      completed: false,
       createdBy: "user-1",
       labels: [],
       attachments: [],

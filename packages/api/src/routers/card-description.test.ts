@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as cardRepo from "@kan/db/repository/card.repo";
 import * as cardActivityRepo from "@kan/db/repository/cardActivity.repo";
@@ -34,18 +34,52 @@ vi.mock("../utils/webhook", () => ({
   sendWebhooksForWorkspace: vi.fn(() => Promise.resolve()),
 }));
 
-describe("card description updates", () => {
-  it("stores an empty editor document as null", async () => {
-    const mockDb = {} as never;
-    const cardPublicId = "card-12345678";
-    const ctx = {
-      user: {
-        id: "user-123",
-        name: "Test User",
-        email: "test@example.com",
-      },
-      db: mockDb,
-    } as never;
+const mockDb = {} as never;
+const cardPublicId = "card-12345678";
+const ctx = {
+  user: {
+    id: "user-123",
+    name: "Test User",
+    email: "test@example.com",
+  },
+  db: mockDb,
+} as never;
+
+const mockExistingCard = (completed = false) => {
+  vi.mocked(cardRepo.getByPublicId).mockResolvedValue({
+    id: 1,
+    publicId: cardPublicId,
+    title: "Card",
+    description: "<p>Existing description</p>",
+    listId: 3,
+    dueDate: null,
+    externalUrl: null,
+    completed,
+    coverColourCode: null,
+    coverAttachment: null,
+    coverSize: "normal",
+    list: {
+      publicId: "list-12345678",
+      name: "Todo",
+    },
+  });
+};
+
+const mockUpdatedCard = (completed = false) => {
+  vi.mocked(cardRepo.update).mockResolvedValue({
+    id: 1,
+    publicId: cardPublicId,
+    title: "Card",
+    description: null,
+    dueDate: null,
+    externalUrl: null,
+    completed,
+  });
+};
+
+describe("card updates", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
 
     vi.mocked(assertCanEdit).mockResolvedValue(undefined);
     vi.mocked(cardRepo.getWorkspaceAndCardIdByCardPublicId).mockResolvedValue({
@@ -60,32 +94,13 @@ describe("card description updates", () => {
       boardPublicId: "board-1234567",
       boardName: "Board",
     });
-    vi.mocked(cardRepo.getByPublicId).mockResolvedValue({
-      id: 1,
-      publicId: cardPublicId,
-      title: "Card",
-      description: "<p>Existing description</p>",
-      listId: 3,
-      dueDate: null,
-      externalUrl: null,
-      coverColourCode: null,
-      coverAttachment: null,
-      coverSize: "normal",
-      list: {
-        publicId: "list-12345678",
-        name: "Todo",
-      },
-    });
-    vi.mocked(cardRepo.update).mockResolvedValue({
-      id: 1,
-      publicId: cardPublicId,
-      title: "Card",
-      description: null,
-      dueDate: null,
-      externalUrl: null,
-    });
     vi.mocked(cardActivityRepo.bulkCreate).mockResolvedValue([]);
     vi.mocked(sendWebhooksForWorkspace).mockResolvedValue(undefined);
+  });
+
+  it("stores an empty editor document as null", async () => {
+    mockExistingCard();
+    mockUpdatedCard();
 
     const { cardRouter } = await import("./card");
 
@@ -118,6 +133,73 @@ describe("card description updates", () => {
           },
         },
       }),
+    );
+  });
+
+  it.each([
+    {
+      previous: false,
+      completed: true,
+      activityType: "card.updated.completed",
+    },
+    {
+      previous: true,
+      completed: false,
+      activityType: "card.updated.uncompleted",
+    },
+  ] as const)(
+    "records $activityType when completion changes",
+    async ({ previous, completed, activityType }) => {
+      mockExistingCard(previous);
+      mockUpdatedCard(completed);
+
+      const { cardRouter } = await import("./card");
+
+      await cardRouter.createCaller(ctx).update({
+        cardPublicId,
+        completed,
+      });
+
+      expect(cardRepo.update).toHaveBeenCalledWith(
+        mockDb,
+        { completed },
+        { cardPublicId },
+      );
+      expect(cardActivityRepo.bulkCreate).toHaveBeenCalledWith(mockDb, [
+        {
+          type: activityType,
+          cardId: 1,
+          createdBy: "user-123",
+        },
+      ]);
+      expect(createCardWebhookPayload).toHaveBeenCalledWith(
+        "card.updated",
+        expect.objectContaining({ completed }),
+        expect.objectContaining({
+          changes: {
+            completed: { from: previous, to: completed },
+          },
+        }),
+      );
+    },
+  );
+
+  it("does not create activity when completion is unchanged", async () => {
+    mockExistingCard();
+    mockUpdatedCard();
+
+    const { cardRouter } = await import("./card");
+
+    await cardRouter.createCaller(ctx).update({
+      cardPublicId,
+      completed: false,
+    });
+
+    expect(cardActivityRepo.bulkCreate).not.toHaveBeenCalled();
+    expect(createCardWebhookPayload).toHaveBeenCalledWith(
+      "card.updated",
+      expect.anything(),
+      expect.objectContaining({ changes: undefined }),
     );
   });
 });

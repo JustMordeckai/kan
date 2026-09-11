@@ -35,6 +35,7 @@ import ActivityList from "./components/ActivityList";
 import { ActivitySortOrderToggle } from "./components/ActivitySortOrderToggle";
 import { AttachmentThumbnails } from "./components/AttachmentThumbnails";
 import { AttachmentUpload } from "./components/AttachmentUpload";
+import { CardCompletionToggle } from "./components/CardCompletionToggle";
 import { CardCoverBanner } from "./components/CardCoverBanner";
 import { CardCoverSelector } from "./components/CardCoverSelector";
 import Checklists from "./components/Checklists";
@@ -537,14 +538,21 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
                     onSubmit={handleSubmit(onSubmit)}
                     className="w-full space-y-6"
                   >
-                    <div>
+                    <div className="flex items-start gap-2">
+                      {!isTemplate && (
+                        <CardCompletionToggle
+                          cardPublicId={cardId}
+                          completed={card.completed}
+                          disabled={!canEdit}
+                        />
+                      )}
                       <textarea
                         id="title"
                         {...register("title")}
                         onBlur={canEdit ? handleSubmit(onSubmit) : undefined}
                         rows={1}
                         disabled={!canEdit}
-                        className={`block w-full resize-none overflow-hidden border-0 bg-transparent p-0 py-0 font-bold leading-relaxed text-neutral-900 focus:ring-0 dark:text-dark-1000 sm:text-[1.2rem] ${!canEdit ? "cursor-default" : ""}`}
+                        className={`block min-w-0 flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 py-0 font-bold leading-relaxed text-neutral-900 focus:ring-0 dark:text-dark-1000 sm:text-[1.2rem] ${!canEdit ? "cursor-default" : ""}`}
                         onInput={(e) => {
                           const target = e.target as HTMLTextAreaElement;
                           target.style.height = "auto";

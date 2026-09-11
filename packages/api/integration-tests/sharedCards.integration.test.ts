@@ -346,6 +346,54 @@ describe("shared cards", () => {
     expect(cards[0]!.summary).toMatchObject({ hasComments: false });
   });
 
+  it("shows a shared card's completion on every board it is on", async () => {
+    const card = await makeCard("From dev", homeList.id);
+    await makeCard("Own A", sharedTodo.id);
+    await caller(owner).share({
+      cardPublicId: card.publicId,
+      boardPublicId: sharedBoard.publicId,
+      listPublicId: sharedTodo.publicId,
+    });
+
+    await caller(sharedMember).update({
+      cardPublicId: card.publicId,
+      completed: true,
+    });
+
+    const view = async (
+      boardPublicId: string,
+      filters: { completed?: boolean; cardView?: "summary" } = {},
+    ) => {
+      const board = await boardRepo.getByPublicId(db, boardPublicId, owner.id, {
+        members: [],
+        labels: [],
+        lists: [],
+        dueDate: [],
+        type: "regular",
+        ...filters,
+      });
+      return board!.lists.flatMap((list) =>
+        list.cards.map((item) => [item.title, item.completed]),
+      );
+    };
+
+    expect(await view(homeBoard.publicId)).toEqual([["From dev", true]]);
+    expect(await view(sharedBoard.publicId, { cardView: "summary" })).toEqual([
+      ["Own A", false],
+      ["From dev", true],
+    ]);
+    expect(await view(sharedBoard.publicId, { completed: true })).toEqual([
+      ["From dev", true],
+    ]);
+    expect(await view(sharedBoard.publicId, { completed: false })).toEqual([
+      ["Own A", false],
+    ]);
+    expect(
+      (await caller(sharedMember).byId({ cardPublicId: card.publicId }))
+        .completed,
+    ).toBe(true);
+  });
+
   it("resolves cover attachments of cards shared onto a board", async () => {
     const card = await makeCard("From dev", homeList.id);
     const [attachment] = await db

@@ -355,6 +355,7 @@ export const update = async (
     description?: string | null;
     dueDate?: Date | null;
     externalUrl?: string | null;
+    completed?: boolean;
   },
   args: {
     cardPublicId: string;
@@ -367,6 +368,7 @@ export const update = async (
       description: cardInput.description,
       dueDate: cardInput.dueDate !== undefined ? cardInput.dueDate : undefined,
       externalUrl: cardInput.externalUrl,
+      completed: cardInput.completed,
       updatedAt: new Date(),
     })
     .where(and(eq(cards.publicId, args.cardPublicId), isNull(cards.deletedAt)))
@@ -377,6 +379,7 @@ export const update = async (
       description: cards.description,
       dueDate: cards.dueDate,
       externalUrl: cards.externalUrl,
+      completed: cards.completed,
     });
 
   return result;
@@ -488,6 +491,7 @@ export const getByPublicId = (db: dbClient, cardPublicId: string) => {
       externalUrl: true,
       coverColourCode: true,
       coverSize: true,
+      completed: true,
     },
     with: {
       coverAttachment: {
@@ -531,6 +535,8 @@ export const bulkCreate = async (
     importId?: number;
     coverColourCode?: string | null;
     coverSize?: "normal" | "full";
+    dueDate?: Date | null;
+    completed?: boolean;
   }[],
 ) => {
   if (cardInput.length === 0) return [];
@@ -582,6 +588,8 @@ export const bulkCreate = async (
       importId?: number;
       coverColourCode?: string | null;
       coverSize?: "normal" | "full";
+      dueDate?: Date | null;
+      completed?: boolean;
     }[] = [];
 
     // For each list, append incoming cards after current max index, preserving incoming order
@@ -612,6 +620,8 @@ export const bulkCreate = async (
           importId: it.importId,
           coverColourCode: it.coverColourCode ?? null,
           coverSize: it.coverSize ?? "normal",
+          dueDate: it.dueDate ?? null,
+          completed: it.completed ?? false,
         });
       }
     }
@@ -729,6 +739,7 @@ export const getWithListAndMembersByPublicId = async (
       externalUrl: true,
       coverColourCode: true,
       coverSize: true,
+      completed: true,
       createdBy: true,
       cardNumber: true,
       index: true,
@@ -1141,6 +1152,7 @@ export const reorder = async (
         description: true,
         dueDate: true,
         externalUrl: true,
+        completed: true,
       },
       where: eq(cards.id, card.id),
     });

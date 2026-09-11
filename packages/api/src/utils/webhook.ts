@@ -34,6 +34,7 @@ export interface WebhookPayload {
       description?: string | null;
       dueDate?: string | null; // ISO string after JSON serialization
       cover?: WebhookCardCover;
+      completed?: boolean;
       listId: string;
       boardId: string;
     };
@@ -217,9 +218,24 @@ export async function sendWebhooksForWorkspace(
       sendWebhookToUrl(webhook.url, webhook.secret ?? undefined, payload).then(
         (result) => {
           if (!result.success) {
-            log.error({ url: webhook.url, event: payload.event, error: result.error, statusCode: result.statusCode }, "Webhook delivery failed");
+            log.error(
+              {
+                url: webhook.url,
+                event: payload.event,
+                error: result.error,
+                statusCode: result.statusCode,
+              },
+              "Webhook delivery failed",
+            );
           } else {
-            log.info({ url: webhook.url, event: payload.event, statusCode: result.statusCode }, "Webhook delivered");
+            log.info(
+              {
+                url: webhook.url,
+                event: payload.event,
+                statusCode: result.statusCode,
+              },
+              "Webhook delivered",
+            );
           }
         },
       ),
@@ -228,7 +244,10 @@ export async function sendWebhooksForWorkspace(
     // Wait for all to complete but don't block on failures
     await Promise.allSettled(promises);
   } catch (error) {
-    log.error({ err: error, workspaceId }, "Failed to send webhooks for workspace");
+    log.error(
+      { err: error, workspaceId },
+      "Failed to send webhooks for workspace",
+    );
   }
 }
 
@@ -241,6 +260,7 @@ export function createCardWebhookPayload(
     description?: string | null;
     dueDate?: Date | null;
     cover?: WebhookCardCover;
+    completed?: boolean;
     listId: string;
   },
   context: {
@@ -265,6 +285,7 @@ export function createCardWebhookPayload(
         description: card.description,
         dueDate: card.dueDate?.toISOString() ?? null,
         ...(card.cover !== undefined && { cover: card.cover }),
+        completed: card.completed,
         listId: card.listId,
         boardId: context.boardId,
       },

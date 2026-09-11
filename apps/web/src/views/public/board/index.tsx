@@ -56,6 +56,10 @@ export default function PublicBoardView() {
     | "next-month"
     | "no-due-date"
   )[];
+  const completionFilters = formatToArray(router.query.completion) as (
+    | "complete"
+    | "incomplete"
+  )[];
 
   const { data, isLoading } = api.board.bySlug.useQuery(
     {
@@ -67,6 +71,7 @@ export default function PublicBoardView() {
       ...(dueDateFilters.length > 0 && {
         dueDateFilters: dueDateFilters,
       }),
+      ...(completionFilters.length > 0 && { completionFilters }),
     },
     {
       enabled: router.isReady && !!boardSlug,
@@ -239,6 +244,7 @@ export default function PublicBoardView() {
                               attachments={card.attachments}
                               dueDate={card.dueDate ?? null}
                               cover={card.cover}
+                              completed={card.completed}
                             />
                           </Link>
                         );

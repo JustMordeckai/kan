@@ -60,6 +60,10 @@ test(
     );
 
     await board.openCard("Fix login bug");
+    await expect(
+      page.getByRole("button", { name: "Mark card as incomplete" }),
+    ).toBeVisible();
+    await expect(page.getByText("Jan 15, 2026", { exact: true })).toBeVisible();
     const bugLabel = card.assignedLabelBadge("Bug");
     await expect(bugLabel).toBeVisible();
     await expect(bugLabel.locator("..").locator("svg")).toHaveAttribute(

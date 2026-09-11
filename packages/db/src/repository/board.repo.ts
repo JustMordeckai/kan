@@ -203,6 +203,7 @@ const boardCardQuery = (includeCardDetails: boolean) =>
       listId: true,
       index: true,
       dueDate: true,
+      completed: true,
       cardNumber: true,
       coverColourCode: true,
       coverSize: true,
@@ -298,6 +299,7 @@ export const getByPublicId = async (
     labels: string[];
     lists: string[];
     dueDate: DueDateFilter[];
+    completed?: boolean;
     type: "regular" | "template" | undefined;
     cardView?: "full" | "summary";
   },
@@ -409,6 +411,9 @@ export const getByPublicId = async (
               cardIds.length > 0 ? inArray(cards.publicId, cardIds) : undefined,
               isNull(cards.deletedAt),
               buildDueDateWhere(filters.dueDate),
+              filters.completed === undefined
+                ? undefined
+                : eq(cards.completed, filters.completed),
             ),
             orderBy: [asc(cards.index)],
           },
@@ -457,6 +462,9 @@ export const getByPublicId = async (
           cardIds.length > 0 ? inArray(cards.publicId, cardIds) : undefined,
           isNull(cards.deletedAt),
           buildDueDateWhere(filters.dueDate),
+          filters.completed === undefined
+            ? undefined
+            : eq(cards.completed, filters.completed),
         ),
       })
     : [];
@@ -642,6 +650,7 @@ export const getBySlug = async (
     labels: string[];
     lists: string[];
     dueDate: DueDateFilter[];
+    completed?: boolean;
   },
 ) => {
   let cardIds: string[] = [];
@@ -709,6 +718,7 @@ export const getBySlug = async (
               listId: true,
               index: true,
               dueDate: true,
+              completed: true,
               cardNumber: true,
               coverColourCode: true,
               coverSize: true,
@@ -771,6 +781,9 @@ export const getBySlug = async (
               cardIds.length > 0 ? inArray(cards.publicId, cardIds) : undefined,
               isNull(cards.deletedAt),
               buildDueDateWhere(filters.dueDate),
+              filters.completed === undefined
+                ? undefined
+                : eq(cards.completed, filters.completed),
             ),
             orderBy: [asc(cards.index)],
           },

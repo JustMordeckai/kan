@@ -1272,6 +1272,7 @@ export const cardRouter = createTRPCRouter({
         dueDate: z.date().nullable().optional(),
         // null removes the link.
         externalUrl: cardExternalUrlSchema.nullable().optional(),
+        completed: z.boolean().optional(),
       }),
     )
     .output(cardUpdateResponseSchema)
@@ -1380,6 +1381,7 @@ export const cardRouter = createTRPCRouter({
             publicId: string;
             dueDate: Date | null;
             externalUrl: string | null;
+            completed: boolean;
           }
         | undefined;
 
@@ -1387,6 +1389,7 @@ export const cardRouter = createTRPCRouter({
       const externalUrlChanged =
         input.externalUrl !== undefined &&
         existingCard.externalUrl !== input.externalUrl;
+      const previousCompleted = existingCard.completed;
       const normalizedDescription =
         input.description !== undefined
           ? normalizeDescription(input.description)
@@ -1399,7 +1402,8 @@ export const cardRouter = createTRPCRouter({
         input.title ||
         normalizedDescription !== undefined ||
         input.dueDate !== undefined ||
-        input.externalUrl !== undefined
+        input.externalUrl !== undefined ||
+        input.completed !== undefined
       ) {
         result = await cardRepo.update(
           ctx.db,
@@ -1411,6 +1415,9 @@ export const cardRouter = createTRPCRouter({
             ...(input.dueDate !== undefined && { dueDate: input.dueDate }),
             ...(input.externalUrl !== undefined && {
               externalUrl: input.externalUrl,
+            }),
+            ...(input.completed !== undefined && {
+              completed: input.completed,
             }),
           },
           { cardPublicId: input.cardPublicId },
@@ -1477,6 +1484,7 @@ export const cardRouter = createTRPCRouter({
           publicId: existingCard.publicId,
           dueDate: existingCard.dueDate,
           externalUrl: existingCard.externalUrl,
+          completed: existingCard.completed,
         };
       }
 
@@ -1547,6 +1555,19 @@ export const cardRouter = createTRPCRouter({
       if (externalUrlChanged) {
         activities.push({
           type: "card.updated.externalUrl" as const,
+          cardId: result.id,
+          createdBy: userId,
+        });
+      }
+
+      if (
+        input.completed !== undefined &&
+        previousCompleted !== input.completed
+      ) {
+        activities.push({
+          type: input.completed
+            ? ("card.updated.completed" as const)
+            : ("card.updated.uncompleted" as const),
           cardId: result.id,
           createdBy: userId,
         });
@@ -1626,6 +1647,15 @@ export const cardRouter = createTRPCRouter({
           to: input.externalUrl,
         };
       }
+      if (
+        input.completed !== undefined &&
+        previousCompleted !== input.completed
+      ) {
+        webhookChanges.completed = {
+          from: previousCompleted,
+          to: input.completed,
+        };
+      }
       const movedToNewList = Boolean(
         newListId && existingCard.listId !== newListId,
       );
@@ -1655,6 +1685,7 @@ export const cardRouter = createTRPCRouter({
             title: result.title,
             description: result.description,
             dueDate: result.dueDate,
+            completed: result.completed,
             listId: currentWebhookListPublicId,
           },
           {

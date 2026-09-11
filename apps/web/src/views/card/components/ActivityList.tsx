@@ -152,6 +152,8 @@ const getActivityText = ({
     "card.updated.board.removed": t`removed the card from a board`,
     "card.updated.externalUrl": t`changed the external link`,
     "card.updated.board.home": t`changed the card's origin board`,
+    "card.updated.completed": t`marked the card as complete`,
+    "card.updated.uncompleted": t`marked the card as incomplete`,
   } as const;
 
   if (!(type in ACTIVITY_TYPE_MAP)) return null;
@@ -378,6 +380,8 @@ const ACTIVITY_ICON_MAP: Partial<Record<ActivityType, React.ReactNode | null>> =
     "card.updated.checklist.item.updated": <HiOutlinePencil />,
     "card.updated.checklist.item.completed": <HiOutlineCheckCircle />,
     "card.updated.checklist.item.uncompleted": <HiOutlineCheckCircle />,
+    "card.updated.completed": <HiOutlineCheckCircle />,
+    "card.updated.uncompleted": <HiOutlineCheckCircle />,
     "card.updated.checklist.item.deleted": <HiOutlineTrash />,
     "card.updated.attachment.added": <HiOutlinePaperClip />,
     "card.updated.attachment.removed": <HiOutlinePaperClip />,

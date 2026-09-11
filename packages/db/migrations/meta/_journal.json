@@ -337,6 +337,13 @@
       "when": 1794318340275,
       "tag": "20261110134540_AddDiscordRoleData",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1794606424443,
+      "tag": "20261113214704_AddCardCompletion",
+      "breakpoints": true
     }
   ]
 }

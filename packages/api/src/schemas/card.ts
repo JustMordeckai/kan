@@ -55,6 +55,7 @@ export const cardUpdateResponseSchema = z.object({
   description: z.string().nullable(),
   dueDate: z.date().nullable(),
   externalUrl: z.string().nullable(),
+  completed: z.boolean(),
 });
 
 // ─── card.share ──────────────────────────────────────────────
@@ -107,6 +108,7 @@ export const cardDetailSchema = z.object({
   dueDate: z.date().nullable(),
   externalUrl: z.string().nullable(),
   cover: cardCoverSchema,
+  completed: z.boolean(),
   createdBy: z.string().nullable(),
   // Labels of the home board and of the shared boards the viewer is on.
   labels: z.array(labelSchema.extend({ boardPublicId: z.string() })),

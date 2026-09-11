@@ -79,6 +79,7 @@ const existingCard = {
   listId: 3,
   dueDate: null,
   externalUrl: null,
+  completed: false,
   coverColourCode: null,
   coverAttachment: null,
   coverSize: "normal" as const,
