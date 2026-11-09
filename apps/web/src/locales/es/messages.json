@@ -509,6 +509,13 @@
     "origin": [["src/views/settings/components/Avatar.tsx", 256]],
     "translation": "Ajusta el recorte cuadrado para que se adapte a tu avatar."
   },
+  "rantg0": {
+    "message": "Adjust the square crop to fit your workspace image.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 265]],
+    "translation": ""
+  },
   "U3pytU": {
     "message": "Admin",
     "placeholders": {},
@@ -2223,6 +2230,13 @@
     "origin": [["src/views/settings/components/Avatar.tsx", 253]],
     "translation": "Recorta tu avatar"
   },
+  "a1EFpW": {
+    "message": "Crop your workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 262]],
+    "translation": ""
+  },
   "MtNNDo": {
     "message": "Current list",
     "placeholders": {},
@@ -3016,6 +3030,13 @@
     ],
     "translation": "Error al invitar al miembro"
   },
+  "qDSCAs": {
+    "message": "Error removing workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 72]],
+    "translation": ""
+  },
   "sZixXc": {
     "message": "Error Setting Password",
     "placeholders": {},
@@ -3086,6 +3107,22 @@
       ["src/views/settings/components/Avatar.tsx", 199]
     ],
     "translation": "Error al subir la imagen de perfil"
+  },
+  "vS/oX+": {
+    "message": "Error uploading workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/settings/components/WorkspaceImage.tsx",
+        86
+      ],
+      [
+        "src/views/settings/components/WorkspaceImage.tsx",
+        209
+      ]
+    ],
+    "translation": ""
   },
   "tst44n": {
     "message": "Events",
@@ -5468,6 +5505,13 @@
         92
       ]
     ],
+    "translation": ""
+  },
+  "5ywtDz": {
+    "message": "Remove image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 253]],
     "translation": ""
   },
   "99VIgC": {
@@ -7971,6 +8015,34 @@
     ],
     "translation": "Descripción del espacio de trabajo actualizada"
   },
+  "kfO+IG": {
+    "message": "Workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/WorkspaceSettings.tsx", 37]],
+    "translation": ""
+  },
+  "EAzSVW": {
+    "message": "Workspace image removed",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 64]],
+    "translation": ""
+  },
+  "92R1bb": {
+    "message": "Workspace image to crop",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 282]],
+    "translation": ""
+  },
+  "wBSSs7": {
+    "message": "Workspace image updated",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 199]],
+    "translation": ""
+  },
   "CbGxon": {
     "message": "Workspace member",
     "placeholders": {},
@@ -8416,6 +8488,20 @@
       ["src/views/settings/components/DeleteWorkspaceConfirmation.tsx", 27]
     ],
     "translation": "Tu espacio de trabajo ha sido eliminado."
+  },
+  "8TCP3V": {
+    "message": "Your workspace image has been removed.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 65]],
+    "translation": ""
+  },
+  "hajLtJ": {
+    "message": "Your workspace image has been updated.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 200]],
+    "translation": ""
   },
   "2h4PVB": {
     "message": "Your workspace name has been updated.",
@@ -8938,6 +9024,13 @@
         332
       ]
     ],
+    "translation": ""
+  },
+  "CCtoE7": {
+    "message": "Upload workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 233]],
     "translation": ""
   },
   "gANddk": {

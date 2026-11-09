@@ -860,6 +860,13 @@
     ],
     "translation": "Juster den kvadratiske beskæring, så den passer til din avatar."
   },
+  "rantg0": {
+    "message": "Adjust the square crop to fit your workspace image.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 265]],
+    "translation": ""
+  },
   "U3pytU": {
     "message": "Admin",
     "placeholders": {},
@@ -3703,6 +3710,13 @@
     ],
     "translation": "Beskær din avatar"
   },
+  "a1EFpW": {
+    "message": "Crop your workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 262]],
+    "translation": ""
+  },
   "MtNNDo": {
     "message": "Current list",
     "placeholders": {},
@@ -5018,6 +5032,13 @@
     ],
     "translation": "Fejl ved invitation af medlem"
   },
+  "qDSCAs": {
+    "message": "Error removing workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 72]],
+    "translation": ""
+  },
   "sZixXc": {
     "message": "Error Setting Password",
     "placeholders": {},
@@ -5106,6 +5127,22 @@
       ]
     ],
     "translation": "Fejl ved upload af profilbillede"
+  },
+  "vS/oX+": {
+    "message": "Error uploading workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/settings/components/WorkspaceImage.tsx",
+        86
+      ],
+      [
+        "src/views/settings/components/WorkspaceImage.tsx",
+        209
+      ]
+    ],
+    "translation": ""
   },
   "tst44n": {
     "message": "Events",
@@ -9189,6 +9226,13 @@
     ],
     "translation": ""
   },
+  "5ywtDz": {
+    "message": "Remove image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 253]],
+    "translation": ""
+  },
   "99VIgC": {
     "message": "Remove member",
     "placeholders": {},
@@ -13202,6 +13246,34 @@
     ],
     "translation": "Beskrivelsen af arbejdsområdet er opdateret"
   },
+  "kfO+IG": {
+    "message": "Workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/WorkspaceSettings.tsx", 37]],
+    "translation": ""
+  },
+  "EAzSVW": {
+    "message": "Workspace image removed",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 64]],
+    "translation": ""
+  },
+  "92R1bb": {
+    "message": "Workspace image to crop",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 282]],
+    "translation": ""
+  },
+  "wBSSs7": {
+    "message": "Workspace image updated",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 199]],
+    "translation": ""
+  },
   "CbGxon": {
     "message": "Workspace member",
     "placeholders": {},
@@ -13899,6 +13971,20 @@
     ],
     "translation": "Dit arbejdsområde er blevet slettet."
   },
+  "8TCP3V": {
+    "message": "Your workspace image has been removed.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 65]],
+    "translation": ""
+  },
+  "hajLtJ": {
+    "message": "Your workspace image has been updated.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 200]],
+    "translation": ""
+  },
   "2h4PVB": {
     "message": "Your workspace name has been updated.",
     "placeholders": {},
@@ -14437,6 +14523,13 @@
         332
       ]
     ],
+    "translation": ""
+  },
+  "CCtoE7": {
+    "message": "Upload workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 233]],
     "translation": ""
   },
   "gANddk": {

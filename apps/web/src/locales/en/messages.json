@@ -860,6 +860,13 @@
     ],
     "translation": "Adjust the square crop to fit your avatar."
   },
+  "rantg0": {
+    "message": "Adjust the square crop to fit your workspace image.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 265]],
+    "translation": "Adjust the square crop to fit your workspace image."
+  },
   "U3pytU": {
     "message": "Admin",
     "placeholders": {},
@@ -3716,6 +3723,13 @@
     ],
     "translation": "Crop your avatar"
   },
+  "a1EFpW": {
+    "message": "Crop your workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 262]],
+    "translation": "Crop your workspace image"
+  },
   "MtNNDo": {
     "message": "Current list",
     "placeholders": {},
@@ -5057,6 +5071,13 @@
     ],
     "translation": "Error inviting member"
   },
+  "qDSCAs": {
+    "message": "Error removing workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 72]],
+    "translation": "Error removing workspace image"
+  },
   "sZixXc": {
     "message": "Error Setting Password",
     "placeholders": {},
@@ -5158,6 +5179,22 @@
       ]
     ],
     "translation": "Error uploading profile image"
+  },
+  "vS/oX+": {
+    "message": "Error uploading workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/settings/components/WorkspaceImage.tsx",
+        86
+      ],
+      [
+        "src/views/settings/components/WorkspaceImage.tsx",
+        209
+      ]
+    ],
+    "translation": "Error uploading workspace image"
   },
   "tst44n": {
     "message": "Events",
@@ -9267,6 +9304,13 @@
     ],
     "translation": "Remove from this board"
   },
+  "5ywtDz": {
+    "message": "Remove image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 253]],
+    "translation": "Remove image"
+  },
   "99VIgC": {
     "message": "Remove member",
     "placeholders": {},
@@ -13323,6 +13367,34 @@
     ],
     "translation": "Workspace description updated"
   },
+  "kfO+IG": {
+    "message": "Workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/WorkspaceSettings.tsx", 37]],
+    "translation": "Workspace image"
+  },
+  "EAzSVW": {
+    "message": "Workspace image removed",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 64]],
+    "translation": "Workspace image removed"
+  },
+  "92R1bb": {
+    "message": "Workspace image to crop",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 282]],
+    "translation": "Workspace image to crop"
+  },
+  "wBSSs7": {
+    "message": "Workspace image updated",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 199]],
+    "translation": "Workspace image updated"
+  },
   "CbGxon": {
     "message": "Workspace member",
     "placeholders": {},
@@ -14059,6 +14131,20 @@
     ],
     "translation": "Your workspace has been deleted."
   },
+  "8TCP3V": {
+    "message": "Your workspace image has been removed.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 65]],
+    "translation": "Your workspace image has been removed."
+  },
+  "hajLtJ": {
+    "message": "Your workspace image has been updated.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 200]],
+    "translation": "Your workspace image has been updated."
+  },
   "2h4PVB": {
     "message": "Your workspace name has been updated.",
     "placeholders": {},
@@ -14598,6 +14684,13 @@
       ]
     ],
     "translation": "Upload image"
+  },
+  "CCtoE7": {
+    "message": "Upload workspace image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/settings/components/WorkspaceImage.tsx", 233]],
+    "translation": "Upload workspace image"
   },
   "gANddk": {
     "message": "Uploading…",
