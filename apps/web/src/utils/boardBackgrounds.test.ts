@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   getBoardBackgroundImageAttributes,
   getNextBoardBackgroundUrlBatch,
+  parseBoardBackgroundImageUrl,
 } from "./boardBackgrounds";
 
 describe("getNextBoardBackgroundUrlBatch", () => {
@@ -34,5 +35,24 @@ describe("getBoardBackgroundImageAttributes", () => {
   it("returns null when no preview is available", () => {
     expect(getBoardBackgroundImageAttributes(undefined)).toBeNull();
     expect(getBoardBackgroundImageAttributes([])).toBeNull();
+  });
+});
+
+describe("parseBoardBackgroundImageUrl", () => {
+  it("accepts and trims an https URL", () => {
+    expect(
+      parseBoardBackgroundImageUrl("  https://images.example.com/a.jpg "),
+    ).toBe("https://images.example.com/a.jpg");
+  });
+
+  it.each([
+    "",
+    "http://images.example.com/a.jpg",
+    "javascript:alert(1)",
+    "data:image/png;base64,AAAA",
+    "images.example.com/a.jpg",
+    `https://images.example.com/${"a".repeat(2048)}`,
+  ])("rejects %s", (value) => {
+    expect(parseBoardBackgroundImageUrl(value)).toBeNull();
   });
 });

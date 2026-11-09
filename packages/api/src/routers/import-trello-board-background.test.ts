@@ -170,6 +170,30 @@ describe("built-in Trello board background import", () => {
     );
   });
 
+  it("keeps the Trello image URL when object storage is not configured", async () => {
+    vi.stubEnv("NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME", "");
+
+    await importBoard({
+      ...baseBoard,
+      prefs: {
+        backgroundColor: "#0B50AF",
+        backgroundImage:
+          "https://trello-backgrounds.s3.amazonaws.com/original.jpg",
+      },
+    });
+
+    expect(importBackground).not.toHaveBeenCalled();
+    expect(createBoard).toHaveBeenCalledWith(
+      db,
+      expect.objectContaining({
+        background: {
+          kind: "url",
+          url: "https://trello-backgrounds.s3.amazonaws.com/original.jpg",
+        },
+      }),
+    );
+  });
+
   it("falls back to the Trello colour when image ingestion fails", async () => {
     importBackground.mockRejectedValue(new Error("CDN unavailable"));
 

@@ -74,6 +74,7 @@ export const getAllByWorkspaceId = async (
       name: true,
       backgroundColourCode: true,
       backgroundImageKey: true,
+      backgroundImageUrl: true,
     },
     with: {
       userFavorites: {
@@ -331,6 +332,7 @@ export const getByPublicId = async (
       isArchived: true,
       backgroundColourCode: true,
       backgroundImageKey: true,
+      backgroundImageUrl: true,
     },
     with: {
       userFavorites: {
@@ -648,6 +650,7 @@ export const getBySlug = async (
       visibility: true,
       backgroundColourCode: true,
       backgroundImageKey: true,
+      backgroundImageUrl: true,
     },
     with: {
       workspace: {
@@ -847,6 +850,7 @@ export const create = async (
     background?:
       | { kind: "colour"; colourCode: string }
       | { kind: "image"; imageKey: string }
+      | { kind: "url"; url: string }
       | null;
   },
 ) => {
@@ -871,6 +875,10 @@ export const create = async (
         backgroundImageKey:
           boardInput.background?.kind === "image"
             ? boardInput.background.imageKey
+            : null,
+        backgroundImageUrl:
+          boardInput.background?.kind === "url"
+            ? boardInput.background.url
             : null,
       })
       .returning({
@@ -902,6 +910,7 @@ export const update = async (
     background?:
       | { kind: "colour"; colourCode: string }
       | { kind: "image"; imageKey: string }
+      | { kind: "url"; url: string }
       | null;
   },
 ) => {
@@ -923,6 +932,10 @@ export const update = async (
         backgroundImageKey:
           boardInput.background?.kind === "image"
             ? boardInput.background.imageKey
+            : null,
+        backgroundImageUrl:
+          boardInput.background?.kind === "url"
+            ? boardInput.background.url
             : null,
       }),
     })
@@ -1135,6 +1148,7 @@ export const createFromSnapshot = async (
     publicId?: string;
     backgroundColourCode?: string | null;
     backgroundImageKey?: string | null;
+    backgroundImageUrl?: string | null;
     slug: string;
     name?: string;
     type: "regular" | "template";
@@ -1154,6 +1168,7 @@ export const createFromSnapshot = async (
         sourceBoardId: args.sourceBoardId,
         backgroundColourCode: args.backgroundColourCode,
         backgroundImageKey: args.backgroundImageKey,
+        backgroundImageUrl: args.backgroundImageUrl,
       })
       .returning({
         id: boards.id,

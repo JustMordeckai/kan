@@ -272,6 +272,7 @@ export const getBySlugWithBoards = (db: dbClient, workspaceSlug: string) => {
           name: true,
           backgroundColourCode: true,
           backgroundImageKey: true,
+          backgroundImageUrl: true,
         },
         where: and(
           isNull(boards.deletedAt),
@@ -442,10 +443,7 @@ export const searchBoardsAndCards = async (
   const searchQuery = `%${query}%`;
 
   const boardAccess = memberBoardIds
-    ? or(
-        eq(boards.type, "template"),
-        inArray(boards.id, memberBoardIds),
-      )
+    ? or(eq(boards.type, "template"), inArray(boards.id, memberBoardIds))
     : undefined;
 
   const ticketId = parseTicketId(query.trim());

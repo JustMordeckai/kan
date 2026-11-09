@@ -165,4 +165,73 @@ describe("board background repository", () => {
       }),
     ).rejects.toThrow();
   });
+
+  it("stores an external image URL in place of the other sources", async () => {
+    const { db, board } = await createBoard();
+
+    await db
+      .update(boards)
+      .set({
+        backgroundColourCode: "#0d9488",
+        backgroundImageKey: "workspace/board/background.webp",
+      })
+      .where(eq(boards.id, board.id));
+
+    await boardRepo.update(db, {
+      boardPublicId: board.publicId,
+      name: undefined,
+      slug: undefined,
+      visibility: undefined,
+      background: { kind: "url", url: "https://images.example.com/a.jpg" },
+    });
+
+    const columns = {
+      backgroundColourCode: true,
+      backgroundImageKey: true,
+      backgroundImageUrl: true,
+    } as const;
+    expect(
+      await db.query.boards.findFirst({
+        columns,
+        where: eq(boards.id, board.id),
+      }),
+    ).toEqual({
+      backgroundColourCode: null,
+      backgroundImageKey: null,
+      backgroundImageUrl: "https://images.example.com/a.jpg",
+    });
+
+    await boardRepo.update(db, {
+      boardPublicId: board.publicId,
+      name: undefined,
+      slug: undefined,
+      visibility: undefined,
+      background: { kind: "colour", colourCode: "#4BCE97" },
+    });
+
+    expect(
+      await db.query.boards.findFirst({
+        columns,
+        where: eq(boards.id, board.id),
+      }),
+    ).toEqual({
+      backgroundColourCode: "#4BCE97",
+      backgroundImageKey: null,
+      backgroundImageUrl: null,
+    });
+  });
+
+  it("only accepts https image URLs at the database boundary", async () => {
+    const { db, board } = await createBoard();
+
+    await expect(
+      boardRepo.update(db, {
+        boardPublicId: board.publicId,
+        name: undefined,
+        slug: undefined,
+        visibility: undefined,
+        background: { kind: "url", url: "http://images.example.com/a.jpg" },
+      }),
+    ).rejects.toThrow();
+  });
 });

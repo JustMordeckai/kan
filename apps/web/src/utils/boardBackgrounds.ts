@@ -36,3 +36,21 @@ export function getBoardBackgroundImageAttributes(
       .join(", "),
   };
 }
+
+export const maxBoardBackgroundImageUrlLength = 2048;
+
+/**
+ * Returns the trimmed URL when it can be used as an external board background
+ * (https only, bounded length), or null.
+ */
+export function parseBoardBackgroundImageUrl(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > maxBoardBackgroundImageUrlLength)
+    return null;
+
+  try {
+    return new URL(trimmed).protocol === "https:" ? trimmed : null;
+  } catch {
+    return null;
+  }
+}

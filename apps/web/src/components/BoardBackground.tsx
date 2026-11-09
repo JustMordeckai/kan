@@ -230,6 +230,10 @@ export function BoardBackground({
     );
   }
 
+  if (background?.kind === "url") {
+    return <ExternalBoardBackground url={background.url} />;
+  }
+
   if (isImage) {
     return (
       <div
@@ -258,4 +262,34 @@ export function BoardBackground({
   }
 
   return <PatternedBackground />;
+}
+
+/**
+ * Background from an external image URL. There are no stored previews for it:
+ * the browser loads the URL directly, without sending a referrer.
+ */
+function ExternalBoardBackground({ url }: { url: string }) {
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+
+  if (failedUrl === url) return <PatternedBackground />;
+
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 h-full w-full select-none"
+      data-board-background="url"
+      aria-hidden="true"
+    >
+      {/* External URLs of any host cannot go through next/image. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        className="h-full w-full object-cover"
+        onError={() => setFailedUrl(url)}
+      />
+    </div>
+  );
 }

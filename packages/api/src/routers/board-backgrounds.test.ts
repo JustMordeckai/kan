@@ -138,6 +138,45 @@ describe("board background updates", () => {
     expect(updateBoard).not.toHaveBeenCalled();
   });
 
+  it("sets an external https image URL and drops a stored image", async () => {
+    const imageKey = "workspace/board-backgrounds/board1234567/image.jpg";
+    getBoard.mockResolvedValue({ ...board, backgroundImageKey: imageKey });
+
+    await boardRouter.createCaller({ db, user } as never).update({
+      boardPublicId,
+      background: { kind: "url", url: " https://images.example.com/a.jpg " },
+    });
+
+    expect(updateBoard).toHaveBeenCalledWith(
+      db,
+      expect.objectContaining({
+        background: { kind: "url", url: "https://images.example.com/a.jpg" },
+      }),
+    );
+    expect(deleteBackgroundObjects).toHaveBeenCalledWith({
+      bucket: "attachments",
+      boardPublicId,
+      s3Key: imageKey,
+    });
+  });
+
+  it.each([
+    "http://images.example.com/a.jpg",
+    "javascript:alert(1)",
+    "data:image/png;base64,AAAA",
+    "not a url",
+    `https://images.example.com/${"a".repeat(2048)}.jpg`,
+  ])("rejects the background image URL %s", async (url) => {
+    await expect(
+      boardRouter.createCaller({ db, user } as never).update({
+        boardPublicId,
+        background: { kind: "url", url },
+      }),
+    ).rejects.toThrow();
+
+    expect(updateBoard).not.toHaveBeenCalled();
+  });
+
   it("does not update a background without board edit permission", async () => {
     assertBoardCanEdit.mockRejectedValue(
       new TRPCError({ code: "FORBIDDEN", message: "No permission" }),

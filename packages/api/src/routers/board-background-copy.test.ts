@@ -125,6 +125,25 @@ describe("board background copying", () => {
     );
   });
 
+  it("copies an external image URL without using object storage", async () => {
+    getSourceBoard.mockResolvedValue({
+      ...sourceBoard,
+      backgroundImageUrl: "https://images.example.com/a.jpg",
+    } as never);
+
+    await boardRouter.createCaller({ db, user } as never).create(input);
+
+    expect(cloneBackgroundObjects).not.toHaveBeenCalled();
+    expect(createFromSnapshot).toHaveBeenCalledWith(
+      db,
+      expect.objectContaining({
+        backgroundColourCode: null,
+        backgroundImageKey: null,
+        backgroundImageUrl: "https://images.example.com/a.jpg",
+      }),
+    );
+  });
+
   it("creates a board-owned copy of an image background", async () => {
     const sourceImageKey =
       "workspace1234/board-backgrounds/source123456/forest image.jpg";

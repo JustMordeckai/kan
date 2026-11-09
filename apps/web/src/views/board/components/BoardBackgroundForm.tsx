@@ -1,14 +1,20 @@
 import { t } from "@lingui/core/macro";
+import { env } from "next-runtime-env";
 import { useRef, useState } from "react";
-import { HiArrowUpTray, HiCheck, HiXMark } from "react-icons/hi2";
+import { HiArrowUpTray, HiCheck, HiLink, HiXMark } from "react-icons/hi2";
 
 import { colours } from "@kan/shared/constants";
 
 import type { RouterOutputs } from "~/utils/api";
 import Button from "~/components/Button";
+import Input from "~/components/Input";
 import { useModal } from "~/providers/modal";
 import { usePopup } from "~/providers/popup";
 import { api } from "~/utils/api";
+import {
+  maxBoardBackgroundImageUrlLength,
+  parseBoardBackgroundImageUrl,
+} from "~/utils/boardBackgrounds";
 
 type BoardBackgroundValue = RouterOutputs["board"]["byId"]["background"];
 
@@ -33,6 +39,12 @@ export function BoardBackgroundForm({
   const utils = api.useUtils();
   const uploadInput = useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState(
+    background?.kind === "url" ? background.url : "",
+  );
+  const [imageUrlError, setImageUrlError] = useState<string | null>(null);
+  // Uploads need object storage; without it, only colours and URLs are offered.
+  const canUploadImages = !!env("NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME");
   const selectedColour =
     background?.kind === "colour" ? background.colourCode : null;
   const selectedPaletteColour = colours.some(
@@ -69,6 +81,22 @@ export function BoardBackgroundForm({
     updateBackground.mutate({
       boardPublicId,
       background: { kind: "colour", colourCode },
+    });
+  };
+
+  const setImageUrlBackground = (event?: React.FormEvent) => {
+    event?.preventDefault();
+    const url = parseBoardBackgroundImageUrl(imageUrl);
+
+    if (!url) {
+      setImageUrlError(t`Enter a valid https image URL.`);
+      return;
+    }
+
+    setImageUrlError(null);
+    updateBackground.mutate({
+      boardPublicId,
+      background: { kind: "url", url },
     });
   };
 
@@ -192,26 +220,70 @@ export function BoardBackgroundForm({
           })}
         </div>
 
-        <input
-          ref={uploadInput}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-          className="hidden"
-          onChange={handleUpload}
-          disabled={isPending}
-        />
-        <Button
-          type="button"
-          variant="secondary"
-          fullWidth
-          className="mt-5"
-          iconLeft={<HiArrowUpTray className="h-4 w-4" />}
-          onClick={() => uploadInput.current?.click()}
-          isLoading={isUploading}
-          disabled={isPending}
-        >
-          {isUploading ? t`Uploading…` : t`Upload image`}
-        </Button>
+        {canUploadImages && (
+          <>
+            <input
+              ref={uploadInput}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+              className="hidden"
+              onChange={handleUpload}
+              disabled={isPending}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              fullWidth
+              className="mt-5"
+              iconLeft={<HiArrowUpTray className="h-4 w-4" />}
+              onClick={() => uploadInput.current?.click()}
+              isLoading={isUploading}
+              disabled={isPending}
+            >
+              {isUploading ? t`Uploading…` : t`Upload image`}
+            </Button>
+          </>
+        )}
+
+        <form className="mt-5" onSubmit={setImageUrlBackground} noValidate>
+          <label
+            htmlFor="board-background-image-url"
+            className="mb-2 block text-xs font-medium text-light-900 dark:text-dark-900"
+          >
+            {t`Image from a URL`}
+          </label>
+          <div className="flex items-start gap-2">
+            <Input
+              id="board-background-image-url"
+              type="url"
+              inputMode="url"
+              placeholder="https://"
+              value={imageUrl}
+              maxLength={maxBoardBackgroundImageUrlLength}
+              onChange={(event) => {
+                setImageUrl(event.target.value);
+                setImageUrlError(null);
+              }}
+              errorMessage={imageUrlError ?? undefined}
+              disabled={isPending}
+            />
+            <Button
+              type="submit"
+              variant="secondary"
+              iconLeft={<HiLink className="h-4 w-4" />}
+              isLoading={
+                updateBackground.isPending &&
+                updateBackground.variables.background?.kind === "url"
+              }
+              disabled={isPending || !imageUrl.trim()}
+            >
+              {t`Apply`}
+            </Button>
+          </div>
+          <p className="mt-1 text-xs text-light-800 dark:text-dark-800">
+            {t`The image is loaded from its own site each time the board is shown.`}
+          </p>
+        </form>
       </div>
 
       <div className="mt-5 flex justify-end border-t border-light-600 px-5 py-5 dark:border-dark-600">

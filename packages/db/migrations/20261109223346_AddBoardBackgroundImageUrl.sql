@@ -1,0 +1,2 @@
+ALTER TABLE "board" ADD COLUMN "backgroundImageUrl" varchar(2048);--> statement-breakpoint
+ALTER TABLE "board" ADD CONSTRAINT "board_background_image_url_check" CHECK ("board"."backgroundImageUrl" IS NULL OR "board"."backgroundImageUrl" ~ '^https://');

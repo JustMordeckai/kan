@@ -31,6 +31,16 @@ describe("formatBoardBackground", () => {
     ).not.toEqual(background);
   });
 
+  it("formats an external image URL background", () => {
+    expect(
+      formatBoardBackground({
+        backgroundColourCode: null,
+        backgroundImageKey: null,
+        backgroundImageUrl: "https://images.example.com/board.jpg",
+      }),
+    ).toEqual({ kind: "url", url: "https://images.example.com/board.jpg" });
+  });
+
   it("returns null when the board has no background", () => {
     expect(
       formatBoardBackground({

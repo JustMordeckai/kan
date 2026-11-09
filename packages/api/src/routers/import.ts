@@ -18,6 +18,7 @@ import {
   normalizeDescription,
 } from "@kan/shared/utils";
 
+import { boardBackgroundImageUrlSchema } from "../schemas";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { deleteBoardBackgroundObjects } from "../utils/boardBackgroundPreview";
 import { decryptToken } from "../utils/encryption";
@@ -368,6 +369,7 @@ export const importRouter = createTRPCRouter({
           let background:
             | { kind: "colour"; colourCode: string }
             | { kind: "image"; imageKey: string }
+            | { kind: "url"; url: string }
             | null = null;
 
           if (backgroundSource?.kind === "colour") {
@@ -390,6 +392,12 @@ export const importRouter = createTRPCRouter({
                   "Failed to import Trello board background image",
                 );
               }
+            } else if (
+              boardBackgroundImageUrlSchema.safeParse(backgroundSource.url)
+                .success
+            ) {
+              // Without object storage, keep showing Trello's own image.
+              background = { kind: "url", url: backgroundSource.url };
             }
 
             if (!background && backgroundSource.fallbackColourCode)

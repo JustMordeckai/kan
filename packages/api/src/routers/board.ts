@@ -20,6 +20,7 @@ import {
 } from "@kan/shared/utils";
 
 import {
+  boardBackgroundImageUrlSchema,
   boardBySlugSchema,
   boardCreateResponseSchema,
   boardDetailSchema,
@@ -233,11 +234,17 @@ export const boardRouter = createTRPCRouter({
       );
 
       return result.map(
-        ({ backgroundColourCode, backgroundImageKey, ...board }) => ({
+        ({
+          backgroundColourCode,
+          backgroundImageKey,
+          backgroundImageUrl,
+          ...board
+        }) => ({
           ...board,
           background: formatBoardBackground({
             backgroundColourCode,
             backgroundImageKey,
+            backgroundImageUrl,
           }),
         }),
       );
@@ -396,14 +403,19 @@ export const boardRouter = createTRPCRouter({
         })),
       );
 
-      const { backgroundColourCode, backgroundImageKey, ...boardResult } =
-        result;
+      const {
+        backgroundColourCode,
+        backgroundImageKey,
+        backgroundImageUrl,
+        ...boardResult
+      } = result;
 
       return {
         ...boardResult,
         background: formatBoardBackground({
           backgroundColourCode,
           backgroundImageKey,
+          backgroundImageUrl,
         }),
         lists: listsWithAvatarUrls,
         workspace: workspaceWithAvatarUrls,
@@ -482,14 +494,19 @@ export const boardRouter = createTRPCRouter({
 
       if (!result) return null;
 
-      const { backgroundColourCode, backgroundImageKey, ...boardResult } =
-        result;
+      const {
+        backgroundColourCode,
+        backgroundImageKey,
+        backgroundImageUrl,
+        ...boardResult
+      } = result;
 
       return {
         ...boardResult,
         background: formatBoardBackground({
           backgroundColourCode,
           backgroundImageKey,
+          backgroundImageUrl,
         }),
         lists: boardResult.lists.map((list) => ({
           ...list,
@@ -639,10 +656,14 @@ export const boardRouter = createTRPCRouter({
             workspaceId: workspace.id,
             createdBy: userId,
             publicId: targetBoardPublicId,
-            backgroundColourCode: sourceBoard.backgroundImageKey
-              ? null
-              : sourceBoard.backgroundColourCode,
+            backgroundColourCode:
+              sourceBoard.backgroundImageKey || sourceBoard.backgroundImageUrl
+                ? null
+                : sourceBoard.backgroundColourCode,
             backgroundImageKey: targetBackgroundImageKey,
+            backgroundImageUrl: sourceBoard.backgroundImageKey
+              ? null
+              : sourceBoard.backgroundImageUrl,
             slug,
             name: input.name,
             type: input.type ?? "regular",
@@ -767,6 +788,10 @@ export const boardRouter = createTRPCRouter({
             z.object({
               kind: z.literal("colour"),
               colourCode: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+            }),
+            z.object({
+              kind: z.literal("url"),
+              url: boardBackgroundImageUrlSchema,
             }),
           ])
           .optional(),

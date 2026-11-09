@@ -7,6 +7,23 @@ import {
   workspaceMemberSchema,
 } from "./common";
 
+// External board background image: https only, as long as browsers accept.
+export const boardBackgroundImageUrlSchema = z
+  .string()
+  .trim()
+  .max(2048)
+  .url()
+  .refine(
+    (value) => {
+      try {
+        return new URL(value).protocol === "https:";
+      } catch {
+        return false;
+      }
+    },
+    { message: "The image URL must use https" },
+  );
+
 export const boardBackgroundSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("colour"),
@@ -15,6 +32,10 @@ export const boardBackgroundSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("image"),
     version: z.string().regex(/^[0-9a-f]{16}$/),
+  }),
+  z.object({
+    kind: z.literal("url"),
+    url: z.string().url(),
   }),
 ]);
 

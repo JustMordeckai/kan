@@ -70,6 +70,8 @@ export const boards = pgTable(
     discordRoleIds: text("discordRoleIds").array(),
     backgroundColourCode: varchar("backgroundColourCode", { length: 7 }),
     backgroundImageKey: varchar("backgroundImageKey", { length: 500 }),
+    // External https image, for instances without object storage.
+    backgroundImageUrl: varchar("backgroundImageUrl", { length: 2048 }),
   },
   (table) => [
     index("board_is_archived_idx").on(table.isArchived),
@@ -82,6 +84,10 @@ export const boards = pgTable(
     check(
       "board_background_colour_code_check",
       sql`${table.backgroundColourCode} IS NULL OR ${table.backgroundColourCode} ~ '^#[0-9A-Fa-f]{6}$'`,
+    ),
+    check(
+      "board_background_image_url_check",
+      sql`${table.backgroundImageUrl} IS NULL OR ${table.backgroundImageUrl} ~ '^https://'`,
     ),
   ],
 ).enableRLS();
