@@ -9,7 +9,7 @@ import { generateUID } from "@kan/shared/utils";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { attachmentConfirmResponseSchema } from "../schemas";
-import { assertBoardAccess, assertPermission } from "../utils/permissions";
+import { assertCardAccess, assertPermission } from "../utils/permissions";
 import { deleteObject, generateUploadUrl } from "@kan/shared/utils";
 
 export const attachmentRouter = createTRPCRouter({
@@ -57,11 +57,7 @@ export const attachmentRouter = createTRPCRouter({
           code: "NOT_FOUND",
         });
       await assertPermission(ctx.db, userId, card.workspaceId, "card:edit");
-      await assertBoardAccess(ctx.db, userId, {
-        id: card.boardId,
-        workspaceId: card.workspaceId,
-        type: card.boardType,
-      });
+      await assertCardAccess(ctx.db, userId, card);
 
       // Get workspace publicId
       const workspace = await workspaceRepo.getById(ctx.db, card.workspaceId);
@@ -137,11 +133,7 @@ export const attachmentRouter = createTRPCRouter({
           code: "NOT_FOUND",
         });
       await assertPermission(ctx.db, userId, card.workspaceId, "card:edit");
-      await assertBoardAccess(ctx.db, userId, {
-        id: card.boardId,
-        workspaceId: card.workspaceId,
-        type: card.boardType,
-      });
+      await assertCardAccess(ctx.db, userId, card);
 
       const attachment = await cardAttachmentRepo.create(ctx.db, {
         cardId: card.id,
@@ -205,10 +197,11 @@ export const attachmentRouter = createTRPCRouter({
 
       const workspaceId = attachment.card.list.board.workspaceId;
       await assertPermission(ctx.db, userId, workspaceId, "card:edit");
-      await assertBoardAccess(ctx.db, userId, {
-        id: attachment.card.list.board.id,
+      await assertCardAccess(ctx.db, userId, {
+        id: attachment.card.id,
+        boardId: attachment.card.list.board.id,
         workspaceId,
-        type: attachment.card.list.board.type,
+        boardType: attachment.card.list.board.type,
       });
 
       const bucket = process.env.NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME;

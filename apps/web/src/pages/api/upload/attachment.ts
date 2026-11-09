@@ -3,7 +3,7 @@ import { Upload } from "@aws-sdk/lib-storage";
 
 import { createNextApiContext } from "@kan/api/trpc-context";
 import { withApiLogging } from "@kan/api/utils/apiLogging";
-import { assertPermission } from "@kan/api/utils/permissions";
+import { assertPermission, hasCardAccess } from "@kan/api/utils/permissions";
 import { withRateLimit } from "@kan/api/utils/rateLimit";
 import * as cardRepo from "@kan/db/repository/card.repo";
 import * as cardActivityRepo from "@kan/db/repository/cardActivity.repo";
@@ -96,6 +96,10 @@ export default withRateLimit(
         await assertPermission(db, user.id, card.workspaceId, "card:edit");
       } catch {
         return res.status(403).json({ error: "Permission denied" });
+      }
+
+      if (!(await hasCardAccess(db, user.id, card))) {
+        return res.status(404).json({ error: "Card not found" });
       }
 
       const s3Key = `${card.workspaceId}/${cardPublicId}/${generateUID()}-${sanitizedFilename}`;

@@ -11,7 +11,7 @@ import { sendEmail } from "@kan/email";
 import { createLogger } from "@kan/logger";
 
 import { getNewMentionPublicIds } from "./mention-notifications";
-import { hasBoardAccess } from "./permissions";
+import { hasCardAccess } from "./permissions";
 
 const log = createLogger("notifications");
 
@@ -80,14 +80,19 @@ export async function sendMentionEmails({
     );
     if (!boardAccess) return;
 
-    // Filter out the commenter and anyone who can't see this board, so a
+    // Filter out the commenter and anyone who can't see this card, so a
     // private board's name and card title aren't emailed to non-members.
     const membersToNotify = (
       await Promise.all(
         membersWithDetails.map(async (member) =>
           member.user?.id &&
           member.user.id !== commenterUserId &&
-          (await hasBoardAccess(db, member.user.id, boardAccess))
+          (await hasCardAccess(db, member.user.id, {
+            id: cardId,
+            boardId: boardAccess.id,
+            workspaceId: boardAccess.workspaceId,
+            boardType: boardAccess.type,
+          }))
             ? member
             : null,
         ),

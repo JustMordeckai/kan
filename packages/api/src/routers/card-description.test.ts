@@ -27,6 +27,7 @@ vi.mock("../utils/permissions", () => ({
   assertCanEdit: vi.fn(),
   assertPermission: vi.fn(),
   assertBoardAccess: vi.fn(),
+  assertCardAccess: vi.fn(),
 }));
 vi.mock("../utils/webhook", () => ({
   createCardWebhookPayload: vi.fn(() => ({})),

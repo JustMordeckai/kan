@@ -57,6 +57,7 @@ import { useWorkspace } from "~/providers/workspace";
 import { api } from "~/utils/api";
 import { formatToArray, isPlaceholderPublicId } from "~/utils/helpers";
 import { DeleteCardConfirmation } from "~/views/card/components/DeleteCardConfirmation";
+import { ShareCardModal } from "~/views/card/components/ShareCardModal";
 import BoardDropdown from "./components/BoardDropdown";
 import CalendarView from "./components/CalendarView";
 import { CardContextDueDateModal } from "./components/CardContextDueDateModal";
@@ -420,10 +421,31 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
     updateCardDueDateMutation.mutate({ cardPublicId, dueDate }, { onSettled });
   };
 
+  const unshareCard = api.card.unshare.useMutation({
+    onError: (error) => {
+      showPopup({
+        header: t`Unable to remove card from board`,
+        message: error.message,
+        icon: "error",
+      });
+    },
+    onSettled: async () => {
+      await utils.board.byId.invalidate(queryParams);
+    },
+  });
+
   const handleCardContextMenuAction = (action: CardContextMenuAction) => {
     const cardPublicId = contextMenu?.cardPublicId;
     if (!cardPublicId) return;
     setContextMenu(null);
+    if (action === "share") {
+      openModal("SHARE_CARD", cardPublicId);
+      return;
+    }
+    if (action === "unshare") {
+      if (boardId) unshareCard.mutate({ cardPublicId, boardPublicId: boardId });
+      return;
+    }
     if (action === "copyLink") {
       const path = isTemplate
         ? `/templates/${boardId}/cards/${cardPublicId}`
@@ -685,6 +707,18 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
     }
   };
 
+  const sharedCardPublicIds = useMemo(
+    () =>
+      new Set(
+        boardData?.lists.flatMap((list) =>
+          list.cards
+            .filter((card) => card.sharedFrom)
+            .map((card) => card.publicId),
+        ),
+      ),
+    [boardData],
+  );
+
   const activeCard = useMemo(() => {
     if (activeId == null) return null;
     for (const cards of Object.values(cardsByList)) {
@@ -844,6 +878,12 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
             boardPublicId={boardId ?? ""}
             isTemplate={!!isTemplate}
           />
+        </Modal>
+        <Modal
+          modalSize="md"
+          isVisible={isOpen && modalContentType === "SHARE_CARD"}
+        >
+          <ShareCardModal />
         </Modal>
         <Modal
           modalSize="sm"
@@ -1054,7 +1094,9 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
                               getCardHref={(cardPublicId) =>
                                 isTemplate
                                   ? `/templates/${boardId}/cards/${cardPublicId}${cardReturnQuery}`
-                                  : `/cards/${cardPublicId}${cardReturnQuery}`
+                                  : sharedCardPublicIds.has(cardPublicId)
+                                    ? `/cards/${cardPublicId}?returnUrl=${encodeURIComponent(router.asPath)}`
+                                    : `/cards/${cardPublicId}${cardReturnQuery}`
                               }
                               onContextMenu={(e, cardPublicId) => {
                                 setContextMenu({
@@ -1096,6 +1138,8 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
             onClose={() => setContextMenu(null)}
             onAction={handleCardContextMenuAction}
             canEdit={!!canEditCard}
+            canShare={!isTemplate}
+            isShared={sharedCardPublicIds.has(contextMenu.cardPublicId)}
           />
         )}
         {renderModalContent()}

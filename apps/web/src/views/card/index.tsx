@@ -45,6 +45,8 @@ import ListSelector from "./components/ListSelector";
 import MemberSelector from "./components/MemberSelector";
 import { NewChecklistForm } from "./components/NewChecklistForm";
 import NewCommentForm from "./components/NewCommentForm";
+import { ShareCardModal } from "./components/ShareCardModal";
+import SharedBoards from "./components/SharedBoards";
 
 interface FormValues {
   cardId: string;
@@ -67,6 +69,8 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
 
   const isCreator = card?.createdBy && session?.user.id === card.createdBy;
   const canEdit = canEditCard || isCreator;
+  // Labels and the list belong to the card's home board.
+  const canEditHome = canEdit && !!card?.canAccessHomeBoard;
 
   const board = card?.list.board;
   const labels = board?.labels;
@@ -132,7 +136,7 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
           cardPublicId={cardId ?? ""}
           lists={formattedLists}
           isLoading={!card}
-          disabled={!canEdit}
+          disabled={!canEditHome}
         />
       </div>
       <div className="mb-4 flex w-full flex-row">
@@ -141,7 +145,7 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
           cardPublicId={cardId ?? ""}
           labels={formattedLabels}
           isLoading={!card}
-          disabled={!canEdit}
+          disabled={!canEditHome}
         />
       </div>
       {!isTemplate && (
@@ -164,6 +168,21 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
           disabled={!canEdit}
         />
       </div>
+      {!isTemplate && card && board && (
+        <div className="mb-4 flex w-full flex-row">
+          <p className="my-2 mb-2 w-[100px] shrink-0 text-sm font-medium">{t`Boards`}</p>
+          <SharedBoards
+            cardPublicId={cardId ?? ""}
+            homeBoard={{
+              publicId: board.publicId,
+              name: board.name,
+              canAccess: card.canAccessHomeBoard,
+            }}
+            sharedBoards={card.sharedBoards}
+            canEdit={!!canEdit}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -235,6 +254,7 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
   const boardReturnUrl = getBoardReturnUrl(
     router.query.returnUrl,
     `/${isTemplate ? "templates" : "boards"}/${boardId}`,
+    card?.sharedBoards.map((sharedBoard) => `/boards/${sharedBoard.publicId}`),
   );
 
   const editorWorkspaceMembers =
@@ -395,6 +415,7 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
                   }
                   listPublicId={card?.list.publicId}
                   cardIndex={card?.index}
+                  canAccessHomeBoard={card.canAccessHomeBoard}
                 />
                 <Link
                   href={boardReturnUrl}
@@ -602,6 +623,13 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
             isVisible={isOpen && modalContentType === "NEW_WORKSPACE"}
           >
             <NewWorkspaceForm />
+          </Modal>
+
+          <Modal
+            modalSize="md"
+            isVisible={isOpen && modalContentType === "SHARE_CARD"}
+          >
+            <ShareCardModal cardPublicId={cardId} />
           </Modal>
 
           <Modal

@@ -1,8 +1,10 @@
+import { t } from "@lingui/core/macro";
 import { format, isBefore, isSameYear, startOfDay } from "date-fns";
 import { HiOutlinePaperClip } from "react-icons/hi";
 import {
   HiBars3BottomLeft,
   HiChatBubbleLeft,
+  HiOutlineArrowsRightLeft,
   HiOutlineClock,
 } from "react-icons/hi2";
 import { twMerge } from "tailwind-merge";
@@ -24,6 +26,7 @@ const Card = ({
   comments,
   attachments,
   dueDate,
+  sharedFrom,
 }: {
   title: string;
   ticketNumber?: string | null;
@@ -47,6 +50,7 @@ const Card = ({
   comments: { publicId: string }[];
   attachments?: { publicId: string }[];
   dueDate?: Date | null;
+  sharedFrom?: string | null;
 }) => {
   const { dateLocale } = useLocalisation();
   const showYear = dueDate ? !isSameYear(dueDate, new Date()) : false;
@@ -75,6 +79,12 @@ const Card = ({
         </span>
       )}
       <span className="break-words">{title}</span>
+      {sharedFrom && (
+        <span className="mt-1 flex items-center gap-1 text-[11px] text-light-800 dark:text-dark-800">
+          <HiOutlineArrowsRightLeft className="h-3 w-3 shrink-0" />
+          <span className="truncate">{t`Shared from ${sharedFrom}`}</span>
+        </span>
+      )}
       {labels.length ||
       members.length ||
       checklists.length > 0 ||

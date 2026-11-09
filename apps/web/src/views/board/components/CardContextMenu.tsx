@@ -3,12 +3,14 @@ import { useLingui } from "@lingui/react";
 import { useEffect, useRef } from "react";
 import {
   HiLink,
+  HiOutlineArrowsRightLeft,
   HiOutlineCalendar,
   HiOutlineDocumentDuplicate,
   HiOutlineTag,
   HiOutlineTrash,
   HiOutlineUserGroup,
   HiOutlineArrowRightCircle,
+  HiOutlineXCircle,
 } from "react-icons/hi2";
 
 export type CardContextMenuAction =
@@ -18,7 +20,9 @@ export type CardContextMenuAction =
   | "dueDate"
   | "copyLink"
   | "duplicate"
-  | "delete";
+  | "delete"
+  | "share"
+  | "unshare";
 
 interface CardContextMenuProps {
   x: number;
@@ -26,6 +30,8 @@ interface CardContextMenuProps {
   onClose: () => void;
   onAction: (action: CardContextMenuAction) => void;
   canEdit: boolean;
+  canShare?: boolean;
+  isShared?: boolean;
 }
 
 const MENU_ITEMS: {
@@ -33,6 +39,8 @@ const MENU_ITEMS: {
   label: () => string;
   icon: React.ReactNode;
   requiresEdit: boolean;
+  // Shared cards are managed from their home board, except for these.
+  shown?: "own" | "shared";
 }[] = [
   {
     action: "members",
@@ -45,12 +53,14 @@ const MENU_ITEMS: {
     label: () => t`Move to another list`,
     icon: <HiOutlineArrowRightCircle className="h-4 w-4 shrink-0" />,
     requiresEdit: true,
+    shown: "own",
   },
   {
     action: "labels",
     label: () => t`Add / edit label`,
     icon: <HiOutlineTag className="h-4 w-4 shrink-0" />,
     requiresEdit: true,
+    shown: "own",
   },
   {
     action: "dueDate",
@@ -69,12 +79,27 @@ const MENU_ITEMS: {
     label: () => t`Duplicate card`,
     icon: <HiOutlineDocumentDuplicate className="h-4 w-4 shrink-0" />,
     requiresEdit: true,
+    shown: "own",
+  },
+  {
+    action: "share",
+    label: () => t`Share with a board`,
+    icon: <HiOutlineArrowsRightLeft className="h-4 w-4 shrink-0" />,
+    requiresEdit: true,
+  },
+  {
+    action: "unshare",
+    label: () => t`Remove from this board`,
+    icon: <HiOutlineXCircle className="h-4 w-4 shrink-0" />,
+    requiresEdit: true,
+    shown: "shared",
   },
   {
     action: "delete",
     label: () => t`Delete card`,
     icon: <HiOutlineTrash className="h-4 w-4 shrink-0" />,
     requiresEdit: true,
+    shown: "own",
   },
 ];
 
@@ -84,6 +109,8 @@ export function CardContextMenu({
   onClose,
   onAction,
   canEdit,
+  canShare = false,
+  isShared = false,
 }: CardContextMenuProps) {
   useLingui();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -105,7 +132,13 @@ export function CardContextMenu({
     };
   }, [onClose]);
 
-  const items = MENU_ITEMS.filter((item) => !item.requiresEdit || canEdit);
+  const items = MENU_ITEMS.filter(
+    (item) =>
+      (!item.requiresEdit || canEdit) &&
+      (item.action !== "share" || canShare) &&
+      (item.shown === undefined ||
+        item.shown === (isShared ? "shared" : "own")),
+  );
 
   return (
     <div
