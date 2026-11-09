@@ -55,8 +55,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="flex w-full flex-col gap-1">
         <div className="relative flex">
           {prefix && (
-            <div className="flex shrink-0 items-center rounded-l-md border border-r-0 border-light-600 px-3 text-sm dark:border-dark-700 dark:text-dark-1000 sm:text-sm/6">
-              {prefix}
+            <div
+              className="flex min-w-0 max-w-[60%] items-center rounded-l-md border border-r-0 border-light-600 px-3 text-sm dark:border-dark-700 dark:text-dark-1000 sm:text-sm/6"
+              title={prefix}
+            >
+              {/* Long prefixes (self-hosted base URLs) are cut at the start so the end stays visible */}
+              <span className="truncate [direction:rtl]">
+                <bdi>{prefix}</bdi>
+              </span>
             </div>
           )}
           <input
