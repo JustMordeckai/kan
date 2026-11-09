@@ -13858,5 +13858,17 @@
       ]
     ],
     "translation": "URL de YouTube"
+  },
+  "GKu3m4": {
+    "message": "No labels",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/LabelSelector.tsx",
+        124
+      ]
+    ],
+    "translation": ""
   }
 }
