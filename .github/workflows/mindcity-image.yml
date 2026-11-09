@@ -1,0 +1,76 @@
+name: MindCity image
+
+# Builds the MindCity deployment of Kan (branch `mindcity` = an upstream release + our feature branches) and
+# pushes it to ghcr.io/justmordeckai/kan and ghcr.io/justmordeckai/kan-migrate. Upstream workflows are disabled
+# in this fork: they publish to kanbn and need its secrets.
+
+on:
+  push:
+    branches: [mindcity]
+  workflow_dispatch:
+
+concurrency:
+  group: mindcity-image
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: web
+            image: justmordeckai/kan
+          - target: migrate
+            image: justmordeckai/kan-migrate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Version
+        id: version
+        run: |
+          BASE=$(git describe --tags --abbrev=0 --match 'v*.*.*' 2>/dev/null || echo v0.0.0)
+          VERSION="${BASE#v}-mc.$(git rev-parse --short=7 HEAD)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          target: ${{ matrix.target }}
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            APP_VERSION=${{ steps.version.outputs.version }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ matrix.image }}:${{ steps.version.outputs.version }}
+            ${{ env.REGISTRY }}/${{ matrix.image }}:mindcity
+          labels: |
+            org.opencontainers.image.source=https://github.com/JustMordeckai/kan
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+          cache-from: type=gha,scope=mindcity-${{ matrix.target }}
+          cache-to: type=gha,mode=max,scope=mindcity-${{ matrix.target }}
