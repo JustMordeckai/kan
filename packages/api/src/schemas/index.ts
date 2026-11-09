@@ -3,6 +3,7 @@ export {
   boardDetailSchema,
   boardBySlugSchema,
   boardCreateResponseSchema,
+  boardDiscordRolesSchema,
   boardUpdateResponseSchema,
 } from "./board";
 

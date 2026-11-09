@@ -16,6 +16,7 @@ import { useWorkspace } from "~/providers/workspace";
 import { api } from "~/utils/api";
 import { formatMemberDisplayName, getAvatarUrl } from "~/utils/helpers";
 import { AddBoardMemberForm } from "./components/AddBoardMemberForm";
+import { DiscordRolesForm } from "./components/DiscordRolesForm";
 import { RemoveBoardMemberConfirmation } from "./components/RemoveBoardMemberConfirmation";
 
 export default function BoardMembersView() {
@@ -40,6 +41,11 @@ export default function BoardMembersView() {
     isLoading,
     error: boardMembersError,
   } = api.boardMember.all.useQuery({ boardPublicId }, { enabled, retry: false });
+
+  const { data: discordRoles } = api.board.discordRoles.useQuery(
+    { boardPublicId },
+    { enabled, retry: false },
+  );
 
   // board.byId only returns people already on the board, so fetch the full roster separately.
   const { data: workspaceData } = api.workspace.byId.useQuery(
@@ -224,6 +230,14 @@ export default function BoardMembersView() {
             </Button>
           )}
         </div>
+
+        {discordRoles?.enabled && !boardMembersError && (
+          <DiscordRolesForm
+            boardPublicId={boardPublicId}
+            discordRoleIds={discordRoles.discordRoleIds}
+            canEdit={isBoardAdmin}
+          />
+        )}
 
         {boardMembersError ? (
           <p className="text-sm text-light-900 dark:text-dark-900">
