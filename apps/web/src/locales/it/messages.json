@@ -8431,5 +8431,497 @@
       ]
     ],
     "translation": ""
+  },
+  "3kS8Hp": {
+    "message": "Add cover",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        212
+      ]
+    ],
+    "translation": ""
+  },
+  "DB8zMK": {
+    "message": "Apply",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        280
+      ]
+    ],
+    "translation": ""
+  },
+  "8PrIjN": {
+    "message": "Board members will be updated at the next sync.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/members/components/DiscordRolesForm.tsx",
+        42
+      ]
+    ],
+    "translation": ""
+  },
+  "zw1cIi": {
+    "message": "Card cover",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        194
+      ]
+    ],
+    "translation": ""
+  },
+  "32ptHT": {
+    "message": "Card covers",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/settings/AccountSettings.tsx",
+        71
+      ]
+    ],
+    "translation": ""
+  },
+  "sIpTuZ": {
+    "message": "Change background",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        174
+      ],
+      [
+        "src/views/board/components/BoardDropdown.tsx",
+        174
+      ]
+    ],
+    "translation": ""
+  },
+  "isn2eh": {
+    "message": "Change cover",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        207
+      ]
+    ],
+    "translation": ""
+  },
+  "WfLyB5": {
+    "message": "changed the card cover",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ActivityList.tsx",
+        148
+      ]
+    ],
+    "translation": ""
+  },
+  "jM7ASy": {
+    "message": "Choose a JPEG, PNG, WebP, GIF, or AVIF image.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        115
+      ]
+    ],
+    "translation": ""
+  },
+  "SYb0Ub": {
+    "message": "Choose an image smaller than 50 MB.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        124
+      ]
+    ],
+    "translation": ""
+  },
+  "R6XtNF": {
+    "message": "Choose how card covers appear on this device.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/settings/AccountSettings.tsx",
+        74
+      ]
+    ],
+    "translation": ""
+  },
+  "xHwgs0": {
+    "message": "Colours",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        200
+      ]
+    ],
+    "translation": ""
+  },
+  "bNChl2": {
+    "message": "Comma-separated Discord role ids. When set, members holding one of these roles are added to the board and members without them are removed. Leave empty to manage members by hand.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/members/components/DiscordRolesForm.tsx",
+        72
+      ]
+    ],
+    "translation": ""
+  },
+  "IF7RiR": {
+    "message": "Cover",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/index.tsx",
+        207
+      ]
+    ],
+    "translation": ""
+  },
+  "hRX3CI": {
+    "message": "Discord roles (ids)",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/members/components/DiscordRolesForm.tsx",
+        69
+      ]
+    ],
+    "translation": ""
+  },
+  "S3cCf1": {
+    "message": "Discord roles saved",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/members/components/DiscordRolesForm.tsx",
+        41
+      ]
+    ],
+    "translation": ""
+  },
+  "vby8Mc": {
+    "message": "Enter a valid https image URL.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        92
+      ]
+    ],
+    "translation": ""
+  },
+  "MnzgwU": {
+    "message": "Failed to upload the board background. Please try again.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        160
+      ]
+    ],
+    "translation": ""
+  },
+  "g2Tj8R": {
+    "message": "Full",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        243
+      ]
+    ],
+    "translation": ""
+  },
+  "D+zLDD": {
+    "message": "Hidden",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/components/CardCoverDisplaySelector.tsx",
+        14
+      ]
+    ],
+    "translation": ""
+  },
+  "kH+aRv": {
+    "message": "Image attachment",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        286
+      ]
+    ],
+    "translation": ""
+  },
+  "05lRFV": {
+    "message": "Image from a URL",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        253
+      ]
+    ],
+    "translation": ""
+  },
+  "4HhvKN": {
+    "message": "Image is too large",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        123
+      ]
+    ],
+    "translation": ""
+  },
+  "an5hVd": {
+    "message": "Images",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        273
+      ]
+    ],
+    "translation": ""
+  },
+  "zawWn4": {
+    "message": "Imported colour",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        188
+      ]
+    ],
+    "translation": ""
+  },
+  "CsekCi": {
+    "message": "Normal",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        243
+      ]
+    ],
+    "translation": ""
+  },
+  "OQlTMJ": {
+    "message": "Prominent",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/components/CardCoverDisplaySelector.tsx",
+        12
+      ]
+    ],
+    "translation": ""
+  },
+  "ylbfBl": {
+    "message": "Remove background",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        297
+      ]
+    ],
+    "translation": ""
+  },
+  "xhcj8E": {
+    "message": "Remove cover",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        341
+      ]
+    ],
+    "translation": ""
+  },
+  "zcLtAj": {
+    "message": "Role ids can only contain digits",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/members/components/DiscordRolesForm.tsx",
+        82
+      ]
+    ],
+    "translation": ""
+  },
+  "Cj2Gtd": {
+    "message": "Size",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        231
+      ]
+    ],
+    "translation": ""
+  },
+  "A/Wt3l": {
+    "message": "Subdued",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/components/CardCoverDisplaySelector.tsx",
+        13
+      ]
+    ],
+    "translation": ""
+  },
+  "OHHSTk": {
+    "message": "The image is loaded from its own site each time the board is shown.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        284
+      ]
+    ],
+    "translation": ""
+  },
+  "g7AL2V": {
+    "message": "Unable to save Discord roles",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/members/components/DiscordRolesForm.tsx",
+        48
+      ]
+    ],
+    "translation": ""
+  },
+  "wBhT2m": {
+    "message": "Unable to update board background",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        71
+      ]
+    ],
+    "translation": ""
+  },
+  "PNvbHM": {
+    "message": "Unable to update card cover",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        85
+      ]
+    ],
+    "translation": ""
+  },
+  "8a8jKE": {
+    "message": "Unsupported image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        114
+      ]
+    ],
+    "translation": ""
+  },
+  "Qa4Uz+": {
+    "message": "Upload an image or attach one to this card.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        314
+      ]
+    ],
+    "translation": ""
+  },
+  "6MxxvO": {
+    "message": "Upload image",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        243
+      ],
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        332
+      ]
+    ],
+    "translation": ""
+  },
+  "gANddk": {
+    "message": "Uploading…",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/BoardBackgroundForm.tsx",
+        243
+      ],
+      [
+        "src/views/card/components/CardCoverSelector.tsx",
+        332
+      ]
+    ],
+    "translation": ""
   }
 }
