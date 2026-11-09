@@ -72,7 +72,7 @@
       ],
       [
         "src/views/card/index.tsx",
-        348
+        436
       ]
     ],
     "translation": "{0} | {1}"
@@ -136,7 +136,7 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        563
+        565
       ]
     ],
     "translation": "{0} Labels"
@@ -152,7 +152,7 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        892
+        932
       ]
     ],
     "translation": "{0} nicht gefunden"
@@ -445,7 +445,7 @@
     "origin": [
       [
         "src/views/card/index.tsx",
-        504
+        593
       ],
       [
         "src/views/public/board/CardModal.tsx",
@@ -485,7 +485,7 @@
     "origin": [
       [
         "src/views/board/components/CardContextMenu.tsx",
-        51
+        60
       ]
     ],
     "translation": "Label hinzufügen / bearbeiten"
@@ -553,7 +553,7 @@
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        123
+        126
       ]
     ],
     "translation": "Checkliste hinzufügen"
@@ -617,11 +617,11 @@
     "origin": [
       [
         "src/views/card/components/LabelSelector.tsx",
-        115
+        121
       ],
       [
         "src/views/card/components/LabelSelector.tsx",
-        120
+        133
       ]
     ],
     "translation": "Label hinzufügen"
@@ -688,7 +688,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        103
+        104
       ]
     ],
     "translation": "hat {0} Labels hinzugefügt: <0>{labelList}</0>"
@@ -700,7 +700,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        133
+        134
       ]
     ],
     "translation": "hat eine Checkliste hinzugefügt"
@@ -712,7 +712,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        136
+        137
       ]
     ],
     "translation": "hat ein Checklisten-Element hinzugefügt"
@@ -724,7 +724,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        129
+        130
       ]
     ],
     "translation": "hat ein Label zur Karte hinzugefügt"
@@ -736,7 +736,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        131
+        132
       ]
     ],
     "translation": "hat ein Mitglied zur Karte hinzugefügt"
@@ -748,7 +748,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        141
+        142
       ]
     ],
     "translation": "hat einen Anhang hinzugefügt"
@@ -764,7 +764,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        279
+        299
       ]
     ],
     "translation": "hat einen Anhang hinzugefügt <0>{0}</0>"
@@ -780,7 +780,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        209
+        212
       ]
     ],
     "translation": "hat Checkliste <0>{0}</0> hinzugefügt"
@@ -796,7 +796,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        233
+        236
       ]
     ],
     "translation": "hat Checklisten-Element <0>{0}</0> hinzugefügt"
@@ -812,7 +812,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        193
+        196
       ]
     ],
     "translation": "hat Label <0>{0}</0> hinzugefügt"
@@ -1392,7 +1392,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        173
+        176
       ]
     ],
     "translation": "hat <0>{0}</0> der Karte zugewiesen"
@@ -1416,11 +1416,11 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        626
+        628
       ],
       [
         "src/views/board/components/NewCardForm.tsx",
-        627
+        629
       ]
     ],
     "translation": "Dateien anhängen"
@@ -1675,15 +1675,19 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        864
+        904
       ],
       [
         "src/views/board/members/index.tsx",
         209
       ],
       [
+        "src/views/card/components/ShareCardModal.tsx",
+        162
+      ],
+      [
         "src/views/card/index.tsx",
-        348
+        436
       ],
       [
         "src/views/public/board/index.tsx",
@@ -1780,7 +1784,7 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        882
+        922
       ]
     ],
     "translation": "Board-Name"
@@ -1970,6 +1974,10 @@
       [
         "src/views/boards/index.tsx",
         63
+      ],
+      [
+        "src/views/card/index.tsx",
+        238
       ],
       [
         "src/views/pricing/components/FeatureComparisonTable.tsx",
@@ -2484,6 +2492,10 @@
         77
       ],
       [
+        "src/views/card/components/ShareCardModal.tsx",
+        185
+      ],
+      [
         "src/views/members/components/DeleteMemberConfirmation.tsx",
         55
       ],
@@ -2525,7 +2537,7 @@
     "origin": [
       [
         "src/views/card/index.tsx",
-        348
+        436
       ]
     ],
     "translation": "Karte"
@@ -2541,7 +2553,7 @@
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        46
+        49
       ]
     ],
     "translation": "Karte dupliziert"
@@ -2553,7 +2565,7 @@
     "origin": [
       [
         "src/views/card/components/Dropdown.tsx",
-        48
+        51
       ]
     ],
     "translation": "Karte erfolgreich dupliziert."
@@ -2577,11 +2589,11 @@
     "origin": [
       [
         "src/views/card/index.tsx",
-        411
+        500
       ],
       [
         "src/views/card/index.tsx",
-        448
+        537
       ]
     ],
     "translation": "Karte nicht gefunden"
@@ -2593,7 +2605,7 @@
     "origin": [
       [
         "src/views/card/components/Dropdown.tsx",
-        167
+        185
       ]
     ],
     "translation": "Karten-Optionen"
@@ -2617,7 +2629,7 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        429
+        431
       ]
     ],
     "translation": "Kartentitel"
@@ -2629,11 +2641,11 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        437
+        459
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        74
+        77
       ],
       [
         "src/views/public/board/CardModal.tsx",
@@ -2713,11 +2725,11 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        304
+        324
       ],
       [
         "src/views/card/components/ActivityList.tsx",
-        318
+        338
       ]
     ],
     "translation": "hat das Fälligkeitsdatum auf <0>{formattedDate}</0> geändert"
@@ -2893,7 +2905,7 @@
       ],
       [
         "src/views/card/index.tsx",
-        402
+        491
       ],
       [
         "src/views/members/components/EditMemberPermissionsModal.tsx",
@@ -3041,7 +3053,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        138
+        139
       ]
     ],
     "translation": "hat einen Checklistenpunkt abgeschlossen"
@@ -3057,7 +3069,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        250
+        253
       ]
     ],
     "translation": "hat Checklistenpunkt <0>{0}</0> abgeschlossen"
@@ -3343,7 +3355,7 @@
     "origin": [
       [
         "src/views/card/components/Dropdown.tsx",
-        107
+        110
       ]
     ],
     "translation": "Karten-Link kopieren"
@@ -3379,7 +3391,7 @@
     "origin": [
       [
         "src/views/board/components/CardContextMenu.tsx",
-        63
+        72
       ]
     ],
     "translation": "Link zur Karte kopieren"
@@ -3415,7 +3427,7 @@
     "origin": [
       [
         "src/views/card/components/Dropdown.tsx",
-        114
+        117
       ]
     ],
     "translation": "Ticket-ID kopieren"
@@ -3459,7 +3471,7 @@
       ],
       [
         "src/views/board/components/NewCardForm.tsx",
-        658
+        660
       ],
       [
         "src/views/board/components/NewListForm.tsx",
@@ -3487,7 +3499,7 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        668
+        670
       ]
     ],
     "translation": "Karte erstellen"
@@ -3579,11 +3591,11 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        525
+        527
       ],
       [
         "src/views/card/components/LabelSelector.tsx",
-        101
+        105
       ]
     ],
     "translation": "Neues Label erstellen"
@@ -3595,11 +3607,11 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        138
+        139
       ],
       [
         "src/views/board/index.tsx",
-        1020
+        1060
       ]
     ],
     "translation": "Neue Liste erstellen"
@@ -3663,7 +3675,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        125
+        126
       ]
     ],
     "translation": "hat die Karte erstellt"
@@ -4011,11 +4023,11 @@
     "origin": [
       [
         "src/views/board/components/CardContextMenu.tsx",
-        75
+        98
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        152
+        170
       ]
     ],
     "translation": "Karte löschen"
@@ -4107,7 +4119,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        135
+        136
       ]
     ],
     "translation": "hat eine Checkliste gelöscht"
@@ -4119,7 +4131,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        140
+        141
       ]
     ],
     "translation": "hat ein Checklisten-Element gelöscht"
@@ -4135,7 +4147,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        225
+        228
       ]
     ],
     "translation": "hat Checkliste <0>{0}</0> gelöscht"
@@ -4151,7 +4163,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        268
+        271
       ]
     ],
     "translation": "hat Checklisten-Element <0>{0}</0> gelöscht"
@@ -4372,7 +4384,7 @@
       ],
       [
         "src/views/board/components/CardContextLabelsModal.tsx",
-        48
+        66
       ],
       [
         "src/views/board/components/CardContextMembersModal.tsx",
@@ -4428,11 +4440,11 @@
       ],
       [
         "src/views/board/components/NewCardForm.tsx",
-        580
+        582
       ],
       [
         "src/views/card/index.tsx",
-        159
+        228
       ]
     ],
     "translation": "Fälligkeitsdatum"
@@ -4508,11 +4520,11 @@
       ],
       [
         "src/views/board/components/CardContextMenu.tsx",
-        69
+        78
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        130
+        135
       ]
     ],
     "translation": "Karte duplizieren"
@@ -5698,7 +5710,7 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        1002
+        1042
       ]
     ],
     "translation": "Legen Sie los, indem Sie eine neue Liste erstellen"
@@ -6126,7 +6138,7 @@
     "origin": [
       [
         "src/views/card/components/Dropdown.tsx",
-        91
+        94
       ]
     ],
     "translation": "ID kopiert"
@@ -6604,7 +6616,7 @@
     "origin": [
       [
         "src/views/board/components/CardContextLabelsModal.tsx",
-        31
+        48
       ],
       [
         "src/views/board/components/Filters.tsx",
@@ -6612,15 +6624,15 @@
       ],
       [
         "src/views/board/components/NewCardForm.tsx",
-        529
+        531
       ],
       [
         "src/views/card/components/LabelSelector.tsx",
-        102
+        106
       ],
       [
         "src/views/card/index.tsx",
-        139
+        189
       ]
     ],
     "translation": "Labels"
@@ -6648,6 +6660,38 @@
       ]
     ],
     "translation": "Labels & Filter"
+  },
+  "DO7x93": {
+    "translation": "",
+    "message": "Labels of {0} (read-only here)",
+    "placeholders": {
+      "0": [
+        "board.name"
+      ]
+    },
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/index.tsx",
+        201
+      ]
+    ]
+  },
+  "lJNDaT": {
+    "translation": "",
+    "message": "Labels of {sharedFrom}",
+    "placeholders": {
+      "sharedFrom": [
+        "sharedFrom"
+      ]
+    },
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/Card.tsx",
+        110
+      ]
+    ]
   },
   "vXIe7J": {
     "message": "Language",
@@ -6818,11 +6862,11 @@
       ],
       [
         "src/views/board/index.tsx",
-        435
+        457
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        72
+        75
       ],
       [
         "src/views/public/board/CardModal.tsx",
@@ -6845,8 +6889,12 @@
         117
       ],
       [
+        "src/views/card/components/ShareCardModal.tsx",
+        176
+      ],
+      [
         "src/views/card/index.tsx",
-        130
+        174
       ]
     ],
     "translation": "Liste"
@@ -6906,7 +6954,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        664
+        686
       ]
     ],
     "translation": "Weitere Aktivitäten laden"
@@ -6930,7 +6978,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        664
+        686
       ]
     ],
     "translation": "Wird geladen ..."
@@ -7030,7 +7078,7 @@
       ],
       [
         "src/views/board/components/CardContextMenu.tsx",
-        39
+        47
       ]
     ],
     "translation": "Mitglieder verwalten"
@@ -7042,7 +7090,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        139
+        140
       ]
     ],
     "translation": "hat ein Checklistenelement als unvollständig markiert"
@@ -7058,7 +7106,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        259
+        262
       ]
     ],
     "translation": "hat Checklistenelement <0>{0}</0> als unvollständig markiert"
@@ -7126,11 +7174,11 @@
       ],
       [
         "src/views/card/components/ActivityList.tsx",
-        56
+        57
       ],
       [
         "src/views/card/components/ActivityList.tsx",
-        89
+        90
       ],
       [
         "src/views/members/index.tsx",
@@ -7186,7 +7234,7 @@
       ],
       [
         "src/views/board/components/NewCardForm.tsx",
-        487
+        489
       ],
       [
         "src/views/card/components/MemberSelector.tsx",
@@ -7194,7 +7242,7 @@
       ],
       [
         "src/views/card/index.tsx",
-        149
+        218
       ],
       [
         "src/views/members/index.tsx",
@@ -7310,7 +7358,7 @@
     "origin": [
       [
         "src/views/board/components/CardContextMenu.tsx",
-        45
+        53
       ]
     ],
     "translation": "In andere Liste verschieben"
@@ -7353,7 +7401,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        161
+        164
       ]
     ],
     "translation": "hat die Karte von <0>{0}</0> nach <1>{1}</1> verschoben"
@@ -7365,7 +7413,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        128
+        129
       ]
     ],
     "translation": "hat die Karte in eine andere Liste verschoben"
@@ -7497,7 +7545,7 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        412
+        414
       ]
     ],
     "translation": "Neue Karte"
@@ -7549,7 +7597,7 @@
       ],
       [
         "src/views/board/index.tsx",
-        944
+        984
       ]
     ],
     "translation": "Neue Liste"
@@ -7774,6 +7822,18 @@
     ],
     "translation": "Keine Tastenkombinationen registriert."
   },
+  "GKu3m4": {
+    "message": "No labels",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/LabelSelector.tsx",
+        128
+      ]
+    ],
+    "translation": ""
+  },
   "HOMO91": {
     "message": "No license key was provided. Please try activating again.",
     "placeholders": {},
@@ -7793,7 +7853,7 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        998
+        1038
       ]
     ],
     "translation": "Keine Listen"
@@ -7805,7 +7865,7 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        1003
+        1043
       ]
     ],
     "translation": "Es wurden noch keine Listen erstellt"
@@ -8517,7 +8577,7 @@
       ],
       [
         "src/views/board/components/NewCardForm.tsx",
-        200
+        202
       ],
       [
         "src/views/board/components/NewListForm.tsx",
@@ -8541,15 +8601,15 @@
       ],
       [
         "src/views/board/index.tsx",
-        289
+        290
       ],
       [
         "src/views/board/index.tsx",
-        345
+        346
       ],
       [
         "src/views/board/index.tsx",
-        382
+        383
       ],
       [
         "src/views/boards/components/ImportBoardsForm.tsx",
@@ -8601,7 +8661,7 @@
       ],
       [
         "src/views/card/components/LabelSelector.tsx",
-        75
+        79
       ],
       [
         "src/views/card/components/ListSelector.tsx",
@@ -8625,11 +8685,11 @@
       ],
       [
         "src/views/card/index.tsx",
-        259
+        347
       ],
       [
         "src/views/card/index.tsx",
-        272
+        360
       ],
       [
         "src/views/members/components/DeleteMemberConfirmation.tsx",
@@ -8733,19 +8793,19 @@
       ],
       [
         "src/views/board/index.tsx",
-        444
+        466
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        55
+        58
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        81
+        84
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        100
+        103
       ],
       [
         "src/views/public/board/CardModal.tsx",
@@ -9062,7 +9122,7 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        645
+        647
       ]
     ],
     "translation": "Datei entfernen"
@@ -9118,7 +9178,7 @@
     "origin": [
       [
         "src/views/board/components/CardContextMenu.tsx",
-        92
+        91
       ]
     ],
     "translation": ""
@@ -9149,7 +9209,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        117
+        118
       ]
     ],
     "translation": "hat {0} Labels entfernt: <0>{labelList}</0>"
@@ -9161,7 +9221,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        130
+        131
       ]
     ],
     "translation": "hat ein Label von der Karte entfernt"
@@ -9173,7 +9233,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        132
+        133
       ]
     ],
     "translation": "hat ein Mitglied von der Karte entfernt"
@@ -9185,7 +9245,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        142
+        143
       ]
     ],
     "translation": "hat einen Anhang entfernt"
@@ -9201,7 +9261,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        289
+        309
       ]
     ],
     "translation": "hat einen Anhang entfernt <0>{0}</0>"
@@ -9229,7 +9289,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        201
+        204
       ]
     ],
     "translation": "hat Label entfernt <0>{0}</0>"
@@ -9269,11 +9329,11 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        145
+        146
       ],
       [
         "src/views/card/components/ActivityList.tsx",
-        325
+        345
       ]
     ],
     "translation": "hat das Fälligkeitsdatum entfernt"
@@ -9285,7 +9345,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        134
+        135
       ]
     ],
     "translation": "hat eine Checkliste umbenannt"
@@ -9301,7 +9361,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        217
+        220
       ]
     ],
     "translation": "hat Checkliste umbenannt <0>{0}</0>"
@@ -9317,7 +9377,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        241
+        244
       ]
     ],
     "translation": "hat Checklistenelement umbenannt in <0>{0}</0>"
@@ -9691,6 +9751,10 @@
       [
         "src/views/board/components/CardContextDuplicateModal.tsx",
         131
+      ],
+      [
+        "src/views/card/components/ShareCardModal.tsx",
+        177
       ]
     ],
     "translation": "Liste auswählen"
@@ -9790,7 +9854,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        170
+        173
       ]
     ],
     "translation": "hat sich die Karte selbst zugewiesen"
@@ -9870,7 +9934,7 @@
       ],
       [
         "src/views/board/components/CardContextMenu.tsx",
-        57
+        66
       ],
       [
         "src/views/card/components/DueDateSelector.tsx",
@@ -9910,7 +9974,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        143
+        144
       ]
     ],
     "translation": "hat das Fälligkeitsdatum festgelegt"
@@ -10046,7 +10110,7 @@
     "origin": [
       [
         "src/views/board/components/CardContextMenu.tsx",
-        86
+        85
       ],
       [
         "src/views/card/components/Dropdown.tsx",
@@ -10070,7 +10134,7 @@
     "origin": [
       [
         "src/views/board/components/Card.tsx",
-        85
+        88
       ]
     ],
     "translation": ""
@@ -10366,7 +10430,7 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        332
+        334
       ]
     ],
     "translation": "Einige Anhänge sind fehlgeschlagen"
@@ -10664,11 +10728,11 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        864
+        904
       ],
       [
         "src/views/board/index.tsx",
-        901
+        941
       ]
     ],
     "translation": "Vorlage"
@@ -10943,7 +11007,7 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        333
+        335
       ]
     ],
     "translation": "Die Karte wurde erstellt, aber {failedCount} von {0} Anhängen konnten nicht hochgeladen werden."
@@ -11291,7 +11355,7 @@
     "origin": [
       [
         "src/views/card/components/Dropdown.tsx",
-        93
+        96
       ]
     ],
     "translation": "Ticket-ID in die Zwischenablage kopiert"
@@ -11479,7 +11543,7 @@
     "origin": [
       [
         "src/views/card/index.tsx",
-        271
+        359
       ]
     ],
     "translation": "Label konnte nicht hinzugefügt werden"
@@ -11515,7 +11579,7 @@
     "origin": [
       [
         "src/views/card/components/Dropdown.tsx",
-        98
+        101
       ]
     ],
     "translation": "ID konnte nicht kopiert werden"
@@ -11531,11 +11595,11 @@
       ],
       [
         "src/views/board/index.tsx",
-        442
+        464
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        79
+        82
       ],
       [
         "src/views/public/board/CardModal.tsx",
@@ -11555,7 +11619,7 @@
     "origin": [
       [
         "src/views/board/components/NewCardForm.tsx",
-        197
+        199
       ]
     ],
     "translation": "Karte konnte nicht erstellt werden"
@@ -11711,7 +11775,7 @@
       ],
       [
         "src/views/card/components/Dropdown.tsx",
-        53
+        56
       ]
     ],
     "translation": "Karte konnte nicht dupliziert werden"
@@ -11891,11 +11955,11 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        344
+        345
       ],
       [
         "src/views/card/index.tsx",
-        258
+        346
       ]
     ],
     "translation": "Karte konnte nicht aktualisiert werden"
@@ -11943,7 +12007,7 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        381
+        382
       ],
       [
         "src/views/card/components/DueDateSelector.tsx",
@@ -11959,7 +12023,7 @@
     "origin": [
       [
         "src/views/card/components/LabelSelector.tsx",
-        74
+        78
       ]
     ],
     "translation": "Labels konnten nicht aktualisiert werden"
@@ -11971,7 +12035,7 @@
     "origin": [
       [
         "src/views/board/index.tsx",
-        288
+        289
       ],
       [
         "src/views/card/components/ListSelector.tsx",
@@ -12059,7 +12123,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        184
+        187
       ]
     ],
     "translation": "hat <0>{0}</0> von der Karte entfernt"
@@ -12071,7 +12135,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        181
+        184
       ]
     ],
     "translation": "hat sich selbst von der Karte entfernt"
@@ -12326,7 +12390,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        137
+        138
       ]
     ],
     "translation": "hat ein Checklisten-Element aktualisiert"
@@ -12338,7 +12402,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        127
+        128
       ]
     ],
     "translation": "hat die Beschreibung aktualisiert"
@@ -12350,7 +12414,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        144
+        145
       ]
     ],
     "translation": "hat das Fälligkeitsdatum aktualisiert"
@@ -12362,7 +12426,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        126
+        127
       ]
     ],
     "translation": "hat den Titel aktualisiert"
@@ -12378,7 +12442,7 @@
     "origin": [
       [
         "src/views/card/components/ActivityList.tsx",
-        153
+        156
       ]
     ],
     "translation": "hat den Titel zu <0>{0}</0> aktualisiert"
@@ -12985,7 +13049,7 @@
       ],
       [
         "src/views/board/index.tsx",
-        864
+        904
       ],
       [
         "src/views/boards/index.tsx",
@@ -13395,11 +13459,11 @@
       ],
       [
         "src/views/board/index.tsx",
-        932
+        972
       ],
       [
         "src/views/board/index.tsx",
-        1009
+        1049
       ],
       [
         "src/views/boards/components/BoardsList.tsx",
@@ -13858,17 +13922,5 @@
       ]
     ],
     "translation": "YouTube-URL"
-  },
-  "GKu3m4": {
-    "message": "No labels",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/views/card/components/LabelSelector.tsx",
-        124
-      ]
-    ],
-    "translation": ""
   }
 }

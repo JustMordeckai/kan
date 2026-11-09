@@ -173,6 +173,21 @@ const buildDueDateWhere = (filters: DueDateFilter[]) => {
   return or(...clauses);
 };
 
+/**
+ * The labels of a card that belong to one board. A card carries its home
+ * board's labels plus those of every board it is shared on, and each board
+ * only shows its own.
+ */
+export const labelsOfBoard = <
+  T extends { publicId: string; name: string; colourCode: string | null },
+>(
+  cardLabels: { label: T & { boardId: number } }[],
+  boardId: number,
+): Omit<T, "boardId">[] =>
+  cardLabels.flatMap(({ label: { boardId: labelBoardId, ...label } }) =>
+    labelBoardId === boardId ? [label] : [],
+  );
+
 const boardCardColumns = {
   publicId: true,
   title: true,
@@ -191,6 +206,7 @@ const boardCardRelations = {
           publicId: true,
           name: true,
           colourCode: true,
+          boardId: true,
         },
       },
     },
@@ -444,6 +460,7 @@ export const getByPublicId = async (
                   publicId: link.homeBoardPublicId,
                   name: link.homeBoardName,
                 },
+                homeLabels: labelsOfBoard(card.labels, link.homeBoardId),
               },
             ]
           : [];
@@ -452,12 +469,18 @@ export const getByPublicId = async (
       return {
         ...list,
         cards: mergeListOrder(
-          list.cards.map((card) => ({ ...card, sharedFrom: null })),
+          list.cards.map((card) => ({
+            ...card,
+            sharedFrom: null,
+            homeLabels: [],
+          })),
           shared,
         ).map((card, position) => ({
           ...card,
           index: shared.length ? position : card.index,
-          labels: card.labels.map((label) => label.label),
+          // Shared cards show this board's labels; their home labels come
+          // separately in homeLabels.
+          labels: labelsOfBoard(card.labels, boardId),
           members: card.members
             .map((member) => member.member)
             .filter((member) => member.deletedAt === null),
@@ -552,6 +575,7 @@ export const getBySlug = async (
                       publicId: true,
                       name: true,
                       colourCode: true,
+                      boardId: true,
                     },
                   },
                 },
@@ -633,7 +657,7 @@ export const getBySlug = async (
       ...list,
       cards: list.cards.map((card) => ({
         ...card,
-        labels: card.labels.map((label) => label.label),
+        labels: labelsOfBoard(card.labels, list.boardId),
       })),
     })),
   };

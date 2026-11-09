@@ -351,6 +351,7 @@ describe("shared cards", () => {
         publicId: sharedBoard.publicId,
         name: "Exchanges",
         list: { publicId: sharedTodo.publicId, name: sharedTodo.publicId },
+        labels: [],
       },
     ]);
 
@@ -405,6 +406,177 @@ describe("shared cards", () => {
     await expect(
       asShared.byId({ cardPublicId: card.publicId }),
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("lets a card shared to a board carry that board's labels, shown there only", async () => {
+    const makeLabel = async (
+      publicId: string,
+      name: string,
+      boardId: number,
+    ) => {
+      const [label] = await db
+        .insert(schema.labels)
+        .values({ publicId, name, boardId, createdBy: owner.id })
+        .returning();
+      return label!;
+    };
+    const boardView = async (
+      board: { publicId: string },
+      labelFilter: string[] = [],
+    ) => {
+      const view = await boardRepo.getByPublicId(db, board.publicId, owner.id, {
+        members: [],
+        labels: labelFilter,
+        lists: [],
+        dueDate: [],
+        type: "regular",
+      });
+      return view!.lists.flatMap((list) =>
+        list.cards.map((card) => ({
+          title: card.title,
+          labels: card.labels.map((label) => label.name),
+          homeLabels: card.homeLabels.map((label) => label.name),
+        })),
+      );
+    };
+    const cardLabelIds = async (cardId: number) =>
+      (
+        await db
+          .select({ labelId: schema.cardsToLabels.labelId })
+          .from(schema.cardsToLabels)
+          .where(eq(schema.cardsToLabels.cardId, cardId))
+      )
+        .map((row) => row.labelId)
+        .sort();
+
+    const homeLabel = await makeLabel("lbhome123456", "Bug", homeBoard.id);
+    const fromDev = await makeLabel("lbfromdev123", "De Dev", sharedBoard.id);
+    const deleted = await makeLabel("lbdeleted123", "Old", sharedBoard.id);
+    const otherLabel = await makeLabel("lbother12345", "Map", otherBoard.id);
+    await db
+      .update(schema.labels)
+      .set({ deletedAt: new Date() })
+      .where(eq(schema.labels.id, deleted.id));
+
+    const homeMember = (await addMember("wmhome123456", [homeBoard.id])).user;
+    const card = await makeCard("From dev", homeList.id);
+    await makeCard("Own", sharedTodo.id);
+    const toggle = (
+      user: { id: string; name: string | null; email: string },
+      labelPublicId: string,
+    ) =>
+      caller(user).addOrRemoveLabel({
+        cardPublicId: card.publicId,
+        labelPublicId,
+      });
+
+    // Before sharing, the board's labels are out of reach.
+    await expect(toggle(sharedMember, fromDev.publicId)).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+    await expect(toggle(owner, fromDev.publicId)).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+    });
+
+    await toggle(owner, homeLabel.publicId);
+    await caller(owner).share({
+      cardPublicId: card.publicId,
+      boardPublicId: sharedBoard.publicId,
+      listPublicId: sharedTodo.publicId,
+    });
+
+    // Shared board members label it with their board's labels, and only
+    // those; home board members can't touch the shared board's labels.
+    await expect(toggle(sharedMember, fromDev.publicId)).resolves.toEqual({
+      newLabel: true,
+    });
+    await expect(toggle(homeMember, fromDev.publicId)).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+    await expect(
+      toggle(sharedMember, homeLabel.publicId),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(toggle(owner, otherLabel.publicId)).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+    });
+    await expect(toggle(owner, deleted.publicId)).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+    expect(await cardLabelIds(card.id)).toEqual(
+      [homeLabel.id, fromDev.id].sort(),
+    );
+
+    // Each board shows its own labels; the shared board keeps the home ones
+    // apart, and its label filter finds the card by its labels there.
+    expect(await boardView(homeBoard)).toEqual([
+      { title: "From dev", labels: ["Bug"], homeLabels: [] },
+    ]);
+    expect(await boardView(sharedBoard)).toEqual([
+      { title: "Own", labels: [], homeLabels: [] },
+      { title: "From dev", labels: ["De Dev"], homeLabels: ["Bug"] },
+    ]);
+    expect(await boardView(sharedBoard, [fromDev.publicId])).toEqual([
+      { title: "From dev", labels: ["De Dev"], homeLabels: ["Bug"] },
+    ]);
+
+    // The card page tells the boards' labels apart and offers the shared
+    // board's labels, to those on that board only.
+    const asShared = await caller(sharedMember).byId({
+      cardPublicId: card.publicId,
+    });
+    expect(
+      asShared.labels.map((label) => [label.name, label.boardPublicId]),
+    ).toEqual(
+      expect.arrayContaining([
+        ["Bug", homeBoard.publicId],
+        ["De Dev", sharedBoard.publicId],
+      ]),
+    );
+    expect(asShared.labels).toHaveLength(2);
+    expect(asShared.sharedBoards[0]!.labels).toEqual([
+      { publicId: fromDev.publicId, name: "De Dev", colourCode: null },
+    ]);
+    const asHome = await caller(homeMember).byId({
+      cardPublicId: card.publicId,
+    });
+    expect(asHome.labels.map((label) => label.name)).toEqual(["Bug"]);
+    expect(asHome.sharedBoards).toEqual([]);
+
+    // A copy on the home board takes the home labels only.
+    await caller(owner).duplicate({
+      cardPublicId: card.publicId,
+      listPublicId: homeList.publicId,
+      title: "Copy",
+      copyLabels: true,
+      copyMembers: false,
+      copyChecklists: false,
+    });
+
+    // Unsharing takes the board's labels off the card, and logs it.
+    await caller(owner).unshare({
+      cardPublicId: card.publicId,
+      boardPublicId: sharedBoard.publicId,
+    });
+    expect(await cardLabelIds(card.id)).toEqual([homeLabel.id]);
+    expect(await boardView(homeBoard)).toEqual([
+      { title: "From dev", labels: ["Bug"], homeLabels: [] },
+      { title: "Copy", labels: ["Bug"], homeLabels: [] },
+    ]);
+
+    const activity = await caller(owner).getActivities({
+      cardPublicId: card.publicId,
+      limit: 20,
+    });
+    const labelActivity = activity.activities
+      .filter((item) => item.type.startsWith("card.updated.label."))
+      .map((item) => [item.type, item.label?.name]);
+    expect(labelActivity).toEqual(
+      expect.arrayContaining([
+        ["card.updated.label.added", "Bug"],
+        ["card.updated.label.added", "De Dev"],
+        ["card.updated.label.removed", "De Dev"],
+      ]),
+    );
   });
 
   it("refuses to share with the home board twice or with a board the user cannot see", async () => {

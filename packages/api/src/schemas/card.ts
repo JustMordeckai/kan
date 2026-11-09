@@ -57,7 +57,8 @@ export const cardDetailSchema = z.object({
   index: z.number(),
   dueDate: z.date().nullable(),
   createdBy: z.string().nullable(),
-  labels: z.array(labelSchema),
+  // Labels of the home board and of the shared boards the viewer is on.
+  labels: z.array(labelSchema.extend({ boardPublicId: z.string() })),
   attachments: z.array(
     z.object({
       publicId: z.string(),
@@ -99,6 +100,7 @@ export const cardDetailSchema = z.object({
         publicId: z.string(),
         name: z.string(),
       }),
+      labels: z.array(labelSchema),
     }),
   ),
   activities: z.array(

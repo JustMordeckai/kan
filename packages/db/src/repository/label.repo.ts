@@ -89,6 +89,24 @@ export const getAllByPublicIds = (db: dbClient, labelPublicIds: string[]) => {
   });
 };
 
+/**
+ * Live labels of several boards, with the board each belongs to.
+ */
+export const getAllByBoardIds = (db: dbClient, boardIds: number[]) => {
+  if (!boardIds.length) return Promise.resolve([]);
+
+  return db.query.labels.findMany({
+    columns: {
+      publicId: true,
+      name: true,
+      colourCode: true,
+      boardId: true,
+    },
+    where: and(inArray(labels.boardId, boardIds), isNull(labels.deletedAt)),
+    orderBy: (labels, { asc }) => [asc(labels.id)],
+  });
+};
+
 export const getByPublicId = async (db: dbClient, labelPublicId: string) => {
   return db.query.labels.findFirst({
     columns: {

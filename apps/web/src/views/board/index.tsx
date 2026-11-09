@@ -862,7 +862,7 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
           modalSize="sm"
           isVisible={isOpen && modalContentType === "CARD_CONTEXT_LABELS"}
         >
-          <CardContextLabelsModal />
+          <CardContextLabelsModal boardPublicId={boardId ?? undefined} />
         </Modal>
         <Modal
           modalSize="sm"

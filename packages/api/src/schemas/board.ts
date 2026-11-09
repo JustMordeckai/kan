@@ -52,6 +52,9 @@ const boardDetailCardSchema = z.object({
       name: z.string(),
     })
     .nullable(),
+  // On a shared card, the labels of its home board (`labels` holds this
+  // board's). Empty on the board's own cards.
+  homeLabels: z.array(labelSchema),
 });
 
 // ─── board.byId ──────────────────────────────────────────────

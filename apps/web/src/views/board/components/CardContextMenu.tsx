@@ -60,7 +60,6 @@ const MENU_ITEMS: {
     label: () => t`Add / edit label`,
     icon: <HiOutlineTag className="h-4 w-4 shrink-0" />,
     requiresEdit: true,
-    shown: "own",
   },
   {
     action: "dueDate",
