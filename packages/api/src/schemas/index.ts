@@ -10,7 +10,10 @@ export {
 
 export {
   cardCreateResponseSchema,
+  cardCoverSchema,
+  cardCoverSizeSchema,
   cardUpdateResponseSchema,
+  cardUpdateCoverResponseSchema,
   cardDetailSchema,
   cardShareResponseSchema,
   commentResponseSchema,

@@ -346,6 +346,49 @@ describe("shared cards", () => {
     expect(cards[0]!.summary).toMatchObject({ hasComments: false });
   });
 
+  it("resolves cover attachments of cards shared onto a board", async () => {
+    const card = await makeCard("From dev", homeList.id);
+    const [attachment] = await db
+      .insert(schema.cardAttachments)
+      .values({
+        publicId: "attachcover1",
+        cardId: card.id,
+        filename: "cover.png",
+        originalFilename: "cover.png",
+        contentType: "image/png",
+        size: 1024,
+        s3Key: "workspace/card/cover.png",
+        createdBy: owner.id,
+      })
+      .returning();
+    await db
+      .update(schema.cards)
+      .set({ coverAttachmentId: attachment!.id })
+      .where(eq(schema.cards.id, card.id));
+
+    const sharedCovers = () =>
+      cardBoardLinkRepo.getSelectedSharedCoverAttachments(db, {
+        boardId: sharedBoard.id,
+        attachmentPublicIds: ["attachcover1"],
+      });
+
+    expect(await sharedCovers()).toEqual([]);
+
+    await caller(owner).share({
+      cardPublicId: card.publicId,
+      boardPublicId: sharedBoard.publicId,
+      listPublicId: sharedTodo.publicId,
+    });
+
+    expect(await sharedCovers()).toEqual([{ publicId: "attachcover1" }]);
+    expect(
+      await cardBoardLinkRepo.getSelectedSharedCoverAttachments(db, {
+        boardId: otherBoard.id,
+        attachmentPublicIds: ["attachcover1"],
+      }),
+    ).toEqual([]);
+  });
+
   it("moves only the shared copy's place when moved on the shared board", async () => {
     const card = await makeCard("From dev", homeList.id);
     await caller(owner).share({

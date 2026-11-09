@@ -13,6 +13,7 @@ import {
 
 import type { TestDbClient } from "./test-db";
 import { boardDetailSchema } from "../src/schemas/board";
+import { formatCardCover } from "../src/utils/cardCover";
 import { createTestDb, seedTestData } from "./test-db";
 
 describe("board summary repository view", () => {
@@ -222,12 +223,20 @@ describe("board summary repository view", () => {
     });
     expect(Object.keys(summaryCard ?? {})).not.toContain("id");
 
-    expect(() =>
-      boardDetailSchema.parse({ ...full, background: null }),
-    ).not.toThrow();
-    expect(() =>
-      boardDetailSchema.parse({ ...summary, background: null }),
-    ).not.toThrow();
+    // The router formats raw cover columns into the public cover object.
+    const withCovers = (board: typeof full) => ({
+      ...board,
+      background: null,
+      lists: board!.lists.map((list) => ({
+        ...list,
+        cards: list.cards.map((card) => ({
+          ...card,
+          cover: formatCardCover(card),
+        })),
+      })),
+    });
+    expect(() => boardDetailSchema.parse(withCovers(full))).not.toThrow();
+    expect(() => boardDetailSchema.parse(withCovers(summary))).not.toThrow();
   });
 
   it("returns no summary rows for an empty list filter", async () => {

@@ -1618,6 +1618,26 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
+        },
+        "coverColourCode": {
+          "name": "coverColourCode",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coverAttachmentId": {
+          "name": "coverAttachmentId",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coverSize": {
+          "name": "coverSize",
+          "type": "card_cover_size",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'normal'"
         }
       },
       "indexes": {
@@ -1632,6 +1652,21 @@
             },
             {
               "expression": "cardNumber",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "card_cover_attachment_idx": {
+          "name": "card_cover_attachment_idx",
+          "columns": [
+            {
+              "expression": "coverAttachmentId",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1695,6 +1730,19 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "card_coverAttachmentId_card_attachment_id_fk": {
+          "name": "card_coverAttachmentId_card_attachment_id_fk",
+          "tableFrom": "card",
+          "tableTo": "card_attachment",
+          "columnsFrom": [
+            "coverAttachmentId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -1708,7 +1756,16 @@
         }
       },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "card_cover_colour_code_check": {
+          "name": "card_cover_colour_code_check",
+          "value": "\"card\".\"coverColourCode\" IS NULL OR \"card\".\"coverColourCode\" ~ '^#[0-9A-Fa-f]{6}$'"
+        },
+        "card_cover_source_check": {
+          "name": "card_cover_source_check",
+          "value": "\"card\".\"coverColourCode\" IS NULL OR \"card\".\"coverAttachmentId\" IS NULL"
+        }
+      },
       "isRLSEnabled": true
     },
     "public._card_labels": {
@@ -4243,6 +4300,7 @@
         "card.updated.dueDate.added",
         "card.updated.dueDate.updated",
         "card.updated.dueDate.removed",
+        "card.updated.cover",
         "card.archived",
         "card.updated.board.added",
         "card.updated.board.removed"
@@ -4318,6 +4376,14 @@
         "workspace.member.added",
         "workspace.member.removed",
         "workspace.role.changed"
+      ]
+    },
+    "public.card_cover_size": {
+      "name": "card_cover_size",
+      "schema": "public",
+      "values": [
+        "normal",
+        "full"
       ]
     }
   },

@@ -285,6 +285,20 @@
     {
       "idx": 40,
       "version": "7",
+      "when": 1794249030000,
+      "tag": "20261106010831_AddCardCovers",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794249031000,
+      "tag": "20261106010913_AddImageCardCovers",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
       "when": 1794249032000,
       "tag": "20261106011644_AddBoardBackgrounds",
       "breakpoints": true

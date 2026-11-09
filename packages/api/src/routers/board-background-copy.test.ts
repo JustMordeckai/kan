@@ -23,6 +23,8 @@ vi.mock("@kan/db/repository/card.repo", () => ({}));
 vi.mock("@kan/db/repository/cardActivity.repo", () => ({}));
 vi.mock("@kan/db/repository/label.repo", () => ({}));
 vi.mock("@kan/db/repository/list.repo", () => ({}));
+vi.mock("@kan/db/repository/cardAttachment.repo", () => ({}));
+vi.mock("@kan/db/repository/cardBoardLink.repo", () => ({}));
 
 vi.mock("../utils/permissions", () => ({
   assertBoardAccess: vi.fn(),

@@ -5,6 +5,8 @@ import { isDiscordRoleAccessEnabled } from "@kan/auth/discord/config";
 import * as boardRepo from "@kan/db/repository/board.repo";
 import * as cardRepo from "@kan/db/repository/card.repo";
 import * as activityRepo from "@kan/db/repository/cardActivity.repo";
+import * as cardAttachmentRepo from "@kan/db/repository/cardAttachment.repo";
+import * as cardBoardLinkRepo from "@kan/db/repository/cardBoardLink.repo";
 import * as labelRepo from "@kan/db/repository/label.repo";
 import * as listRepo from "@kan/db/repository/list.repo";
 import * as workspaceRepo from "@kan/db/repository/workspace.repo";
@@ -12,6 +14,7 @@ import { createLogger } from "@kan/logger";
 import { colours } from "@kan/shared/constants";
 import {
   convertDueDateFiltersToRanges,
+  generateDownloadUrl,
   generateSlug,
   generateUID,
 } from "@kan/shared/utils";
@@ -31,6 +34,11 @@ import {
   cloneBoardBackgroundObjects,
   deleteBoardBackgroundObjects,
 } from "../utils/boardBackgroundPreview";
+import { formatCardCover } from "../utils/cardCover";
+import {
+  getCardCoverPreviewKey,
+  inspectStoredObject,
+} from "../utils/cardCoverPreview";
 import {
   assertBoardAccess,
   assertCanDelete,
@@ -38,12 +46,138 @@ import {
   assertCanManageBoardMembers,
   assertPermission,
   filterBoardAssignable,
+  hasBoardAccess,
   isWorkspaceAdmin,
 } from "../utils/permissions";
 
 const logger = createLogger("board");
 
 export const boardRouter = createTRPCRouter({
+  coverUrls: publicProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/boards/{boardPublicId}/cover-urls",
+        summary: "Resolve card cover preview URLs",
+        description:
+          "Resolves a bounded batch of selected card cover previews for a board",
+        tags: ["Boards"],
+        protect: false,
+      },
+    })
+    .input(
+      z.object({
+        boardPublicId: z.string().min(12),
+        attachmentPublicIds: z.array(z.string().min(12)).max(50),
+        widths: z
+          .array(z.union([z.literal(320), z.literal(640), z.literal(1280)]))
+          .min(1)
+          .max(3),
+      }),
+    )
+    .output(
+      z.record(
+        z.string(),
+        z.array(
+          z.object({
+            width: z.union([z.literal(320), z.literal(640), z.literal(1280)]),
+            url: z.string().url(),
+          }),
+        ),
+      ),
+    )
+    .query(async ({ ctx, input }) => {
+      const board = await boardRepo.getCoverAccessByPublicId(
+        ctx.db,
+        input.boardPublicId,
+      );
+
+      if (!board)
+        throw new TRPCError({
+          message: `Board with public ID ${input.boardPublicId} not found`,
+          code: "NOT_FOUND",
+        });
+
+      const userId = ctx.user?.id;
+      if (board.visibility !== "public") {
+        if (!userId)
+          throw new TRPCError({
+            message: "User not authenticated",
+            code: "UNAUTHORIZED",
+          });
+        await assertPermission(ctx.db, userId, board.workspaceId, "board:view");
+        await assertBoardAccess(ctx.db, userId, board);
+      }
+
+      // Cards shared onto the board only show to its members, never on the
+      // public view, so their covers resolve for members only.
+      const canSeeSharedCards =
+        board.type === "regular" &&
+        !!userId &&
+        (board.visibility !== "public" ||
+          (await hasBoardAccess(ctx.db, userId, board)));
+
+      const attachmentPublicIds = [...new Set(input.attachmentPublicIds)];
+      const widths = [...new Set(input.widths)];
+      const attachments = [
+        ...(await cardAttachmentRepo.getSelectedCoverAttachmentsByBoardPublicId(
+          ctx.db,
+          {
+            boardPublicId: input.boardPublicId,
+            attachmentPublicIds,
+          },
+        )),
+        ...(canSeeSharedCards
+          ? await cardBoardLinkRepo.getSelectedSharedCoverAttachments(ctx.db, {
+              boardId: board.id,
+              attachmentPublicIds,
+            })
+          : []),
+      ];
+      const available = new Set(
+        attachments.map((attachment) => attachment.publicId),
+      );
+      const result = Object.fromEntries(
+        attachmentPublicIds.map((publicId) => [publicId, []]),
+      ) as Record<string, { width: (typeof widths)[number]; url: string }[]>;
+      const bucket = process.env.NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME;
+
+      if (!bucket) return result;
+
+      await Promise.all(
+        attachmentPublicIds.map(async (publicId) => {
+          if (!available.has(publicId)) return;
+
+          const variants = await Promise.all(
+            widths.map(async (width) => {
+              try {
+                const previewKey = getCardCoverPreviewKey(publicId, width);
+                const preview = await inspectStoredObject(bucket, previewKey);
+                if (
+                  preview?.contentType !== "image/webp" ||
+                  !preview.contentLength ||
+                  preview.contentLength <= 0
+                )
+                  return null;
+
+                return {
+                  width,
+                  url: await generateDownloadUrl(bucket, previewKey, 86400),
+                };
+              } catch {
+                return null;
+              }
+            }),
+          );
+
+          result[publicId] = variants.filter(
+            (variant): variant is NonNullable<typeof variant> => !!variant,
+          );
+        }),
+      );
+
+      return result;
+    }),
   all: protectedProcedure
     .meta({
       openapi: {
@@ -250,12 +384,13 @@ export const boardRouter = createTRPCRouter({
 
                 return {
                   ...card,
+                  cover: formatCardCover(card),
                   members,
                   summary: card.summary,
                 };
               }
 
-              return { ...card, members };
+              return { ...card, cover: formatCardCover(card), members };
             }),
           ),
         })),
@@ -356,6 +491,13 @@ export const boardRouter = createTRPCRouter({
           backgroundColourCode,
           backgroundImageKey,
         }),
+        lists: boardResult.lists.map((list) => ({
+          ...list,
+          cards: list.cards.map((card) => ({
+            ...card,
+            cover: formatCardCover(card),
+          })),
+        })),
       };
     }),
   create: protectedProcedure

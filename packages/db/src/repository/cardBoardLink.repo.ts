@@ -1,8 +1,14 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import type { dbClient } from "@kan/db/client";
-import { boards, cardBoardLinks, cards, lists } from "@kan/db/schema";
+import {
+  boards,
+  cardAttachments,
+  cardBoardLinks,
+  cards,
+  lists,
+} from "@kan/db/schema";
 import { insertAtPosition, mergeListOrder } from "@kan/shared/utils";
 
 type DbTransaction = Parameters<Parameters<dbClient["transaction"]>[0]>[0];
@@ -304,4 +310,33 @@ export const remove = async (
 
     return removed;
   });
+};
+
+/**
+ * Cover attachments, among the given ones, of cards currently shared onto a
+ * board. Used to resolve cover previews of shared cards on that board.
+ */
+export const getSelectedSharedCoverAttachments = async (
+  db: DbOrTransaction,
+  args: { boardId: number; attachmentPublicIds: string[] },
+) => {
+  if (args.attachmentPublicIds.length === 0) return [];
+
+  return db
+    .select({ publicId: cardAttachments.publicId })
+    .from(cardBoardLinks)
+    .innerJoin(cards, eq(cards.id, cardBoardLinks.cardId))
+    .innerJoin(cardAttachments, eq(cardAttachments.id, cards.coverAttachmentId))
+    .innerJoin(homeLists, eq(homeLists.id, cards.listId))
+    .innerJoin(homeBoards, eq(homeBoards.id, homeLists.boardId))
+    .innerJoin(boards, eq(boards.id, cardBoardLinks.boardId))
+    .innerJoin(lists, eq(lists.id, cardBoardLinks.listId))
+    .where(
+      and(
+        eq(cardBoardLinks.boardId, args.boardId),
+        visibleLinkConditions(),
+        isNull(cardAttachments.deletedAt),
+        inArray(cardAttachments.publicId, args.attachmentPublicIds),
+      ),
+    );
 };

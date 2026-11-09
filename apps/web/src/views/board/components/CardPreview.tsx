@@ -22,6 +22,7 @@ export default function CardPreview({ card, cardPrefix }: CardPreviewProps) {
       attachments={card.attachments}
       dueDate={card.dueDate ?? null}
       sharedFrom={card.sharedFrom?.name}
+      cover={card.cover}
     />
   );
 }

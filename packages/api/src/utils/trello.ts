@@ -59,6 +59,17 @@ export type TrelloBoardBackground =
     }
   | null;
 
+export const trelloCardFields = [
+  "id",
+  "name",
+  "desc",
+  "idList",
+  "labels",
+  "idChecklists",
+  "cover",
+  "idAttachmentCover",
+] as const;
+
 export const getTrelloLabelColour = (colour: string | null | undefined) => {
   if (!colour) return colourlessLabelColour;
 
@@ -97,4 +108,10 @@ export const getTrelloBoardBackground = (
     };
 
   return colourCode ? { kind: "colour", colourCode } : null;
+};
+
+export const getTrelloCoverColour = (colour: string | null | undefined) => {
+  if (!colour) return null;
+
+  return trelloLabelColours[colour] ?? null;
 };
