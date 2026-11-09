@@ -135,6 +135,9 @@ export const env = createEnv({
     // Branding and theme, validated where they are used (utils/branding.ts,
     // utils/theme.ts) because runtime values bypass this build-time schema.
     NEXT_PUBLIC_APP_NAME: z.string().optional(),
+    NEXT_PUBLIC_DEFAULT_COLOR_MODE: z
+      .enum(["light", "dark", "system"])
+      .optional(),
     NEXT_PUBLIC_LOGO_URL: z.string().optional(),
     NEXT_PUBLIC_FAVICON_URL: z.string().optional(),
     NEXT_PUBLIC_THEME: z.string().optional(),
@@ -165,6 +168,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_WHITE_LABEL_HIDE_POWERED_BY,
 
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+    NEXT_PUBLIC_DEFAULT_COLOR_MODE: process.env.NEXT_PUBLIC_DEFAULT_COLOR_MODE,
     NEXT_PUBLIC_LOGO_URL: process.env.NEXT_PUBLIC_LOGO_URL,
     NEXT_PUBLIC_FAVICON_URL: process.env.NEXT_PUBLIC_FAVICON_URL,
     NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME,

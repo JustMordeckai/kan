@@ -48,6 +48,12 @@ type AppPropsWithLayout = AppProps & {
 
 const MyApp: AppType = ({ Component, pageProps }: AppPropsWithLayout) => {
   const posthogKey = env("NEXT_PUBLIC_POSTHOG_KEY");
+  // Colour mode for users who never picked one (light, dark or system).
+  const defaultColorMode = ["light", "dark"].includes(
+    env("NEXT_PUBLIC_DEFAULT_COLOR_MODE") ?? "",
+  )
+    ? env("NEXT_PUBLIC_DEFAULT_COLOR_MODE")
+    : "system";
 
   useEffect(() => {
     if (posthogKey) {
@@ -89,7 +95,7 @@ const MyApp: AppType = ({ Component, pageProps }: AppPropsWithLayout) => {
               <FontSizeProvider>
                 <ThemeProvider
                   attribute="class"
-                  defaultTheme="system"
+                  defaultTheme={defaultColorMode}
                   enableSystem
                 >
                   <ModalProvider>
