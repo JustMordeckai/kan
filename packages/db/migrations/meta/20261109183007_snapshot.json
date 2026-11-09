@@ -1,6 +1,6 @@
 {
   "id": "0aef5017-ca5b-432f-979a-45d68aa55c3b",
-  "prevId": "46474e9a-da35-45b2-a74f-9a2824975db3",
+  "prevId": "b3b9c0d3-b51a-4d85-9aa0-8a3190edd13a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -609,6 +609,18 @@
           "type": "bigint",
           "primaryKey": false,
           "notNull": false
+        },
+        "backgroundColourCode": {
+          "name": "backgroundColourCode",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "backgroundImageKey": {
+          "name": "backgroundImageKey",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -760,7 +772,12 @@
         }
       },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "board_background_colour_code_check": {
+          "name": "board_background_colour_code_check",
+          "value": "\"board\".\"backgroundColourCode\" IS NULL OR \"board\".\"backgroundColourCode\" ~ '^#[0-9A-Fa-f]{6}$'"
+        }
+      },
       "isRLSEnabled": true
     },
     "public.user_board_favorites": {

@@ -615,6 +615,18 @@
           "type": "text[]",
           "primaryKey": false,
           "notNull": false
+        },
+        "backgroundColourCode": {
+          "name": "backgroundColourCode",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "backgroundImageKey": {
+          "name": "backgroundImageKey",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -766,7 +778,12 @@
         }
       },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "board_background_colour_code_check": {
+          "name": "board_background_colour_code_check",
+          "value": "\"board\".\"backgroundColourCode\" IS NULL OR \"board\".\"backgroundColourCode\" ~ '^#[0-9A-Fa-f]{6}$'"
+        }
+      },
       "isRLSEnabled": true
     },
     "public.user_board_favorites": {

@@ -5,6 +5,7 @@ export {
   boardCreateResponseSchema,
   boardDiscordRolesSchema,
   boardUpdateResponseSchema,
+  boardBackgroundSchema,
 } from "./board";
 
 export {

@@ -2,6 +2,8 @@ import { relations, sql } from "drizzle-orm";
 import {
   bigint,
   bigserial,
+  boolean,
+  check,
   index,
   pgEnum,
   pgTable,
@@ -11,8 +13,8 @@ import {
   uniqueIndex,
   uuid,
   varchar,
-  boolean,
 } from "drizzle-orm/pg-core";
+
 import { imports } from "./imports";
 import { labels } from "./labels";
 import { lists } from "./lists";
@@ -66,6 +68,8 @@ export const boards = pgTable(
     sourceBoardId: bigint("sourceBoardId", { mode: "number" }),
     // When set, board membership is computed from these Discord role ids.
     discordRoleIds: text("discordRoleIds").array(),
+    backgroundColourCode: varchar("backgroundColourCode", { length: 7 }),
+    backgroundImageKey: varchar("backgroundImageKey", { length: 500 }),
   },
   (table) => [
     index("board_is_archived_idx").on(table.isArchived),
@@ -75,6 +79,10 @@ export const boards = pgTable(
     uniqueIndex("unique_slug_per_workspace")
       .on(table.workspaceId, table.slug)
       .where(sql`${table.deletedAt} IS NULL`),
+    check(
+      "board_background_colour_code_check",
+      sql`${table.backgroundColourCode} IS NULL OR ${table.backgroundColourCode} ~ '^#[0-9A-Fa-f]{6}$'`,
+    ),
   ],
 ).enableRLS();
 

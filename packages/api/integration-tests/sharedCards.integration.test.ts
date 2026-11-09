@@ -306,6 +306,46 @@ describe("shared cards", () => {
     ]);
   });
 
+  it("includes shared cards in the compact summary board view", async () => {
+    await makeCard("Own A", sharedTodo.id);
+    const card = await makeCard("From dev", homeList.id);
+    await caller(owner).addComment({
+      cardPublicId: card.publicId,
+      comment: "Hi",
+    });
+    await caller(owner).share({
+      cardPublicId: card.publicId,
+      boardPublicId: sharedBoard.publicId,
+      listPublicId: sharedTodo.publicId,
+    });
+
+    const board = await boardRepo.getByPublicId(
+      db,
+      sharedBoard.publicId,
+      owner.id,
+      {
+        members: [],
+        labels: [],
+        lists: [],
+        dueDate: [],
+        type: "regular",
+        cardView: "summary",
+      },
+    );
+    const cards = board!.lists[0]!.cards;
+
+    expect(cards.map((c) => [c.title, c.index, c.sharedFrom?.name])).toEqual([
+      ["Own A", 0, undefined],
+      ["From dev", 1, "Dev"],
+    ]);
+    expect(cards[1]).toMatchObject({
+      description: null,
+      comments: [],
+      summary: { hasComments: true, attachmentCount: 0 },
+    });
+    expect(cards[0]!.summary).toMatchObject({ hasComments: false });
+  });
+
   it("moves only the shared copy's place when moved on the shared board", async () => {
     const card = await makeCard("From dev", homeList.id);
     await caller(owner).share({

@@ -31,6 +31,7 @@ import {
   lists,
   userBoardFavorites,
   workspaceMembers,
+  workspaces,
 } from "@kan/db/schema";
 import {
   generateUID,
@@ -71,6 +72,8 @@ export const getAllByWorkspaceId = async (
     columns: {
       publicId: true,
       name: true,
+      backgroundColourCode: true,
+      backgroundImageKey: true,
     },
     with: {
       userFavorites: {
@@ -103,10 +106,7 @@ export const getAllByWorkspaceId = async (
         ? eq(boards.isArchived, opts.archived)
         : undefined,
       memberBoardIds
-        ? or(
-            eq(boards.type, "template"),
-            inArray(boards.id, memberBoardIds),
-          )
+        ? or(eq(boards.type, "template"), inArray(boards.id, memberBoardIds))
         : undefined,
     ),
   });
@@ -173,85 +173,96 @@ const buildDueDateWhere = (filters: DueDateFilter[]) => {
   return or(...clauses);
 };
 
-const boardCardColumns = {
-  publicId: true,
-  title: true,
-  description: true,
-  listId: true,
-  index: true,
-  dueDate: true,
-  cardNumber: true,
-} as const;
-
-const boardCardRelations = {
-  labels: {
-    with: {
-      label: {
-        columns: {
-          publicId: true,
-          name: true,
-          colourCode: true,
-        },
-      },
+/**
+ * Card columns and relations loaded for a board view. Shared cards are loaded
+ * with the same shape as the board's own cards, so both can be formatted alike.
+ */
+const boardCardQuery = (includeCardDetails: boolean) =>
+  ({
+    columns: {
+      id: true,
+      publicId: true,
+      title: true,
+      description: includeCardDetails,
+      listId: true,
+      index: true,
+      dueDate: true,
+      cardNumber: true,
     },
-  },
-  members: {
     with: {
-      member: {
-        columns: {
-          publicId: true,
-          email: true,
-          deletedAt: true,
-        },
+      labels: {
         with: {
-          user: {
+          label: {
             columns: {
-              id: true,
+              publicId: true,
               name: true,
-              email: true,
-              image: true,
+              colourCode: true,
             },
           },
         },
       },
-    },
-  },
-  attachments: {
-    columns: {
-      publicId: true,
-    },
-    where: isNull(cardAttachments.deletedAt),
-    orderBy: asc(cardAttachments.createdAt),
-  },
-  checklists: {
-    columns: {
-      publicId: true,
-      name: true,
-      index: true,
-    },
-    where: isNull(checklists.deletedAt),
-    orderBy: asc(checklists.index),
-    with: {
-      items: {
+      members: {
+        with: {
+          member: {
+            columns: {
+              publicId: true,
+              email: true,
+              deletedAt: true,
+            },
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  image: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      // In the compact summary view the detail relations are kept in the
+      // query shape (stable types) but return no rows.
+      attachments: {
         columns: {
           publicId: true,
-          title: true,
-          completed: true,
+        },
+        where: includeCardDetails
+          ? isNull(cardAttachments.deletedAt)
+          : sql`false`,
+        orderBy: asc(cardAttachments.createdAt),
+      },
+      checklists: {
+        columns: {
+          publicId: true,
+          name: true,
           index: true,
         },
-        where: isNull(checklistItems.deletedAt),
-        orderBy: asc(checklistItems.index),
+        where: includeCardDetails ? isNull(checklists.deletedAt) : sql`false`,
+        orderBy: asc(checklists.index),
+        with: {
+          items: {
+            columns: {
+              publicId: true,
+              title: true,
+              completed: true,
+              index: true,
+            },
+            where: isNull(checklistItems.deletedAt),
+            orderBy: asc(checklistItems.index),
+          },
+        },
+      },
+      comments: {
+        columns: {
+          publicId: true,
+        },
+        where: includeCardDetails ? isNull(comments.deletedAt) : sql`false`,
+        limit: 1,
       },
     },
-  },
-  comments: {
-    columns: {
-      publicId: true,
-    },
-    where: isNull(comments.deletedAt),
-    limit: 1,
-  },
-} as const;
+  }) as const;
 
 export const getByPublicId = async (
   db: dbClient,
@@ -263,8 +274,10 @@ export const getByPublicId = async (
     lists: string[];
     dueDate: DueDateFilter[];
     type: "regular" | "template" | undefined;
+    cardView?: "full" | "summary";
   },
 ) => {
+  const includeCardDetails = filters.cardView !== "summary";
   let cardIds: string[] = [];
 
   if (filters.labels.length > 0 || filters.members.length > 0) {
@@ -309,6 +322,8 @@ export const getByPublicId = async (
       slug: true,
       visibility: true,
       isArchived: true,
+      backgroundColourCode: true,
+      backgroundImageKey: true,
     },
     with: {
       userFavorites: {
@@ -363,8 +378,7 @@ export const getByPublicId = async (
         },
         with: {
           cards: {
-            columns: boardCardColumns,
-            with: boardCardRelations,
+            ...boardCardQuery(includeCardDetails),
             where: and(
               cardIds.length > 0 ? inArray(cards.publicId, cardIds) : undefined,
               isNull(cards.deletedAt),
@@ -408,8 +422,7 @@ export const getByPublicId = async (
 
   const sharedCards = sharedLinks.length
     ? await db.query.cards.findMany({
-        columns: { ...boardCardColumns, id: true },
-        with: boardCardRelations,
+        ...boardCardQuery(includeCardDetails),
         where: and(
           inArray(
             cards.id,
@@ -422,9 +435,131 @@ export const getByPublicId = async (
       })
     : [];
 
-  const sharedCardsById = new Map(
-    sharedCards.map(({ id, ...card }) => [id, card]),
-  );
+  const sharedCardsById = new Map(sharedCards.map((card) => [card.id, card]));
+
+  const summaryByCardId = new Map<
+    number,
+    {
+      hasDescription: boolean;
+      attachmentCount: number;
+      hasComments: boolean;
+      checklistItemCount: number;
+      completedChecklistItemCount: number;
+    }
+  >();
+
+  if (!includeCardDetails) {
+    const ids = [
+      ...board.lists.flatMap((list) => list.cards.map((card) => card.id)),
+      ...sharedCards.map((card) => card.id),
+    ];
+    if (ids.length > 0) {
+      const [descriptions, attachments, cardComments, items, completedItems] =
+        await Promise.all([
+          db
+            .select({ id: cards.id })
+            .from(cards)
+            .where(and(inArray(cards.id, ids), isNotNull(cards.description))),
+          db
+            .select({ cardId: cardAttachments.cardId, count: count() })
+            .from(cardAttachments)
+            .where(
+              and(
+                inArray(cardAttachments.cardId, ids),
+                isNull(cardAttachments.deletedAt),
+              ),
+            )
+            .groupBy(cardAttachments.cardId),
+          db
+            .select({ cardId: comments.cardId, count: count() })
+            .from(comments)
+            .where(
+              and(inArray(comments.cardId, ids), isNull(comments.deletedAt)),
+            )
+            .groupBy(comments.cardId),
+          db
+            .select({ cardId: checklists.cardId, count: count() })
+            .from(checklistItems)
+            .innerJoin(
+              checklists,
+              eq(checklistItems.checklistId, checklists.id),
+            )
+            .where(
+              and(
+                inArray(checklists.cardId, ids),
+                isNull(checklists.deletedAt),
+                isNull(checklistItems.deletedAt),
+              ),
+            )
+            .groupBy(checklists.cardId),
+          db
+            .select({ cardId: checklists.cardId, count: count() })
+            .from(checklistItems)
+            .innerJoin(
+              checklists,
+              eq(checklistItems.checklistId, checklists.id),
+            )
+            .where(
+              and(
+                inArray(checklists.cardId, ids),
+                isNull(checklists.deletedAt),
+                isNull(checklistItems.deletedAt),
+                eq(checklistItems.completed, true),
+              ),
+            )
+            .groupBy(checklists.cardId),
+        ]);
+
+      const attachmentCounts = new Map(
+        attachments.map(({ cardId, count }) => [cardId, count]),
+      );
+      const commentCounts = new Map(
+        cardComments.map(({ cardId, count }) => [cardId, count]),
+      );
+      const itemCounts = new Map(
+        items.map(({ cardId, count }) => [cardId, count]),
+      );
+      const completedItemCounts = new Map(
+        completedItems.map(({ cardId, count }) => [cardId, count]),
+      );
+
+      const cardsWithDescription = new Set(descriptions.map(({ id }) => id));
+      for (const id of ids) {
+        summaryByCardId.set(id, {
+          hasDescription: cardsWithDescription.has(id),
+          attachmentCount: attachmentCounts.get(id) ?? 0,
+          hasComments: (commentCounts.get(id) ?? 0) > 0,
+          checklistItemCount: itemCounts.get(id) ?? 0,
+          completedChecklistItemCount: completedItemCounts.get(id) ?? 0,
+        });
+      }
+    }
+  }
+
+  const formatCard = (card: (typeof sharedCards)[number]) => {
+    const { id: _id, ...cardWithoutId } = card;
+    return {
+      ...cardWithoutId,
+      ...(filters.cardView === "summary" && {
+        summary: summaryByCardId.get(card.id),
+      }),
+      description: includeCardDetails
+        ? ((card as { description?: string | null }).description ?? null)
+        : null,
+      attachments: includeCardDetails ? card.attachments : [],
+      checklists: includeCardDetails
+        ? card.checklists.map((checklist) => ({
+            ...checklist,
+            items: "items" in checklist ? checklist.items : [],
+          }))
+        : [],
+      comments: includeCardDetails ? card.comments : [],
+      labels: card.labels.map((label) => label.label),
+      members: card.members
+        .map((member) => member.member)
+        .filter((member) => member.deletedAt === null),
+    };
+  };
 
   const formattedResult = {
     ...boardFields,
@@ -438,7 +573,7 @@ export const getByPublicId = async (
         return card
           ? [
               {
-                ...card,
+                ...formatCard(card),
                 index: link.index,
                 sharedFrom: {
                   publicId: link.homeBoardPublicId,
@@ -452,15 +587,11 @@ export const getByPublicId = async (
       return {
         ...list,
         cards: mergeListOrder(
-          list.cards.map((card) => ({ ...card, sharedFrom: null })),
+          list.cards.map((card) => ({ ...formatCard(card), sharedFrom: null })),
           shared,
         ).map((card, position) => ({
           ...card,
           index: shared.length ? position : card.index,
-          labels: card.labels.map((label) => label.label),
-          members: card.members
-            .map((member) => member.member)
-            .filter((member) => member.deletedAt === null),
         })),
       };
     }),
@@ -508,6 +639,8 @@ export const getBySlug = async (
       name: true,
       slug: true,
       visibility: true,
+      backgroundColourCode: true,
+      backgroundImageKey: true,
     },
     with: {
       workspace: {
@@ -697,6 +830,10 @@ export const create = async (
     slug: string;
     type?: "regular" | "template";
     sourceBoardId?: number;
+    background?:
+      | { kind: "colour"; colourCode: string }
+      | { kind: "image"; imageKey: string }
+      | null;
   },
 ) => {
   return db.transaction(async (tx) => {
@@ -713,6 +850,14 @@ export const create = async (
         slug: boardInput.slug,
         type,
         sourceBoardId: boardInput.sourceBoardId,
+        backgroundColourCode:
+          boardInput.background?.kind === "colour"
+            ? boardInput.background.colourCode
+            : null,
+        backgroundImageKey:
+          boardInput.background?.kind === "image"
+            ? boardInput.background.imageKey
+            : null,
       })
       .returning({
         id: boards.id,
@@ -740,6 +885,10 @@ export const update = async (
     visibility: BoardVisibilityStatus | undefined;
     boardPublicId: string;
     isArchived?: boolean;
+    background?:
+      | { kind: "colour"; colourCode: string }
+      | { kind: "image"; imageKey: string }
+      | null;
   },
 ) => {
   const [result] = await db
@@ -751,6 +900,16 @@ export const update = async (
       updatedAt: new Date(),
       ...(boardInput.isArchived !== undefined && {
         isArchived: boardInput.isArchived,
+      }),
+      ...(boardInput.background !== undefined && {
+        backgroundColourCode:
+          boardInput.background?.kind === "colour"
+            ? boardInput.background.colourCode
+            : null,
+        backgroundImageKey:
+          boardInput.background?.kind === "image"
+            ? boardInput.background.imageKey
+            : null,
       }),
     })
     .where(eq(boards.publicId, boardInput.boardPublicId))
@@ -824,11 +983,38 @@ export const getWorkspaceAndBoardIdByBoardPublicId = async (
       type: true,
       visibility: true,
       deletedAt: true,
+      backgroundImageKey: true,
     },
     where: eq(boards.publicId, boardPublicId),
   });
 
   return result;
+};
+
+export const getBackgroundsByPublicIds = async (
+  db: dbClient,
+  boardPublicIds: string[],
+) => {
+  if (boardPublicIds.length === 0) return [];
+
+  return db
+    .select({
+      id: boards.id,
+      type: boards.type,
+      publicId: boards.publicId,
+      workspaceId: boards.workspaceId,
+      visibility: boards.visibility,
+      backgroundImageKey: boards.backgroundImageKey,
+    })
+    .from(boards)
+    .innerJoin(workspaces, eq(workspaces.id, boards.workspaceId))
+    .where(
+      and(
+        inArray(boards.publicId, boardPublicIds),
+        isNull(boards.deletedAt),
+        isNull(workspaces.deletedAt),
+      ),
+    );
 };
 
 /**
@@ -906,6 +1092,9 @@ export const createFromSnapshot = async (
     };
     workspaceId: number;
     createdBy: string;
+    publicId?: string;
+    backgroundColourCode?: string | null;
+    backgroundImageKey?: string | null;
     slug: string;
     name?: string;
     type: "regular" | "template";
@@ -916,13 +1105,15 @@ export const createFromSnapshot = async (
     const [newBoard] = await tx
       .insert(boards)
       .values({
-        publicId: generateUID(),
+        publicId: args.publicId ?? generateUID(),
         name: args.name ?? args.source.name,
         slug: args.slug,
         createdBy: args.createdBy,
         workspaceId: args.workspaceId,
         type: args.type,
         sourceBoardId: args.sourceBoardId,
+        backgroundColourCode: args.backgroundColourCode,
+        backgroundImageKey: args.backgroundImageKey,
       })
       .returning({
         id: boards.id,
