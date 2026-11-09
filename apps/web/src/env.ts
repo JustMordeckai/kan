@@ -131,6 +131,13 @@ export const env = createEnv({
         (s) => !s || s.toLowerCase() === "true" || s.toLowerCase() === "false",
       )
       .optional(),
+
+    // Branding and theme, validated where they are used (utils/branding.ts,
+    // utils/theme.ts) because runtime values bypass this build-time schema.
+    NEXT_PUBLIC_APP_NAME: z.string().optional(),
+    NEXT_PUBLIC_LOGO_URL: z.string().optional(),
+    NEXT_PUBLIC_FAVICON_URL: z.string().optional(),
+    NEXT_PUBLIC_THEME: z.string().optional(),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
@@ -156,6 +163,11 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_USE_STANDALONE_OUTPUT,
     NEXT_PUBLIC_WHITE_LABEL_HIDE_POWERED_BY:
       process.env.NEXT_PUBLIC_WHITE_LABEL_HIDE_POWERED_BY,
+
+    NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+    NEXT_PUBLIC_LOGO_URL: process.env.NEXT_PUBLIC_LOGO_URL,
+    NEXT_PUBLIC_FAVICON_URL: process.env.NEXT_PUBLIC_FAVICON_URL,
+    NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME,
   },
   skipValidation:
     !!process.env.CI || process.env.npm_lifecycle_event === "lint",

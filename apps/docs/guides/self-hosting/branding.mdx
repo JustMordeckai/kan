@@ -1,0 +1,43 @@
+---
+title: "Branding and colours"
+---
+
+Self-hosted instances can rename Kan and change its colours with environment variables. They are read when the server starts, so the published Docker image picks them up without a rebuild: change the values and restart the container.
+
+When none of these variables is set, Kan looks exactly as usual.
+
+## Branding
+
+| Variable | Description | Example |
+| --- | --- | --- |
+| `NEXT_PUBLIC_APP_NAME` | Name shown instead of "kan.bn" in the side navigation, the sign in pages and the browser tab title (64 characters max). | `Acme Boards` |
+| `NEXT_PUBLIC_LOGO_URL` | Image shown before the name. | `https://example.com/logo.svg` |
+| `NEXT_PUBLIC_FAVICON_URL` | Favicon served for `/favicon.ico`. | `https://example.com/favicon.png` |
+
+Images accept an `http(s)` URL or a path on the same origin such as `/brand/logo.svg` (a file you add to `apps/web/public/`, for example through a Docker volume).
+
+## Colours
+
+`NEXT_PUBLIC_THEME` holds a JSON object of colour tokens. Only hex colours (`#rgb` or `#rrggbb`) and the keys below are accepted; any other value makes the whole theme ignored (a warning is logged by the server) and the default colours are kept.
+
+| Key | Value | What it colours |
+| --- | --- | --- |
+| `accent` | One colour, or an object of shades `50` to `950` | Toggles, workspace avatars, confirmation checkboxes |
+| `link` | Same as `accent`, follows `accent` when omitted | Links, checked checkboxes, progress indicators |
+| `dark` | Object of shades `50` to `1000` | Dark mode surfaces, borders and text (`50` is the darkest background, `1000` the brightest text) |
+| `light` | Object of shades `50` to `1000` | Light mode surfaces, borders and text (`50` is the brightest background, `1000` the darkest text) |
+| `primaryButton` | `"default"` or `"accent"` | `"accent"` paints primary buttons with the accent colour in both modes |
+| `primaryButtonText` | One colour | Text of accent primary buttons, picked automatically for contrast when omitted |
+
+A single `accent` or `link` colour is used as shade `600` and the other shades are derived from it. In an object, shades you leave out are derived from `600` when it is given, and keep their default value otherwise. Shades you leave out of `dark` and `light` keep their default value.
+
+```bash
+# Quote the value: "#" starts a comment in .env files.
+NEXT_PUBLIC_THEME='{"accent":"#0d9488","dark":{"50":"#0f172a","100":"#111827","200":"#1e293b"},"primaryButton":"accent"}'
+```
+
+The default values are listed in [`apps/web/src/styles/globals.css`](https://github.com/kanbn/kan/blob/main/apps/web/src/styles/globals.css).
+
+<Note>
+  Browsers keep the theme for up to five minutes. After changing it, reload the page without the cache to see the result at once.
+</Note>

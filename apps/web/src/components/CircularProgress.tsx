@@ -47,7 +47,7 @@ const CircularProgress = ({
           strokeLinecap="round"
           className={twMerge(
             "transition-all duration-300 ease-in-out",
-            progress === 100 ? "text-green-500" : "text-blue-500",
+            progress === 100 ? "text-green-500" : "text-link-500",
           )}
         />
       </svg>

@@ -391,7 +391,7 @@ export function Auth({
                     href="https://docs.kan.bn/guides/self-hosting/introduction"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-blue-600 underline dark:text-blue-300"
+                    className="text-link-600 underline dark:text-link-300"
                   >
                     self-hosting guide
                   </Link>
