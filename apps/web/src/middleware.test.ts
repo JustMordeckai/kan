@@ -160,4 +160,56 @@ describe("middleware", () => {
 
     expect(response.status).not.toBe(404);
   });
+
+  it("serves the bundled favicon when none is configured", () => {
+    const response = middleware(
+      new NextRequest("http://localhost:3000/favicon.ico"),
+    );
+
+    expect(response.headers.get("x-middleware-rewrite")).toBeNull();
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("redirects the favicon to a configured URL", () => {
+    mockedEnv.mockImplementation((key) => {
+      if (key === "NEXT_PUBLIC_FAVICON_URL")
+        return "https://cdn.example.com/icon.png";
+    });
+
+    const response = middleware(
+      new NextRequest("http://localhost:3000/favicon.ico"),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://cdn.example.com/icon.png",
+    );
+  });
+
+  it("rewrites the favicon to a configured path", () => {
+    mockedEnv.mockImplementation((key) => {
+      if (key === "NEXT_PUBLIC_FAVICON_URL") return "/brand/icon.png";
+    });
+
+    const response = middleware(
+      new NextRequest("http://localhost:3000/favicon.ico"),
+    );
+
+    const rewriteTarget = response.headers.get("x-middleware-rewrite");
+    expect(rewriteTarget).not.toBeNull();
+    expect(new URL(rewriteTarget ?? "").pathname).toBe("/brand/icon.png");
+  });
+
+  it("ignores an unsafe favicon URL", () => {
+    mockedEnv.mockImplementation((key) => {
+      if (key === "NEXT_PUBLIC_FAVICON_URL") return "javascript:alert(1)";
+    });
+
+    const response = middleware(
+      new NextRequest("http://localhost:3000/favicon.ico"),
+    );
+
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("x-middleware-rewrite")).toBeNull();
+  });
 });

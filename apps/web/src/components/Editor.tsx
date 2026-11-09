@@ -483,7 +483,7 @@ export default function Editor({
         Link.configure({
           openOnClick: true,
           HTMLAttributes: {
-            class: "text-blue-600 hover:text-blue-800 underline cursor-pointer",
+            class: "text-link-600 hover:text-link-800 underline cursor-pointer",
             target: "_blank",
             rel: "noopener noreferrer",
           },

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { authClient } from "@kan/auth/client";
 
 import { Auth } from "~/components/AuthForm";
+import Brand from "~/components/Brand";
 import { PageHead } from "~/components/PageHead";
 import PatternedBackground from "~/components/PatternedBackground";
 
@@ -49,7 +50,7 @@ export default function PartnerActivatePage() {
           <div className="z-10 flex w-full flex-col items-center">
             <Link href="/">
               <h1 className="mb-6 text-lg font-bold tracking-tight text-light-1000 dark:text-dark-1000">
-                kan.bn
+                <Brand />
               </h1>
             </Link>
             <p className="mb-2 text-3xl font-bold tracking-tight text-light-1000 dark:text-dark-1000">

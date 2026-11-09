@@ -95,7 +95,7 @@ export default function FeedbackModal() {
             {t`Need help?`}{" "}
             <Link
               href="mailto:support@kan.bn"
-              className="text-blue-600 underline dark:text-blue-300"
+              className="text-link-600 underline dark:text-link-300"
             >
               {t`Contact us`}
             </Link>
@@ -104,7 +104,7 @@ export default function FeedbackModal() {
               href="https://docs.kan.bn"
               target="_blank"
               rel="noreferrer"
-              className="text-blue-600 underline dark:text-blue-300"
+              className="text-link-600 underline dark:text-link-300"
             >
               {t`docs`}
             </Link>

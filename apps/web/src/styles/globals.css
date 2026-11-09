@@ -2,6 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Colour palette as space separated RGB channels, so Tailwind opacity
+ * modifiers (bg-dark-50/90) keep working. Self-hosted instances can override
+ * these at runtime with NEXT_PUBLIC_THEME (see src/utils/theme.ts).
+ */
+:root {
+  /* Neutral scale used with the `dark:` variant (hex value in comment). */
+  --kan-dark-50: 22 22 22; /* #161616 */
+  --kan-dark-100: 28 28 28; /* #1c1c1c */
+  --kan-dark-200: 35 35 35; /* #232323 */
+  --kan-dark-300: 40 40 40; /* #282828 */
+  --kan-dark-400: 46 46 46; /* #2e2e2e */
+  --kan-dark-500: 52 52 52; /* #343434 */
+  --kan-dark-600: 62 62 62; /* #3e3e3e */
+  --kan-dark-700: 80 80 80; /* #505050 */
+  --kan-dark-800: 112 112 112; /* #707070 */
+  --kan-dark-900: 126 126 126; /* #7e7e7e */
+  --kan-dark-950: 187 187 187; /* #bbb */
+  --kan-dark-1000: 237 237 237; /* #ededed */
+
+  /* Neutral scale used in light mode: hsl(0deg 0% L) is L * 255 on every channel. */
+  --kan-light-50: 251.94 251.94 251.94; /* hsl(0deg 0% 98.8%) */
+  --kan-light-100: 248.115 248.115 248.115; /* hsl(0deg 0% 97.3%) */
+  --kan-light-200: 243.015 243.015 243.015; /* hsl(0deg 0% 95.3%) */
+  --kan-light-300: 236.895 236.895 236.895; /* hsl(0deg 0% 92.9%) */
+  --kan-light-400: 232.05 232.05 232.05; /* hsl(0deg 0% 91%) */
+  --kan-light-500: 225.93 225.93 225.93; /* hsl(0deg 0% 88.6%) */
+  --kan-light-600: 219.045 219.045 219.045; /* hsl(0deg 0% 85.9%) */
+  --kan-light-700: 198.9 198.9 198.9; /* hsl(0deg 0% 78%) */
+  --kan-light-800: 143.055 143.055 143.055; /* hsl(0deg 0% 56.1%) */
+  --kan-light-900: 133.11 133.11 133.11; /* hsl(0deg 0% 52.2%) */
+  --kan-light-950: 110.925 110.925 110.925; /* hsl(0deg 0% 43.5%) */
+  --kan-light-1000: 22.95 22.95 22.95; /* hsl(0deg 0% 9%) */
+
+  /* Accent, defaults to Tailwind's indigo palette. */
+  --kan-accent-50: 238 242 255; /* #eef2ff */
+  --kan-accent-100: 224 231 255; /* #e0e7ff */
+  --kan-accent-200: 199 210 254; /* #c7d2fe */
+  --kan-accent-300: 165 180 252; /* #a5b4fc */
+  --kan-accent-400: 129 140 248; /* #818cf8 */
+  --kan-accent-500: 99 102 241; /* #6366f1 */
+  --kan-accent-600: 79 70 229; /* #4f46e5 */
+  --kan-accent-700: 67 56 202; /* #4338ca */
+  --kan-accent-800: 55 48 163; /* #3730a3 */
+  --kan-accent-900: 49 46 129; /* #312e81 */
+  --kan-accent-950: 30 27 75; /* #1e1b4b */
+
+  /* Links and highlights, defaults to Tailwind's blue palette. */
+  --kan-link-50: 239 246 255; /* #eff6ff */
+  --kan-link-100: 219 234 254; /* #dbeafe */
+  --kan-link-200: 191 219 254; /* #bfdbfe */
+  --kan-link-300: 147 197 253; /* #93c5fd */
+  --kan-link-400: 96 165 250; /* #60a5fa */
+  --kan-link-500: 59 130 246; /* #3b82f6 */
+  --kan-link-600: 37 99 235; /* #2563eb */
+  --kan-link-700: 29 78 216; /* #1d4ed8 */
+  --kan-link-800: 30 64 175; /* #1e40af */
+  --kan-link-900: 30 58 138; /* #1e3a8a */
+  --kan-link-950: 23 37 84; /* #172554 */
+
+  /* Primary button, follows the neutral scales unless the theme says otherwise. */
+  --kan-button-primary-light: var(--kan-light-1000);
+  --kan-button-primary-light-text: var(--kan-light-50);
+  --kan-button-primary-dark: var(--kan-dark-1000);
+  --kan-button-primary-dark-text: var(--kan-dark-50);
+}
+
 html {
   font-size: 14px;
 }
@@ -9,7 +76,7 @@ html {
 [contenteditable="true"]:empty:before {
   content: attr(placeholder);
   display: block;
-  color: #707070;
+  color: rgb(var(--kan-dark-800));
   font-size: 0.8rem;
 }
 

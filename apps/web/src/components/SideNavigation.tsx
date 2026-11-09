@@ -25,6 +25,7 @@ import settingsIconDark from "~/assets/settings-dark.json";
 import settingsIconLight from "~/assets/settings-light.json";
 import templatesIconDark from "~/assets/templates-dark.json";
 import templatesIconLight from "~/assets/templates-light.json";
+import Brand from "~/components/Brand";
 import ButtonComponent from "~/components/Button";
 import ReactiveButton from "~/components/ReactiveButton";
 import UserMenu from "~/components/UserMenu";
@@ -167,7 +168,7 @@ export default function SideNavigation({
             {!isCollapsed && (
               <Link href="/" className="block">
                 <h1 className="pl-2 text-[16px] font-bold tracking-tight text-neutral-900 dark:text-dark-1000">
-                  kan.bn
+                  <Brand />
                 </h1>
               </Link>
             )}

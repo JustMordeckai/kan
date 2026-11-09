@@ -69,6 +69,11 @@ services:
 
       # White label
       - NEXT_PUBLIC_WHITE_LABEL_HIDE_POWERED_BY=${NEXT_PUBLIC_WHITE_LABEL_HIDE_POWERED_BY}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}
+      - NEXT_PUBLIC_LOGO_URL=${NEXT_PUBLIC_LOGO_URL}
+      - NEXT_PUBLIC_FAVICON_URL=${NEXT_PUBLIC_FAVICON_URL}
+      # JSON colour tokens, see .env.example
+      - NEXT_PUBLIC_THEME=${NEXT_PUBLIC_THEME}
 
       # Auth config (optional)
       # NEXT_PUBLIC_ALLOW_CREDENTIALS must be "true" for email & password auth.

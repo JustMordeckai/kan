@@ -14,7 +14,7 @@ const PatternedBackground = () => (
           cx="0.45072574484339184"
           cy="0.45072574484339184"
           r="0.45072574484339184"
-          fill="#3e3e3e"
+          className="fill-dark-600"
         ></circle>
       </pattern>
       <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern)"></rect>
