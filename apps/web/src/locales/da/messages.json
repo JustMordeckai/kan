@@ -23,6 +23,18 @@
     ],
     "translation": ", eller se vores"
   },
+  "wkUr98": {
+    "message": "(home)",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/SharedBoards.tsx",
+        62
+      ]
+    ],
+    "translation": ""
+  },
   "J/hVSQ": {
     "message": "{0}",
     "placeholders": {
@@ -2582,6 +2594,18 @@
       [
         "src/views/card/components/Dropdown.tsx",
         167
+      ]
+    ],
+    "translation": ""
+  },
+  "MMc7IR": {
+    "message": "Card shared",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ShareCardModal.tsx",
+        125
       ]
     ],
     "translation": ""
@@ -7708,6 +7732,18 @@
     ],
     "translation": "Der er endnu ikke oprettet nogen lister"
   },
+  "kkuZiP": {
+    "message": "No other board available",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ShareCardModal.tsx",
+        165
+      ]
+    ],
+    "translation": ""
+  },
   "i30J2U": {
     "message": "No projects found",
     "placeholders": {},
@@ -8953,6 +8989,26 @@
     ],
     "translation": ""
   },
+  "b6F/su": {
+    "message": "Remove from {name}",
+    "placeholders": {
+      "name": [
+        "name"
+      ]
+    },
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/SharedBoards.tsx",
+        81
+      ],
+      [
+        "src/views/card/components/SharedBoards.tsx",
+        82
+      ]
+    ],
+    "translation": ""
+  },
   "Tir5Ud": {
     "message": "Remove from board",
     "placeholders": {},
@@ -8976,6 +9032,18 @@
       ]
     ],
     "translation": "Fjern fra favoritter"
+  },
+  "DDGCS6": {
+    "message": "Remove from this board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/CardContextMenu.tsx",
+        92
+      ]
+    ],
+    "translation": ""
   },
   "99VIgC": {
     "message": "Remove member",
@@ -9087,6 +9155,34 @@
       ]
     ],
     "translation": "fjernede etiketten <0>{0}</0>"
+  },
+  "9+47iJ": {
+    "message": "removed the card from <0>{0}</0>",
+    "placeholders": {
+      "0": [
+        "truncate(fromTitle)"
+      ]
+    },
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ActivityList.tsx",
+        288
+      ]
+    ],
+    "translation": ""
+  },
+  "/y59JX": {
+    "message": "removed the card from a board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ActivityList.tsx",
+        148
+      ]
+    ],
+    "translation": ""
   },
   "aHRWVI": {
     "message": "removed the due date",
@@ -9497,6 +9593,18 @@
     ],
     "translation": "Se, hvad vores brugere siger om Kan"
   },
+  "ksgFyQ": {
+    "message": "Select a board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ShareCardModal.tsx",
+        166
+      ]
+    ],
+    "translation": ""
+  },
   "zYRVNp": {
     "message": "Select a list",
     "placeholders": {},
@@ -9840,6 +9948,82 @@
       ]
     ],
     "translation": "Indstillinger | Arbejdsområde"
+  },
+  "Z8lGw6": {
+    "message": "Share",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ShareCardModal.tsx",
+        197
+      ]
+    ],
+    "translation": ""
+  },
+  "YvvZ4f": {
+    "message": "Share with a board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/CardContextMenu.tsx",
+        86
+      ],
+      [
+        "src/views/card/components/Dropdown.tsx",
+        159
+      ],
+      [
+        "src/views/card/components/ShareCardModal.tsx",
+        155
+      ]
+    ],
+    "translation": ""
+  },
+  "o69eh2": {
+    "message": "Shared from {sharedFrom}",
+    "placeholders": {
+      "sharedFrom": [
+        "sharedFrom"
+      ]
+    },
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/Card.tsx",
+        85
+      ]
+    ],
+    "translation": ""
+  },
+  "7M3QyI": {
+    "message": "shared the card with <0>{0}</0>",
+    "placeholders": {
+      "0": [
+        "truncate(toTitle)"
+      ]
+    },
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ActivityList.tsx",
+        280
+      ]
+    ],
+    "translation": ""
+  },
+  "kCnamT": {
+    "message": "shared the card with another board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ActivityList.tsx",
+        147
+      ]
+    ],
+    "translation": ""
   },
   "CTqTgr": {
     "message": "Shortcuts",
@@ -10655,6 +10839,18 @@
     ],
     "translation": "Kortet er blevet duplikeret."
   },
+  "DaCFx8": {
+    "message": "The card now also appears on the selected board.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ShareCardModal.tsx",
+        127
+      ]
+    ],
+    "translation": ""
+  },
   "kwssev": {
     "message": "The card was created, but {failedCount} of {0} attachments could not be uploaded.",
     "placeholders": {
@@ -10749,6 +10945,18 @@
       ]
     ],
     "translation": "Siden, du leder efter, findes ikke eller er blevet flyttet."
+  },
+  "Fi2n41": {
+    "message": "The same card shows on both boards: changes made on one are visible on the other.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ShareCardModal.tsx",
+        158
+      ]
+    ],
+    "translation": ""
   },
   "fQCrjt": {
     "message": "The visibility of your board has been set to {0}.",
@@ -11454,6 +11662,22 @@
     ],
     "translation": "Kunne ikke flytte kort"
   },
+  "dtYyYp": {
+    "message": "Unable to remove card from board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/index.tsx",
+        427
+      ],
+      [
+        "src/views/card/components/SharedBoards.tsx",
+        32
+      ]
+    ],
+    "translation": ""
+  },
   "8yFGGF": {
     "message": "Unable to remove member",
     "placeholders": {},
@@ -11505,6 +11729,18 @@
       ]
     ],
     "translation": "Kunne ikke sende feedback"
+  },
+  "TZ/1f/": {
+    "message": "Unable to share card",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/components/ShareCardModal.tsx",
+        133
+      ]
+    ],
+    "translation": ""
   },
   "Q60WUZ": {
     "message": "Unable to start checkout",
