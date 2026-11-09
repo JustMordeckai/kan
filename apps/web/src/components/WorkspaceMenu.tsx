@@ -12,6 +12,7 @@ import { useWorkspace } from "~/providers/workspace";
 import { api } from "~/utils/api";
 import CommandPallette from "./CommandPallette";
 import { Tooltip } from "./Tooltip";
+import WorkspaceAvatar from "./WorkspaceAvatar";
 
 export default function WorkspaceMenu({
   isCollapsed = false,
@@ -73,11 +74,10 @@ export default function WorkspaceMenu({
                 )}
                 title={isCollapsed ? workspace.name : undefined}
               >
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-indigo-700">
-                  <span className="text-xs font-bold leading-none text-white">
-                    {workspace.name.charAt(0).toUpperCase()}
-                  </span>
-                </span>
+                <WorkspaceAvatar
+                  name={workspace.name}
+                  imageUrl={workspace.image}
+                />
                 <span
                   className={twMerge(
                     "ml-2 min-w-0 flex-1 truncate text-left text-sm font-bold text-neutral-900 dark:text-dark-1000",
@@ -137,11 +137,11 @@ export default function WorkspaceMenu({
                       className="flex w-full items-center justify-between rounded-[5px] px-3 py-2 text-left text-sm text-neutral-900 hover:bg-light-200 dark:text-dark-1000 dark:hover:bg-dark-400"
                     >
                       <div className="flex min-w-0 flex-1 items-center">
-                        <span className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-[5px] bg-indigo-700">
-                          <span className="text-xs font-medium leading-none text-white">
-                            {availableWorkspace.name.charAt(0).toUpperCase()}
-                          </span>
-                        </span>
+                        <WorkspaceAvatar
+                          name={availableWorkspace.name}
+                          imageUrl={availableWorkspace.image}
+                          size="xs"
+                        />
                         <span className="ml-2 truncate text-xs font-medium">
                           {availableWorkspace.name}
                         </span>

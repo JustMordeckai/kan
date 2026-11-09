@@ -9,6 +9,7 @@ export const workspaceListItemSchema = z.object({
     publicId: z.string(),
     name: z.string(),
     description: z.string().nullable(),
+    image: z.string().nullable(),
     slug: z.string(),
     plan: z.enum(["free", "team", "pro", "enterprise"]),
     weekStartDay: z.number().nullable(),
