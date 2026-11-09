@@ -309,6 +309,13 @@
       "when": 1794263626962,
       "tag": "20261109223346_AddBoardBackgroundImageUrl",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794264512029,
+      "tag": "20261109224832_AddWorkspaceImage",
+      "breakpoints": true
     }
   ]
 }

@@ -56,6 +56,10 @@
       "types": "./src/utils/workspace.ts",
       "default": "./src/utils/workspace.ts"
     },
+    "./utils/workspaceImage": {
+      "types": "./src/utils/workspaceImage.ts",
+      "default": "./src/utils/workspaceImage.ts"
+    },
     "./utils/apiToken": {
       "types": "./src/utils/apiToken.ts",
       "default": "./src/utils/apiToken.ts"

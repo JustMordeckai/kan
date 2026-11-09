@@ -169,6 +169,23 @@ export const update = async (
   return result;
 };
 
+export const updateImage = async (
+  db: dbClient,
+  workspacePublicId: string,
+  image: string | null,
+) => {
+  const [result] = await db
+    .update(workspaces)
+    .set({ image, updatedAt: new Date() })
+    .where(eq(workspaces.publicId, workspacePublicId))
+    .returning({
+      publicId: workspaces.publicId,
+      image: workspaces.image,
+    });
+
+  return result;
+};
+
 export const getByPublicId = (db: dbClient, workspacePublicId: string) => {
   return db.query.workspaces.findFirst({
     columns: {
@@ -177,6 +194,7 @@ export const getByPublicId = (db: dbClient, workspacePublicId: string) => {
       name: true,
       plan: true,
       slug: true,
+      image: true,
       deletedAt: true,
       createdBy: true,
     },
@@ -300,6 +318,7 @@ export const getAllByUserId = async (db: dbClient, userId: string) => {
           publicId: true,
           name: true,
           description: true,
+          image: true,
           slug: true,
           plan: true,
           weekStartDay: true,

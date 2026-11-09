@@ -94,6 +94,7 @@ export function NewWorkspaceForm() {
           publicId: values.publicId,
           name: values.name,
           description: values.description,
+          image: null,
           slug: values.slug,
           plan: values.plan,
           cardPrefix: values.cardPrefix,

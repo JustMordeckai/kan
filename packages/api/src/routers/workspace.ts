@@ -21,6 +21,7 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { createAvatarUrlResolver } from "../utils/avatarUrls";
 import { formatBoardBackground } from "../utils/boardBackground";
 import { assertPermission, isWorkspaceAdmin } from "../utils/permissions";
+import { deleteWorkspaceImage } from "../utils/workspaceImage";
 
 export const workspaceRouter = createTRPCRouter({
   all: protectedProcedure
@@ -47,7 +48,20 @@ export const workspaceRouter = createTRPCRouter({
 
       const result = await workspaceRepo.getAllByUserId(ctx.db, userId);
 
-      return result;
+      // Resolve stored image keys to URLs, as is done for user avatars
+      const resolveAvatarUrl = createAvatarUrlResolver();
+
+      return Promise.all(
+        result.map(async (member) => ({
+          ...member,
+          workspace: {
+            ...member.workspace,
+            image: member.workspace.image
+              ? await resolveAvatarUrl(member.workspace.image)
+              : null,
+          },
+        })),
+      );
     }),
   checkSlugAvailability: publicProcedure
     .meta({
@@ -522,6 +536,46 @@ export const workspaceRouter = createTRPCRouter({
 
       return result;
     }),
+  removeImage: protectedProcedure
+    .meta({
+      openapi: {
+        summary: "Remove the workspace image",
+        method: "DELETE",
+        path: "/workspaces/{workspacePublicId}/image",
+        description:
+          "Removes the image of a workspace, falling back to its initial",
+        tags: ["Workspaces"],
+        protect: true,
+      },
+    })
+    .input(z.object({ workspacePublicId: z.string().min(12) }))
+    .output(z.object({ success: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.user?.id;
+
+      if (!userId)
+        throw new TRPCError({
+          message: `User not authenticated`,
+          code: "UNAUTHORIZED",
+        });
+
+      const workspace = await workspaceRepo.getByPublicId(
+        ctx.db,
+        input.workspacePublicId,
+      );
+
+      if (!workspace)
+        throw new TRPCError({
+          message: `Workspace not found`,
+          code: "NOT_FOUND",
+        });
+      await assertPermission(ctx.db, userId, workspace.id, "workspace:edit");
+
+      await workspaceRepo.updateImage(ctx.db, input.workspacePublicId, null);
+      await deleteWorkspaceImage(input.workspacePublicId, workspace.image);
+
+      return { success: true };
+    }),
   delete: protectedProcedure
     .meta({
       openapi: {
@@ -571,6 +625,7 @@ export const workspaceRouter = createTRPCRouter({
       }
 
       await workspaceRepo.hardDelete(ctx.db, input.workspacePublicId);
+      await deleteWorkspaceImage(input.workspacePublicId, workspace.image);
 
       return { success: true };
     }),
