@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   HiOutlineArrowLeft,
   HiOutlineArrowRight,
+  HiOutlineArrowsRightLeft,
   HiOutlineCheckCircle,
   HiOutlineClock,
   HiOutlinePaperClip,
@@ -143,6 +144,8 @@ const getActivityText = ({
     "card.updated.dueDate.added": t`set the due date`,
     "card.updated.dueDate.updated": t`updated the due date`,
     "card.updated.dueDate.removed": t`removed the due date`,
+    "card.updated.board.added": t`shared the card with another board`,
+    "card.updated.board.removed": t`removed the card from a board`,
   } as const;
 
   if (!(type in ACTIVITY_TYPE_MAP)) return null;
@@ -272,6 +275,23 @@ const getActivityText = ({
     );
   }
 
+  if (type === "card.updated.board.added" && toTitle) {
+    return (
+      <Trans>
+        shared the card with <TextHighlight>{truncate(toTitle)}</TextHighlight>
+      </Trans>
+    );
+  }
+
+  if (type === "card.updated.board.removed" && fromTitle) {
+    return (
+      <Trans>
+        removed the card from{" "}
+        <TextHighlight>{truncate(fromTitle)}</TextHighlight>
+      </Trans>
+    );
+  }
+
   if (type === "card.updated.attachment.added") {
     const filename = attachmentName ?? toTitle;
     if (!filename) return baseText;
@@ -350,6 +370,8 @@ const ACTIVITY_ICON_MAP: Partial<Record<ActivityType, React.ReactNode | null>> =
     "card.updated.dueDate.added": <HiOutlineClock />,
     "card.updated.dueDate.updated": <HiOutlineClock />,
     "card.updated.dueDate.removed": <HiOutlineClock />,
+    "card.updated.board.added": <HiOutlineArrowsRightLeft />,
+    "card.updated.board.removed": <HiOutlineArrowsRightLeft />,
   } as const;
 
 const getActivityIcon = (

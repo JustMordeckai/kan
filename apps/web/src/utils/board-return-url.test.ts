@@ -23,6 +23,14 @@ describe("getBoardReturnUrl", () => {
     ).toBe("/templates/board123456?members=member123456");
   });
 
+  it("accepts another board the card is shown on", () => {
+    expect(
+      getBoardReturnUrl("/boards/shared123456?lists=list12345678", boardUrl, [
+        "/boards/shared123456",
+      ]),
+    ).toBe("/boards/shared123456?lists=list12345678");
+  });
+
   it.each([
     undefined,
     ["/boards/board123456?members=member123456"],

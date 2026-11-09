@@ -3,6 +3,7 @@ import {
   HiEllipsisHorizontal,
   HiHashtag,
   HiLink,
+  HiOutlineArrowsRightLeft,
   HiOutlineCheckCircle,
   HiOutlineDocumentDuplicate,
   HiOutlineTrash,
@@ -24,6 +25,7 @@ export default function CardDropdown({
   ticketNumber,
   listPublicId,
   cardIndex,
+  canAccessHomeBoard = true,
 }: {
   cardPublicId: string;
   isTemplate?: boolean;
@@ -32,6 +34,7 @@ export default function CardDropdown({
   ticketNumber?: string | null;
   listPublicId?: string;
   cardIndex?: number;
+  canAccessHomeBoard?: boolean;
 }) {
   const { openModal } = useModal();
   const { showPopup } = usePopup();
@@ -126,27 +129,42 @@ export default function CardDropdown({
               <HiOutlineCheckCircle className="h-[16px] w-[16px] text-dark-900" />
             ),
           },
+          ...(canAccessHomeBoard
+            ? [
+                {
+                  label: t`Duplicate card`,
+                  action: () => {
+                    if (!listPublicId || cardIndex === undefined) return;
+                    duplicateCard.mutate({
+                      cardPublicId,
+                      listPublicId,
+                      index: cardIndex + 1,
+                      copyLabels: true,
+                      copyMembers: true,
+                      copyChecklists: true,
+                    });
+                  },
+                  icon: (
+                    <HiOutlineDocumentDuplicate className="h-[16px] w-[16px] text-dark-900" />
+                  ),
+                  disabled: duplicateCard.isPending || !listPublicId,
+                },
+              ]
+            : []),
+        ]
+      : []),
+    ...(canEditCard && !isTemplate
+      ? [
           {
-            label: t`Duplicate card`,
-            action: () => {
-              if (!listPublicId || cardIndex === undefined) return;
-              duplicateCard.mutate({
-                cardPublicId,
-                listPublicId,
-                index: cardIndex + 1,
-                copyLabels: true,
-                copyMembers: true,
-                copyChecklists: true,
-              });
-            },
+            label: t`Share with a board`,
+            action: () => openModal("SHARE_CARD"),
             icon: (
-              <HiOutlineDocumentDuplicate className="h-[16px] w-[16px] text-dark-900" />
+              <HiOutlineArrowsRightLeft className="h-[16px] w-[16px] text-dark-900" />
             ),
-            disabled: duplicateCard.isPending || !listPublicId,
           },
         ]
       : []),
-    ...(canDeleteCard || isCreator
+    ...((canDeleteCard || isCreator) && canAccessHomeBoard
       ? [
           {
             label: t`Delete card`,

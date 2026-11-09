@@ -1,6 +1,7 @@
 export function getBoardReturnUrl(
   returnUrl: string | string[] | undefined,
   boardUrl: string,
+  otherBoardUrls: string[] = [],
 ) {
   if (
     typeof returnUrl !== "string" ||
@@ -12,7 +13,10 @@ export function getBoardReturnUrl(
 
   try {
     const url = new URL(returnUrl, "http://localhost");
-    if (url.origin !== "http://localhost" || url.pathname !== boardUrl) {
+    if (
+      url.origin !== "http://localhost" ||
+      (url.pathname !== boardUrl && !otherBoardUrls.includes(url.pathname))
+    ) {
       return boardUrl;
     }
 

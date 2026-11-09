@@ -19,6 +19,13 @@ export const cardUpdateResponseSchema = z.object({
   dueDate: z.date().nullable(),
 });
 
+// ─── card.share ──────────────────────────────────────────────
+export const cardShareResponseSchema = z.object({
+  boardPublicId: z.string(),
+  listPublicId: z.string(),
+  index: z.number(),
+});
+
 // ─── Comment responses ───────────────────────────────────────
 export const commentResponseSchema = z.object({
   publicId: z.string(),
@@ -83,6 +90,17 @@ export const cardDetailSchema = z.object({
     }),
   }),
   members: z.array(cardMemberSchema),
+  canAccessHomeBoard: z.boolean(),
+  sharedBoards: z.array(
+    z.object({
+      publicId: z.string(),
+      name: z.string(),
+      list: z.object({
+        publicId: z.string(),
+        name: z.string(),
+      }),
+    }),
+  ),
   activities: z.array(
     z.object({
       publicId: z.string(),

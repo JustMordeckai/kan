@@ -6,7 +6,7 @@ import * as cardActivityRepo from "@kan/db/repository/cardActivity.repo";
 import * as listRepo from "@kan/db/repository/list.repo";
 import * as workspaceRepo from "@kan/db/repository/workspace.repo";
 
-import { assertPermission, filterBoardAssignable } from "../utils/permissions";
+import { assertPermission, filterCardAssignable } from "../utils/permissions";
 
 vi.mock("@kan/db/repository/card.repo", () => ({
   create: vi.fn(),
@@ -26,6 +26,18 @@ vi.mock("@kan/db/repository/cardActivity.repo", () => ({
   create: vi.fn(),
 }));
 
+vi.mock("@kan/db/repository/board.repo", () => ({
+  getWorkspaceAndBoardIdByBoardPublicId: vi.fn(),
+}));
+vi.mock("@kan/db/repository/cardBoardLink.repo", () => ({
+  getBoardsByCardId: vi.fn(() => Promise.resolve([])),
+  getByCardAndBoard: vi.fn(() => Promise.resolve(undefined)),
+  getListEntries: vi.fn(() => Promise.resolve([])),
+  placeOwnCard: vi.fn(() =>
+    Promise.resolve({ entries: [], ownIndex: 0, hasShared: false }),
+  ),
+  savePositions: vi.fn(),
+}));
 vi.mock("@kan/db/repository/cardComment.repo", () => ({}));
 vi.mock("@kan/db/repository/checklist.repo", () => ({}));
 vi.mock("@kan/db/repository/label.repo", () => ({
@@ -58,10 +70,15 @@ vi.mock("../utils/permissions", () => ({
     (_db: unknown, _board: unknown, members: unknown) =>
       Promise.resolve(members),
   ),
+  filterCardAssignable: vi.fn(
+    (_db: unknown, _card: unknown, members: unknown) =>
+      Promise.resolve(members),
+  ),
   assertCanDelete: vi.fn(),
   assertCanEdit: vi.fn(),
   assertPermission: vi.fn(),
   assertBoardAccess: vi.fn(),
+  assertCardAccess: vi.fn(),
 }));
 vi.mock("../utils/webhook", () => ({
   createCardWebhookPayload: vi.fn(() => ({})),
@@ -226,7 +243,7 @@ describe("card member workspace scoping", () => {
       });
       mockGetMember.mockResolvedValueOnce({ id: 21, role: "member" });
       mockGetCardMember.mockResolvedValueOnce(undefined);
-      vi.mocked(filterBoardAssignable).mockResolvedValueOnce([]);
+      vi.mocked(filterCardAssignable).mockResolvedValueOnce([]);
 
       await expect(
         cardRouter.createCaller(ctx).addOrRemoveMember(input),
@@ -234,9 +251,9 @@ describe("card member workspace scoping", () => {
         code: "BAD_REQUEST",
       } satisfies Partial<TRPCError>);
 
-      expect(filterBoardAssignable).toHaveBeenCalledWith(
+      expect(filterCardAssignable).toHaveBeenCalledWith(
         mockDb,
-        { id: 3, type: "regular" },
+        expect.objectContaining({ id: 17, boardId: 3, boardType: "regular" }),
         [{ id: 21, role: "member" }],
       );
       expect(mockCreateCardMember).not.toHaveBeenCalled();
@@ -323,7 +340,7 @@ describe("card member workspace scoping", () => {
         stays,
         leaves,
       ] as never);
-      vi.mocked(filterBoardAssignable).mockResolvedValueOnce([stays]);
+      vi.mocked(filterCardAssignable).mockResolvedValueOnce([stays]);
 
       await cardRouter.createCaller(ctx).update({
         cardPublicId: "card-12345678",
@@ -331,9 +348,9 @@ describe("card member workspace scoping", () => {
         index: 0,
       });
 
-      expect(filterBoardAssignable).toHaveBeenCalledWith(
+      expect(filterCardAssignable).toHaveBeenCalledWith(
         mockDb,
-        { id: 4, type: "regular" },
+        { id: 17, boardId: 4, workspaceId: 7, boardType: "regular" },
         [stays, leaves],
       );
       expect(mockDeleteCardMember).toHaveBeenCalledTimes(1);

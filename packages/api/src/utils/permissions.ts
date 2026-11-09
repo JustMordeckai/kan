@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 
 import type { dbClient } from "@kan/db/client";
 import * as boardMemberRepo from "@kan/db/repository/boardMember.repo";
+import * as cardBoardLinkRepo from "@kan/db/repository/cardBoardLink.repo";
 import * as memberRepo from "@kan/db/repository/member.repo";
 import * as permissionRepo from "@kan/db/repository/permission.repo";
 import type { Permission, Role } from "@kan/shared";
@@ -386,6 +387,99 @@ export async function assertBoardAccess(
       code: "NOT_FOUND",
     });
   }
+}
+
+export interface CardAccessTarget {
+  id: number;
+  boardId: number;
+  workspaceId: number;
+  boardType: string;
+}
+
+/**
+ * Regular boards of the card's workspace it is shared on (its home board
+ * excluded).
+ */
+async function getSharedBoards(db: dbClient, card: CardAccessTarget) {
+  const boards = await cardBoardLinkRepo.getBoardsByCardId(db, card.id);
+
+  return boards.filter(
+    (board) =>
+      board.id !== card.boardId &&
+      board.type === "regular" &&
+      board.workspaceId === card.workspaceId,
+  );
+}
+
+/**
+ * Check if a user can see a card: through its home board, or through any
+ * board the card is shared on.
+ */
+export async function hasCardAccess(
+  db: dbClient,
+  userId: string,
+  card: CardAccessTarget,
+): Promise<boolean> {
+  const homeBoard = {
+    id: card.boardId,
+    workspaceId: card.workspaceId,
+    type: card.boardType,
+  };
+
+  if (await hasBoardAccess(db, userId, homeBoard)) return true;
+  if (card.boardType !== "regular") return false;
+
+  for (const board of await getSharedBoards(db, card)) {
+    if (await hasBoardAccess(db, userId, board)) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Assert a user can see a card - throws NOT_FOUND like assertBoardAccess.
+ */
+export async function assertCardAccess(
+  db: dbClient,
+  userId: string,
+  card: CardAccessTarget,
+): Promise<void> {
+  const allowed = await hasCardAccess(db, userId, card);
+
+  if (!allowed) {
+    throw new TRPCError({
+      message: `Card not found`,
+      code: "NOT_FOUND",
+    });
+  }
+}
+
+/**
+ * Narrow workspace members to the ones who belong on a card: anyone
+ * assignable on its home board or on a board the card is shared on.
+ */
+export async function filterCardAssignable<
+  T extends { id: number; role: string },
+>(db: dbClient, card: CardAccessTarget, members: T[]): Promise<T[]> {
+  if (card.boardType !== "regular" || !members.length) return members;
+
+  const boardIds = [
+    card.boardId,
+    ...(await getSharedBoards(db, card)).map((board) => board.id),
+  ];
+  const onBoards = new Set(
+    (
+      await Promise.all(
+        boardIds.map((boardId) =>
+          boardMemberRepo.getWorkspaceMemberIds(db, boardId),
+        ),
+      )
+    ).flat(),
+  );
+
+  return members.filter(
+    (member) => member.role === "admin" || onBoards.has(member.id),
+  );
 }
 
 /**

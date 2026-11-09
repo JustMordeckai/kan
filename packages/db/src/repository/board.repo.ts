@@ -32,9 +32,14 @@ import {
   userBoardFavorites,
   workspaceMembers,
 } from "@kan/db/schema";
-import { generateUID, normalizeDescription } from "@kan/shared/utils";
+import {
+  generateUID,
+  mergeListOrder,
+  normalizeDescription,
+} from "@kan/shared/utils";
 
 import * as boardMemberRepo from "./boardMember.repo";
+import * as cardBoardLinkRepo from "./cardBoardLink.repo";
 
 export const getCount = async (db: dbClient) => {
   const result = await db
@@ -168,6 +173,86 @@ const buildDueDateWhere = (filters: DueDateFilter[]) => {
   return or(...clauses);
 };
 
+const boardCardColumns = {
+  publicId: true,
+  title: true,
+  description: true,
+  listId: true,
+  index: true,
+  dueDate: true,
+  cardNumber: true,
+} as const;
+
+const boardCardRelations = {
+  labels: {
+    with: {
+      label: {
+        columns: {
+          publicId: true,
+          name: true,
+          colourCode: true,
+        },
+      },
+    },
+  },
+  members: {
+    with: {
+      member: {
+        columns: {
+          publicId: true,
+          email: true,
+          deletedAt: true,
+        },
+        with: {
+          user: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  attachments: {
+    columns: {
+      publicId: true,
+    },
+    where: isNull(cardAttachments.deletedAt),
+    orderBy: asc(cardAttachments.createdAt),
+  },
+  checklists: {
+    columns: {
+      publicId: true,
+      name: true,
+      index: true,
+    },
+    where: isNull(checklists.deletedAt),
+    orderBy: asc(checklists.index),
+    with: {
+      items: {
+        columns: {
+          publicId: true,
+          title: true,
+          completed: true,
+          index: true,
+        },
+        where: isNull(checklistItems.deletedAt),
+        orderBy: asc(checklistItems.index),
+      },
+    },
+  },
+  comments: {
+    columns: {
+      publicId: true,
+    },
+    where: isNull(comments.deletedAt),
+    limit: 1,
+  },
+} as const;
+
 export const getByPublicId = async (
   db: dbClient,
   boardPublicId: string,
@@ -217,6 +302,8 @@ export const getByPublicId = async (
 
   const board = await db.query.boards.findFirst({
     columns: {
+      id: true,
+      type: true,
       publicId: true,
       name: true,
       slug: true,
@@ -268,6 +355,7 @@ export const getByPublicId = async (
       },
       lists: {
         columns: {
+          id: true,
           publicId: true,
           name: true,
           boardId: true,
@@ -275,84 +363,8 @@ export const getByPublicId = async (
         },
         with: {
           cards: {
-            columns: {
-              publicId: true,
-              title: true,
-              description: true,
-              listId: true,
-              index: true,
-              dueDate: true,
-              cardNumber: true,
-            },
-            with: {
-              labels: {
-                with: {
-                  label: {
-                    columns: {
-                      publicId: true,
-                      name: true,
-                      colourCode: true,
-                    },
-                  },
-                },
-              },
-              members: {
-                with: {
-                  member: {
-                    columns: {
-                      publicId: true,
-                      email: true,
-                      deletedAt: true,
-                    },
-                    with: {
-                      user: {
-                        columns: {
-                          id: true,
-                          name: true,
-                          email: true,
-                          image: true,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-              attachments: {
-                columns: {
-                  publicId: true,
-                },
-                where: isNull(cardAttachments.deletedAt),
-                orderBy: asc(cardAttachments.createdAt),
-              },
-              checklists: {
-                columns: {
-                  publicId: true,
-                  name: true,
-                  index: true,
-                },
-                where: isNull(checklists.deletedAt),
-                orderBy: asc(checklists.index),
-                with: {
-                  items: {
-                    columns: {
-                      publicId: true,
-                      title: true,
-                      completed: true,
-                      index: true,
-                    },
-                    where: isNull(checklistItems.deletedAt),
-                    orderBy: asc(checklistItems.index),
-                  },
-                },
-              },
-              comments: {
-                columns: {
-                  publicId: true,
-                },
-                where: isNull(comments.deletedAt),
-                limit: 1,
-              },
-            },
+            columns: boardCardColumns,
+            with: boardCardRelations,
             where: and(
               cardIds.length > 0 ? inArray(cards.publicId, cardIds) : undefined,
               isNull(cards.deletedAt),
@@ -387,20 +399,71 @@ export const getByPublicId = async (
 
   if (!board) return null;
 
+  const { id: boardId, type: boardType, ...boardFields } = board;
+
+  const sharedLinks =
+    boardType === "regular"
+      ? await cardBoardLinkRepo.getSharedCardsByBoardId(db, boardId)
+      : [];
+
+  const sharedCards = sharedLinks.length
+    ? await db.query.cards.findMany({
+        columns: { ...boardCardColumns, id: true },
+        with: boardCardRelations,
+        where: and(
+          inArray(
+            cards.id,
+            sharedLinks.map((link) => link.cardId),
+          ),
+          cardIds.length > 0 ? inArray(cards.publicId, cardIds) : undefined,
+          isNull(cards.deletedAt),
+          buildDueDateWhere(filters.dueDate),
+        ),
+      })
+    : [];
+
+  const sharedCardsById = new Map(
+    sharedCards.map(({ id, ...card }) => [id, card]),
+  );
+
   const formattedResult = {
-    ...board,
+    ...boardFields,
     favorite: board.userFavorites.length > 0,
     userFavorites: undefined,
-    lists: board.lists.map((list) => ({
-      ...list,
-      cards: list.cards.map((card) => ({
-        ...card,
-        labels: card.labels.map((label) => label.label),
-        members: card.members
-          .map((member) => member.member)
-          .filter((member) => member.deletedAt === null),
-      })),
-    })),
+    lists: board.lists.map(({ id: listId, ...list }) => {
+      const shared = sharedLinks.flatMap((link) => {
+        const card =
+          link.listId === listId ? sharedCardsById.get(link.cardId) : undefined;
+
+        return card
+          ? [
+              {
+                ...card,
+                index: link.index,
+                sharedFrom: {
+                  publicId: link.homeBoardPublicId,
+                  name: link.homeBoardName,
+                },
+              },
+            ]
+          : [];
+      });
+
+      return {
+        ...list,
+        cards: mergeListOrder(
+          list.cards.map((card) => ({ ...card, sharedFrom: null })),
+          shared,
+        ).map((card, position) => ({
+          ...card,
+          index: shared.length ? position : card.index,
+          labels: card.labels.map((label) => label.label),
+          members: card.members
+            .map((member) => member.member)
+            .filter((member) => member.deletedAt === null),
+        })),
+      };
+    }),
   };
 
   return formattedResult;

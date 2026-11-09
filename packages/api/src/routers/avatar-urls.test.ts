@@ -19,6 +19,18 @@ vi.mock("@kan/db/repository/card.repo", () => ({
 vi.mock("@kan/db/repository/cardActivity.repo", () => ({
   getPaginatedActivities: vi.fn(),
 }));
+vi.mock("@kan/db/repository/board.repo", () => ({
+  getWorkspaceAndBoardIdByBoardPublicId: vi.fn(),
+}));
+vi.mock("@kan/db/repository/cardBoardLink.repo", () => ({
+  getBoardsByCardId: vi.fn(() => Promise.resolve([])),
+  getByCardAndBoard: vi.fn(() => Promise.resolve(undefined)),
+  getListEntries: vi.fn(() => Promise.resolve([])),
+  placeOwnCard: vi.fn(() =>
+    Promise.resolve({ entries: [], ownIndex: 0, hasShared: false }),
+  ),
+  savePositions: vi.fn(),
+}));
 vi.mock("@kan/db/repository/cardComment.repo", () => ({}));
 vi.mock("@kan/db/repository/checklist.repo", () => ({}));
 vi.mock("@kan/db/repository/label.repo", () => ({}));
@@ -47,6 +59,12 @@ vi.mock("../utils/permissions", () => ({
     (_db: unknown, _board: unknown, members: unknown) =>
       Promise.resolve(members),
   ),
+  filterCardAssignable: vi.fn(
+    (_db: unknown, _card: unknown, members: unknown) =>
+      Promise.resolve(members),
+  ),
+  assertCardAccess: vi.fn(),
+  hasBoardAccess: vi.fn(() => Promise.resolve(true)),
   assertCanDelete: vi.fn(),
   assertCanEdit: vi.fn(),
   assertPermission: vi.fn(),

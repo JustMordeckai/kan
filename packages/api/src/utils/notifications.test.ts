@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
   getUser: vi.fn(),
   getWorkspace: vi.fn(),
   getBoard: vi.fn(),
-  hasBoardAccess: vi.fn(),
+  hasCardAccess: vi.fn(),
   sendEmail: vi.fn(),
   log: {
     debug: vi.fn(),
@@ -29,7 +29,7 @@ vi.mock("@kan/db/repository/board.repo", () => ({
 }));
 
 vi.mock("./permissions", () => ({
-  hasBoardAccess: mocks.hasBoardAccess,
+  hasCardAccess: mocks.hasCardAccess,
 }));
 
 vi.mock("@kan/db/repository/card.repo", () => ({
@@ -85,7 +85,7 @@ describe("sendMentionEmails", () => {
     });
     mocks.getWorkspace.mockResolvedValue({ id: 7 });
     mocks.getBoard.mockResolvedValue({ id: 3, workspaceId: 7, type: "regular" });
-    mocks.hasBoardAccess.mockResolvedValue(true);
+    mocks.hasCardAccess.mockResolvedValue(true);
     mocks.getUser.mockResolvedValue({
       id: authorUserId,
       name: "Author",
@@ -119,8 +119,8 @@ describe("sendMentionEmails", () => {
     expect(mocks.sendEmail).toHaveBeenCalledOnce();
   });
 
-  it("does not email members who can't access the board", async () => {
-    mocks.hasBoardAccess.mockResolvedValue(false);
+  it("does not email members who can't access the card", async () => {
+    mocks.hasCardAccess.mockResolvedValue(false);
 
     await sendMentionEmails({
       db,
@@ -131,11 +131,12 @@ describe("sendMentionEmails", () => {
       commentId: 21,
     });
 
-    expect(mocks.hasBoardAccess).toHaveBeenCalledWith(
-      db,
-      "mentioned-user-id",
-      { id: 3, workspaceId: 7, type: "regular" },
-    );
+    expect(mocks.hasCardAccess).toHaveBeenCalledWith(db, "mentioned-user-id", {
+      id: 42,
+      boardId: 3,
+      workspaceId: 7,
+      boardType: "regular",
+    });
     expect(mocks.sendEmail).not.toHaveBeenCalled();
     expect(mocks.createNotification).not.toHaveBeenCalled();
   });
