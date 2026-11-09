@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { isDiscordRoleAccessEnabled } from "@kan/auth/discord/config";
 import * as boardRepo from "@kan/db/repository/board.repo";
 import * as cardRepo from "@kan/db/repository/card.repo";
 import * as activityRepo from "@kan/db/repository/cardActivity.repo";
@@ -20,12 +21,14 @@ import {
   boardDetailSchema,
   boardBySlugSchema,
   boardCreateResponseSchema,
+  boardDiscordRolesSchema,
   boardUpdateResponseSchema,
 } from "../schemas";
 import { createAvatarUrlResolver } from "../utils/avatarUrls";
 import {
   assertBoardAccess,
   assertCanDelete,
+  assertCanManageBoardMembers,
   assertCanEdit,
   assertPermission,
   filterBoardAssignable,
@@ -493,6 +496,11 @@ export const boardRouter = createTRPCRouter({
         visibility: z.enum(["public", "private"]).optional(),
         favorite: z.boolean().optional(),
         isArchived: z.boolean().optional(),
+        discordRoleIds: z
+          .array(z.string().regex(/^[0-9]{1,20}$/))
+          .max(100)
+          .nullable()
+          .optional(),
       }),
     )
     .output(boardUpdateResponseSchema)
@@ -534,6 +542,22 @@ export const boardRouter = createTRPCRouter({
         }
       }
 
+      if (input.discordRoleIds !== undefined) {
+        if (!isDiscordRoleAccessEnabled() || board.type !== "regular")
+          throw new TRPCError({
+            message: `Discord roles are not available for this board`,
+            code: "BAD_REQUEST",
+          });
+
+        await assertCanManageBoardMembers(ctx.db, userId, board);
+
+        const discordRoleIds = [...new Set(input.discordRoleIds ?? [])];
+        await boardRepo.updateDiscordRoleIds(ctx.db, {
+          boardId: board.id,
+          discordRoleIds: discordRoleIds.length ? discordRoleIds : null,
+        });
+      }
+
       // Handle other updates (name, slug, visibility)
       const hasOtherUpdates = input.name || input.slug || input.visibility !== undefined || input.isArchived !== undefined;
 
@@ -572,6 +596,49 @@ export const boardRouter = createTRPCRouter({
         });
 
       return result;
+    }),
+  discordRoles: protectedProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/boards/{boardPublicId}/discord-roles",
+        summary: "Get board Discord roles",
+        description:
+          "Retrieves the Discord role ids whose holders are made members of a board",
+        tags: ["Boards"],
+        protect: true,
+      },
+    })
+    .input(z.object({ boardPublicId: z.string().min(12) }))
+    .output(boardDiscordRolesSchema)
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.user?.id;
+
+      if (!userId)
+        throw new TRPCError({
+          message: `User not authenticated`,
+          code: "UNAUTHORIZED",
+        });
+
+      const board = await boardRepo.getWorkspaceAndBoardIdByBoardPublicId(
+        ctx.db,
+        input.boardPublicId,
+      );
+
+      if (!board)
+        throw new TRPCError({
+          message: `Board with public ID ${input.boardPublicId} not found`,
+          code: "NOT_FOUND",
+        });
+
+      await assertPermission(ctx.db, userId, board.workspaceId, "board:view");
+      await assertBoardAccess(ctx.db, userId, board);
+
+      return {
+        enabled: isDiscordRoleAccessEnabled() && board.type === "regular",
+        discordRoleIds:
+          (await boardRepo.getDiscordRoleIds(ctx.db, board.id)) ?? [],
+      };
     }),
   delete: protectedProcedure
     .meta({

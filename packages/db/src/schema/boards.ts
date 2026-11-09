@@ -64,6 +64,8 @@ export const boards = pgTable(
     type: boardTypeEnum("type").notNull().default("regular"),
     isArchived: boolean("isArchived").notNull().default(false),
     sourceBoardId: bigint("sourceBoardId", { mode: "number" }),
+    // When set, board membership is computed from these Discord role ids.
+    discordRoleIds: text("discordRoleIds").array(),
   },
   (table) => [
     index("board_is_archived_idx").on(table.isArchived),

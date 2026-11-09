@@ -1,8 +1,11 @@
+import { APIError } from "better-auth/api";
 import { env } from "next-runtime-env";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import * as discordRepo from "@kan/db/repository/discord.repo";
 import * as memberRepo from "@kan/db/repository/member.repo";
 
+import { authorizeDiscordSession, isDiscordUserAllowed } from "./discord/sync";
 import { createDatabaseHooks } from "./hooks";
 
 vi.mock("next-runtime-env", () => ({
@@ -17,6 +20,15 @@ vi.mock("@kan/db/repository/member.repo", () => ({
 
 vi.mock("@kan/db/repository/user.repo", () => ({
   update: vi.fn(),
+}));
+
+vi.mock("@kan/db/repository/discord.repo", () => ({
+  deleteUserIfUnused: vi.fn(),
+}));
+
+vi.mock("./discord/sync", () => ({
+  authorizeDiscordSession: vi.fn(),
+  isDiscordUserAllowed: vi.fn(),
 }));
 
 vi.mock("@kan/email", () => ({
@@ -187,6 +199,96 @@ describe("createDatabaseHooks", () => {
       expect(result).toBe(true);
 
       delete process.env.BETTER_AUTH_ALLOWED_DOMAINS;
+    });
+  });
+
+  describe("Discord role access", () => {
+    const mockIsDiscordUserAllowed = vi.mocked(isDiscordUserAllowed);
+    const mockAuthorizeDiscordSession = vi.mocked(authorizeDiscordSession);
+    const mockDeleteUserIfUnused = vi.mocked(discordRepo.deleteUserIfUnused);
+
+    const discordAccount = {
+      providerId: "discord",
+      accountId: "42",
+      userId: "user-1",
+    };
+
+    afterEach(() => {
+      delete process.env.DISCORD_GUILD_ID;
+      delete process.env.DISCORD_BOT_TOKEN;
+      delete process.env.DISCORD_ALLOWED_ROLE_IDS;
+    });
+
+    describe("when DISCORD_GUILD_ID is not set", () => {
+      it("does not check accounts", async () => {
+        await expect(
+          hooks.account.create.before(discordAccount, {}),
+        ).resolves.toBe(true);
+        expect(mockIsDiscordUserAllowed).not.toHaveBeenCalled();
+      });
+
+      it("does not check sessions", async () => {
+        await expect(
+          hooks.session.create.before({ userId: "user-1" }, {}),
+        ).resolves.toBe(true);
+        expect(mockAuthorizeDiscordSession).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when DISCORD_GUILD_ID is set", () => {
+      beforeEach(() => {
+        process.env.DISCORD_GUILD_ID = "100";
+        process.env.DISCORD_BOT_TOKEN = "bot-token";
+        process.env.DISCORD_ALLOWED_ROLE_IDS = "10";
+      });
+
+      it("links a Discord account with an allowed role", async () => {
+        mockIsDiscordUserAllowed.mockResolvedValue(true);
+
+        await expect(
+          hooks.account.create.before(discordAccount, {}),
+        ).resolves.toBe(true);
+        expect(mockIsDiscordUserAllowed).toHaveBeenCalledWith(
+          expect.objectContaining({ guildId: "100", allowedRoleIds: ["10"] }),
+          "42",
+        );
+        expect(mockDeleteUserIfUnused).not.toHaveBeenCalled();
+      });
+
+      it("refuses a Discord account without an allowed role and drops the new user", async () => {
+        mockIsDiscordUserAllowed.mockResolvedValue(false);
+
+        await expect(
+          hooks.account.create.before(discordAccount, {}),
+        ).rejects.toBeInstanceOf(APIError);
+        expect(mockDeleteUserIfUnused).toHaveBeenCalledWith(db, "user-1");
+      });
+
+      it("ignores accounts from other providers", async () => {
+        await expect(
+          hooks.account.create.before(
+            { ...discordAccount, providerId: "credential" },
+            {},
+          ),
+        ).resolves.toBe(true);
+        expect(mockIsDiscordUserAllowed).not.toHaveBeenCalled();
+      });
+
+      it.each([true, false])(
+        "lets the Discord check decide sessions (%s)",
+        async (allowed) => {
+          mockAuthorizeDiscordSession.mockResolvedValue(allowed);
+
+          await expect(
+            hooks.session.create.before({ userId: "user-1" }, {}),
+          ).resolves.toBe(allowed);
+          expect(mockAuthorizeDiscordSession).toHaveBeenCalledWith(
+            db,
+            expect.objectContaining({ guildId: "100" }),
+            "user-1",
+          );
+        },
+      );
     });
   });
 });

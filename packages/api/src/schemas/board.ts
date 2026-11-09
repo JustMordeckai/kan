@@ -125,6 +125,12 @@ export const boardCreateResponseSchema = z.object({
   name: z.string(),
 });
 
+// ─── board.discordRoles ──────────────────────────────────────
+export const boardDiscordRolesSchema = z.object({
+  enabled: z.boolean(),
+  discordRoleIds: z.array(z.string()),
+});
+
 // ─── board.update ────────────────────────────────────────────
 export const boardUpdateResponseSchema = z.union([
   z.object({ success: z.boolean() }),

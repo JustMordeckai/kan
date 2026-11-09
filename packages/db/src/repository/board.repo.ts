@@ -1166,3 +1166,26 @@ export const removeUserFavorite = async (
     )
     .returning();
 };
+
+export const getDiscordRoleIds = async (db: dbClient, boardId: number) => {
+  const [result] = await db
+    .select({ discordRoleIds: boards.discordRoleIds })
+    .from(boards)
+    .where(eq(boards.id, boardId))
+    .limit(1);
+
+  return result?.discordRoleIds ?? null;
+};
+
+export const updateDiscordRoleIds = async (
+  db: dbClient,
+  args: { boardId: number; discordRoleIds: string[] | null },
+) => {
+  const [result] = await db
+    .update(boards)
+    .set({ discordRoleIds: args.discordRoleIds, updatedAt: new Date() })
+    .where(eq(boards.id, args.boardId))
+    .returning({ publicId: boards.publicId, name: boards.name });
+
+  return result;
+};

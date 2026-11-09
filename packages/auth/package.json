@@ -12,6 +12,14 @@
     "./server": {
       "types": "./src/server.ts",
       "default": "./src/server.ts"
+    },
+    "./discord": {
+      "types": "./src/discord/index.ts",
+      "default": "./src/discord/index.ts"
+    },
+    "./discord/config": {
+      "types": "./src/discord/config.ts",
+      "default": "./src/discord/config.ts"
     }
   },
   "license": "GPL-3.0",

@@ -1,14 +1,17 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { createAuthMiddleware } from "better-auth/api";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { env } from "next-runtime-env";
 
 import type { dbClient } from "@kan/db/client";
+import * as discordRepo from "@kan/db/repository/discord.repo";
 import * as memberRepo from "@kan/db/repository/member.repo";
 import * as userRepo from "@kan/db/repository/user.repo";
 import { subscriber } from "@kan/email";
 import { createLogger } from "@kan/logger";
 import { createS3Client } from "@kan/shared";
 
+import { getDiscordRoleAccessConfig } from "./discord/config";
+import { authorizeDiscordSession, isDiscordUserAllowed } from "./discord/sync";
 import { downloadImage } from "./utils";
 
 const log = createLogger("auth");
@@ -22,6 +25,16 @@ type BetterAuthUser = {
   name: string;
   image?: string | null | undefined;
   stripeCustomerId?: string | null | undefined;
+} & Record<string, unknown>;
+
+type BetterAuthAccount = {
+  providerId: string;
+  accountId: string;
+  userId: string;
+} & Record<string, unknown>;
+
+type BetterAuthSession = {
+  userId: string;
 } & Record<string, unknown>;
 
 export function createDatabaseHooks(db: dbClient) {
@@ -138,6 +151,35 @@ export function createDatabaseHooks(db: dbClient) {
           } catch (error) {
             log.error({ err: error }, "Error triggering user-signup workflow");
           }
+        },
+      },
+    },
+    account: {
+      create: {
+        // Refuses a new Discord account before it is linked. The user row
+        // created just before by an OAuth sign-up is deleted with it.
+        async before(account: BetterAuthAccount, _context: unknown) {
+          const config = getDiscordRoleAccessConfig();
+          if (!config || account.providerId !== "discord") return true;
+
+          if (await isDiscordUserAllowed(config, account.accountId)) {
+            return true;
+          }
+
+          await discordRepo.deleteUserIfUnused(db, account.userId);
+          throw new APIError("FORBIDDEN", {
+            message: "discord role required",
+          });
+        },
+      },
+    },
+    session: {
+      create: {
+        async before(session: BetterAuthSession, _context: unknown) {
+          const config = getDiscordRoleAccessConfig();
+          if (!config) return true;
+
+          return authorizeDiscordSession(db, config, session.userId);
         },
       },
     },
