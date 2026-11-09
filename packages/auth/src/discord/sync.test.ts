@@ -63,6 +63,7 @@ describe("discord sync", () => {
       id: 7,
       publicId: "workspace0001",
       name: "Workspace",
+      image: null,
       plan: "free",
       slug: "workspace",
       deletedAt: null,
