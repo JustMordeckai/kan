@@ -55,6 +55,19 @@ export function createDatabaseHooks(db: dbClient) {
           return Promise.resolve(true);
         },
         async after(user: BetterAuthUser, _context: unknown) {
+          // Only the magic link accepts an invite on its own: an invited user who signs up with OAuth
+          // (or on an instance without email) would otherwise stay "invited" with no way to accept.
+          if (user.emailVerified) {
+            try {
+              await memberRepo.acceptPendingInvitesByEmail(db, {
+                email: user.email,
+                userId: user.id,
+              });
+            } catch (error) {
+              log.error({ err: error }, "Error accepting pending invites");
+            }
+          }
+
           let avatarKey = user.image;
           const storageDomain = process.env.NEXT_PUBLIC_STORAGE_DOMAIN;
           if (

@@ -13,6 +13,7 @@ vi.mock("@kan/db/repository/member.repo", () => ({
   getByEmailAndStatus: vi.fn(),
   getByPublicId: vi.fn(),
   acceptInvite: vi.fn(),
+  acceptPendingInvitesByEmail: vi.fn(),
 }));
 
 vi.mock("@kan/db/repository/user.repo", () => ({
@@ -187,6 +188,38 @@ describe("createDatabaseHooks", () => {
       expect(result).toBe(true);
 
       delete process.env.BETTER_AUTH_ALLOWED_DOMAINS;
+    });
+  });
+
+  describe("user.create.after", () => {
+    const mockAcceptPendingInvitesByEmail =
+      memberRepo.acceptPendingInvitesByEmail as ReturnType<typeof vi.fn>;
+
+    it("accepts pending invites for a verified email", async () => {
+      mockAcceptPendingInvitesByEmail.mockResolvedValue([
+        { id: 1, publicId: "member-1" },
+      ]);
+
+      await hooks.user.create.after({ ...fakeUser, emailVerified: true }, {});
+
+      expect(mockAcceptPendingInvitesByEmail).toHaveBeenCalledWith(db, {
+        email: "test@example.com",
+        userId: "user-1",
+      });
+    });
+
+    it("does not accept invites for an unverified email", async () => {
+      await hooks.user.create.after(fakeUser, {});
+
+      expect(mockAcceptPendingInvitesByEmail).not.toHaveBeenCalled();
+    });
+
+    it("still completes sign-up when accepting invites fails", async () => {
+      mockAcceptPendingInvitesByEmail.mockRejectedValue(new Error("db down"));
+
+      await expect(
+        hooks.user.create.after({ ...fakeUser, emailVerified: true }, {}),
+      ).resolves.toBeUndefined();
     });
   });
 });

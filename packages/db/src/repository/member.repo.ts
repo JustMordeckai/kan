@@ -146,6 +146,27 @@ export const acceptInvite = async (
   return result;
 };
 
+export const acceptPendingInvitesByEmail = async (
+  db: dbClient,
+  args: { email: string; userId: string },
+) => {
+  return db
+    .update(workspaceMembers)
+    .set({ status: "active", userId: args.userId })
+    .where(
+      and(
+        eq(workspaceMembers.email, args.email),
+        eq(workspaceMembers.status, "invited"),
+        isNull(workspaceMembers.userId),
+        isNull(workspaceMembers.deletedAt),
+      ),
+    )
+    .returning({
+      id: workspaceMembers.id,
+      publicId: workspaceMembers.publicId,
+    });
+};
+
 export const softDelete = async (
   db: dbClient,
   args: {
