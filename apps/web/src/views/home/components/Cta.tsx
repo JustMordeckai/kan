@@ -78,11 +78,19 @@ const Cta = ({ theme }: { theme: string }) => {
         <defs>
           <radialGradient id="8d958450-c69f-4251-94bc-4e091a323369">
             <stop
-              stopColor={theme === "light" ? "hsl(0deg 0% 52.2%)" : "#505050"}
+              stopColor={
+                theme === "light"
+                  ? "rgb(var(--kan-light-900))"
+                  : "rgb(var(--kan-dark-700))"
+              }
             />
             <stop
               offset={1}
-              stopColor={theme === "light" ? "hsl(0deg 0% 43.5%)" : "#707070"}
+              stopColor={
+                theme === "light"
+                  ? "rgb(var(--kan-light-950))"
+                  : "rgb(var(--kan-dark-800))"
+              }
             />
           </radialGradient>
         </defs>

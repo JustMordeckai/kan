@@ -636,10 +636,10 @@ export default function Editor({
           margin: 0 0 1rem 0 !important;
         }
         .tiptap .mention {
-          background-color: rgba(59, 130, 246, 0.1);
+          background-color: rgb(var(--kan-link-500) / 0.1);
           border-radius: 0.25rem;
           padding: 0.125rem 0.25rem;
-          color: rgb(59, 130, 246);
+          color: rgb(var(--kan-link-500));
           text-decoration: none;
           font-weight: 500;
         }
