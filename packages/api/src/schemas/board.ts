@@ -96,6 +96,9 @@ const boardDetailCardSchema = z.object({
       completedChecklistItemCount: z.number().int().nonnegative(),
     })
     .optional(),
+  // On a shared card, the labels of its home board (`labels` holds this
+  // board's). Empty on the board's own cards.
+  homeLabels: z.array(labelSchema),
 });
 
 // ─── board.byId ──────────────────────────────────────────────

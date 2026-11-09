@@ -455,6 +455,34 @@ export async function assertCardAccess(
 }
 
 /**
+ * Assert a user can add or remove a label on a card. A card carries the
+ * labels of its home board and of the boards it is shared on: a label of a
+ * board the card is shared on takes being on that board, any other label
+ * takes being on the card's home board. Throws NOT_FOUND like
+ * assertBoardAccess.
+ */
+export async function assertCanEditCardLabel(
+  db: dbClient,
+  userId: string,
+  card: CardAccessTarget,
+  label: { boardId: number },
+): Promise<void> {
+  if (label.boardId !== card.boardId && card.boardType === "regular") {
+    const sharedBoard = (await getSharedBoards(db, card)).find(
+      (board) => board.id === label.boardId,
+    );
+
+    if (sharedBoard) return assertBoardAccess(db, userId, sharedBoard);
+  }
+
+  return assertBoardAccess(db, userId, {
+    id: card.boardId,
+    workspaceId: card.workspaceId,
+    type: card.boardType,
+  });
+}
+
+/**
  * Narrow workspace members to the ones who belong on a card: anyone
  * assignable on its home board or on a board the card is shared on.
  */

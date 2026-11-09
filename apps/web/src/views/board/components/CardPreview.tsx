@@ -23,6 +23,7 @@ export default function CardPreview({ card, cardPrefix }: CardPreviewProps) {
       dueDate={card.dueDate ?? null}
       sharedFrom={card.sharedFrom?.name}
       cover={card.cover}
+      homeLabels={card.homeLabels}
     />
   );
 }

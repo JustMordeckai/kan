@@ -33,6 +33,7 @@ const Card = ({
   dueDate,
   sharedFrom,
   cover,
+  homeLabels = [],
 }: {
   title: string;
   ticketNumber?: string | null;
@@ -72,6 +73,8 @@ const Card = ({
         | { kind: "attachment"; attachmentPublicId: string }
       ))
     | null;
+  // A shared card's home board labels, shown after this board's, dimmed.
+  homeLabels?: { name: string; colourCode: string | null }[];
 }) => {
   const { dateLocale } = useLocalisation();
   const { display: coverDisplay, isReady: isCoverDisplayReady } =
@@ -243,6 +246,7 @@ const Card = ({
       )}
       {!isFullCover &&
       (labels.length ||
+        homeLabels.length ||
         members.length ||
         cardSummary.checklistItemCount > 0 ||
         cardSummary.hasDescription ||
@@ -257,6 +261,20 @@ const Card = ({
                 iconLeft={<LabelIcon colourCode={label.colourCode} />}
               />
             ))}
+            {homeLabels.length > 0 && (
+              <span
+                className="space-x-0.5 opacity-50"
+                title={sharedFrom ? t`Labels of ${sharedFrom}` : undefined}
+              >
+                {homeLabels.map((label, index) => (
+                  <Badge
+                    key={`${label.name}-${index}`}
+                    value={label.name}
+                    iconLeft={<LabelIcon colourCode={label.colourCode} />}
+                  />
+                ))}
+              </span>
+            )}
           </div>
           <div className="mt-2 flex items-center justify-between gap-1">
             <div className="flex items-center gap-2">

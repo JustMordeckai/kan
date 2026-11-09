@@ -38,6 +38,7 @@ import {
   assertBoardAccess,
   assertCanDelete,
   assertCanEdit,
+  assertCanEditCardLabel,
   assertCardAccess,
   assertPermission,
   filterBoardAssignable,
@@ -561,19 +562,25 @@ export const cardRouter = createTRPCRouter({
         });
 
       await assertPermission(ctx.db, userId, card.workspaceId, "card:edit");
-      await assertBoardAccess(ctx.db, userId, {
-        id: card.boardId,
-        workspaceId: card.workspaceId,
-        type: card.boardType,
-      });
 
-      const label = await labelRepo.getByPublicId(ctx.db, input.labelPublicId);
+      const label = await labelRepo.getWorkspaceAndLabelIdByLabelPublicId(
+        ctx.db,
+        input.labelPublicId,
+      );
 
-      if (!label)
+      if (!label) {
+        // Answer like the access check would, so an unknown label does not
+        // reveal the card to someone who cannot see it.
+        await assertCardAccess(ctx.db, userId, card);
         throw new TRPCError({
           message: `Label with public ID ${input.labelPublicId} not found`,
           code: "NOT_FOUND",
         });
+      }
+
+      // A label of a board the card is shared on is managed by that board's
+      // members; any other label by the home board's.
+      await assertCanEditCardLabel(ctx.db, userId, card, label);
 
       const cardLabelIds = { cardId: card.id, labelId: label.id };
 
@@ -848,32 +855,60 @@ export const cardRouter = createTRPCRouter({
       const canAccessHomeBoard = viewerId
         ? await hasBoardAccess(ctx.db, viewerId, homeBoard)
         : false;
-      const sharedBoards = viewerId
+      const visibleSharedBoards = viewerId
         ? (
             await Promise.all(
               (await cardBoardLinkRepo.getBoardsByCardId(ctx.db, card.id)).map(
                 async (board) =>
                   board.workspaceId === card.workspaceId &&
                   (await hasBoardAccess(ctx.db, viewerId, board))
-                    ? [
-                        {
-                          publicId: board.publicId,
-                          name: board.name,
-                          list: {
-                            publicId: board.listPublicId,
-                            name: board.listName,
-                          },
-                        },
-                      ]
+                    ? [board]
                     : [],
               ),
             )
           ).flat()
         : [];
+      const sharedBoardLabels = visibleSharedBoards.length
+        ? await labelRepo.getAllByBoardIds(
+            ctx.db,
+            visibleSharedBoards.map((board) => board.id),
+          )
+        : [];
+      const sharedBoards = visibleSharedBoards.map((board) => ({
+        publicId: board.publicId,
+        name: board.name,
+        list: {
+          publicId: board.listPublicId,
+          name: board.listName,
+        },
+        labels: sharedBoardLabels
+          .filter((label) => label.boardId === board.id)
+          .map(({ publicId, name, colourCode }) => ({
+            publicId,
+            name,
+            colourCode,
+          })),
+      }));
+
+      // The home board's labels, plus those of the shared boards the viewer
+      // is on.
+      const visibleLabelBoardIds = new Set([
+        card.boardId,
+        ...visibleSharedBoards.map((board) => board.id),
+      ]);
+      const labels = result.labels
+        .filter((label) => visibleLabelBoardIds.has(label.boardId))
+        .map(({ publicId, name, colourCode, boardPublicId }) => ({
+          publicId,
+          name,
+          colourCode,
+          boardPublicId,
+        }));
 
       return {
         ...result,
         cover: formatCardCover(result),
+        labels,
         attachments: attachmentsWithUrls,
         list: {
           ...result.list,
@@ -1829,7 +1864,22 @@ export const cardRouter = createTRPCRouter({
       // transaction, so the router cannot roll it back: a refusal after this
       // point leaves a duplicate behind, and the caller retrying as the error
       // message suggests would make a second one.
-      const sourceLabels = sourceCard.labels ?? [];
+      // Labels of a board the card is shared on stay behind unless the copy
+      // lands on that board: they only make sense there.
+      const sharedBoardIds = new Set(
+        input.copyLabels && sourceCard.labels.length
+          ? (
+              await cardBoardLinkRepo.getVisibleLinks(ctx.db, [
+                sourceCardMeta.id,
+              ])
+            ).map((link) => link.boardId)
+          : [],
+      );
+      const sourceLabels = sourceCard.labels.filter(
+        (label) =>
+          !sharedBoardIds.has(label.boardId) ||
+          label.boardId === targetList.boardId,
+      );
       const sourceLabelRecords =
         input.copyLabels && sourceLabels.length
           ? await labelRepo.getAllByPublicIds(
@@ -2144,12 +2194,21 @@ export const cardRouter = createTRPCRouter({
           code: "INTERNAL_SERVER_ERROR",
         });
 
-      await cardActivityRepo.create(ctx.db, {
-        type: "card.updated.board.removed",
-        cardId: card.id,
-        fromTitle: sharedBoard.name,
-        createdBy: userId,
-      });
+      await cardActivityRepo.bulkCreate(ctx.db, [
+        // The board's labels came off the card with it.
+        ...removed.removedLabelIds.map((labelId) => ({
+          type: "card.updated.label.removed" as const,
+          cardId: card.id,
+          labelId,
+          createdBy: userId,
+        })),
+        {
+          type: "card.updated.board.removed" as const,
+          cardId: card.id,
+          fromTitle: sharedBoard.name,
+          createdBy: userId,
+        },
+      ]);
 
       return { success: true };
     }),

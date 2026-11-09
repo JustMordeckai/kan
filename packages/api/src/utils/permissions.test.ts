@@ -5,6 +5,7 @@ import * as cardBoardLinkRepo from "@kan/db/repository/cardBoardLink.repo";
 import * as permissionRepo from "@kan/db/repository/permission.repo";
 
 import {
+  assertCanEditCardLabel,
   assertCardAccess,
   filterBoardAssignable,
   filterCardAssignable,
@@ -166,5 +167,76 @@ describe("card access through shared boards", () => {
     await expect(
       filterCardAssignable(db, card, [admin, onHome, onShared, offBoard]),
     ).resolves.toEqual([admin, onHome, onShared]);
+  });
+
+  describe("assertCanEditCardLabel", () => {
+    const homeLabel = { boardId: HOME_BOARD };
+    const sharedLabel = { boardId: SHARED_BOARD };
+    const otherLabel = { boardId: OTHER_BOARD };
+
+    beforeEach(() => {
+      vi.mocked(cardBoardLinkRepo.getBoardsByCardId).mockResolvedValue([
+        sharedBoard,
+      ]);
+    });
+
+    it("lets home board members manage home labels without reading links", async () => {
+      memberOf(HOME_BOARD);
+
+      await expect(
+        assertCanEditCardLabel(db, "user", card, homeLabel),
+      ).resolves.toBeUndefined();
+      expect(cardBoardLinkRepo.getBoardsByCardId).not.toHaveBeenCalled();
+    });
+
+    it("keeps home labels away from members of the shared board only", async () => {
+      memberOf(SHARED_BOARD);
+
+      await expect(
+        assertCanEditCardLabel(db, "user", card, homeLabel),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    });
+
+    it("lets shared board members manage that board's labels", async () => {
+      memberOf(SHARED_BOARD);
+
+      await expect(
+        assertCanEditCardLabel(db, "user", card, sharedLabel),
+      ).resolves.toBeUndefined();
+    });
+
+    it("keeps a shared board's labels away from home board members", async () => {
+      memberOf(HOME_BOARD);
+
+      await expect(
+        assertCanEditCardLabel(db, "user", card, sharedLabel),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    });
+
+    it("falls back to the home board for a board the card is not shared on", async () => {
+      memberOf(OTHER_BOARD);
+
+      await expect(
+        assertCanEditCardLabel(db, "user", card, otherLabel),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+
+      memberOf(HOME_BOARD);
+
+      // Allowed here; the repository then refuses the label's board.
+      await expect(
+        assertCanEditCardLabel(db, "user", card, otherLabel),
+      ).resolves.toBeUndefined();
+    });
+
+    it("ignores a link once it no longer counts, like a template board", async () => {
+      memberOf(SHARED_BOARD);
+      vi.mocked(cardBoardLinkRepo.getBoardsByCardId).mockResolvedValue([
+        { ...sharedBoard, type: "template" },
+      ]);
+
+      await expect(
+        assertCanEditCardLabel(db, "user", card, sharedLabel),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    });
   });
 });

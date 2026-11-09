@@ -9,6 +9,7 @@ import { IoChevronForwardSharp } from "react-icons/io5";
 import { authClient } from "@kan/auth/client";
 
 import Avatar from "~/components/Avatar";
+import Badge from "~/components/Badge";
 import Editor from "~/components/Editor";
 import FeedbackModal from "~/components/FeedbackModal";
 import { LabelForm } from "~/components/LabelForm";
@@ -60,6 +61,7 @@ interface SharedBoardView {
   publicId: string;
   name: string;
   list: { publicId: string; name: string };
+  labels: { publicId: string; name: string; colourCode: string | null }[];
 }
 
 // The shared board the card is being viewed from: the one in returnUrl, or
@@ -96,14 +98,26 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
 
   const isCreator = card?.createdBy && session?.user.id === card.createdBy;
   const canEdit = canEditCard || isCreator;
-  // Labels and the list belong to the card's home board.
+  // The list belongs to the card's home board.
   const canEditHome = canEdit && !!card?.canAccessHomeBoard;
 
   const board = card?.list.board;
   const viewedSharedBoard = getViewedSharedBoard(card, router.query.returnUrl);
-  const labels = board?.labels;
+  // Each board has its own labels: seen from a board it is shared on, the
+  // card's labels for that board are edited here and its home labels are
+  // only shown. Being on that board is what sharedBoards guarantees.
+  const labelBoardPublicId = viewedSharedBoard?.publicId ?? board?.publicId;
+  const labels = viewedSharedBoard ? viewedSharedBoard.labels : board?.labels;
+  const canEditLabels = viewedSharedBoard ? !!canEdit : canEditHome;
   const workspaceMembers = board?.workspace.members;
-  const selectedLabels = card?.labels;
+  const selectedLabels = card?.labels.filter(
+    (label) => label.boardPublicId === labelBoardPublicId,
+  );
+  const homeLabels = viewedSharedBoard
+    ? (card?.labels.filter(
+        (label) => label.boardPublicId === board?.publicId,
+      ) ?? [])
+    : [];
   const selectedMembers = card?.members;
 
   const formattedLabels =
@@ -175,12 +189,31 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
       </div>
       <div className="mb-4 flex w-full flex-row">
         <p className="my-2 mb-2 w-[100px] text-sm font-medium">{t`Labels`}</p>
-        <LabelSelector
-          cardPublicId={cardId ?? ""}
-          labels={formattedLabels}
-          isLoading={!card}
-          disabled={!canEditHome}
-        />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <LabelSelector
+            cardPublicId={cardId ?? ""}
+            labels={formattedLabels}
+            isLoading={!card}
+            disabled={!canEditLabels}
+            boardPublicId={labelBoardPublicId}
+          />
+          {homeLabels.length > 0 && board && (
+            <div className="mt-1 pl-2">
+              <p className="mb-1 text-xs text-light-800 dark:text-dark-800">
+                {t`Labels of ${board.name} (read-only here)`}
+              </p>
+              <div className="flex flex-wrap gap-x-0.5 opacity-60">
+                {homeLabels.map((label) => (
+                  <Badge
+                    key={label.publicId}
+                    value={label.name}
+                    iconLeft={<LabelIcon colourCode={label.colourCode} />}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       {!isTemplate && (
         <div className="mb-4 flex w-full flex-row">
@@ -628,7 +661,10 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
             modalSize="sm"
             isVisible={isOpen && modalContentType === "NEW_LABEL"}
           >
-            <LabelForm boardPublicId={boardId ?? ""} refetch={refetchCard} />
+            <LabelForm
+              boardPublicId={viewedSharedBoard?.publicId ?? boardId ?? ""}
+              refetch={refetchCard}
+            />
           </Modal>
 
           <Modal
@@ -636,7 +672,7 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
             isVisible={isOpen && modalContentType === "EDIT_LABEL"}
           >
             <LabelForm
-              boardPublicId={boardId ?? ""}
+              boardPublicId={viewedSharedBoard?.publicId ?? boardId ?? ""}
               refetch={refetchCard}
               isEdit
             />

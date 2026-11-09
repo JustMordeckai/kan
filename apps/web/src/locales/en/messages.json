@@ -6729,6 +6729,38 @@
     ],
     "translation": "Labels & Filters"
   },
+  "DO7x93": {
+    "translation": "Labels of {0} (read-only here)",
+    "message": "Labels of {0} (read-only here)",
+    "placeholders": {
+      "0": [
+        "board.name"
+      ]
+    },
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/index.tsx",
+        201
+      ]
+    ]
+  },
+  "lJNDaT": {
+    "translation": "Labels of {sharedFrom}",
+    "message": "Labels of {sharedFrom}",
+    "placeholders": {
+      "sharedFrom": [
+        "sharedFrom"
+      ]
+    },
+    "comments": [],
+    "origin": [
+      [
+        "src/views/board/components/Card.tsx",
+        110
+      ]
+    ]
+  },
   "vXIe7J": {
     "message": "Language",
     "placeholders": {},

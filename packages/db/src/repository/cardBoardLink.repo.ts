@@ -7,6 +7,8 @@ import {
   cardAttachments,
   cardBoardLinks,
   cards,
+  cardsToLabels,
+  labels,
   lists,
 } from "@kan/db/schema";
 import { insertAtPosition, mergeListOrder } from "@kan/shared/utils";
@@ -59,6 +61,34 @@ export const getBoardsByCardId = (db: DbOrTransaction, cardId: number) => {
     .orderBy(asc(boards.name));
 };
 
+/**
+ * Boards each of the given cards is currently shown on, its home board
+ * excluded. With `lock`, the links are read FOR SHARE so they cannot be
+ * removed until the caller's transaction ends.
+ */
+export const getVisibleLinks = (
+  db: DbOrTransaction,
+  cardIds: number[],
+  options: { lock?: boolean } = {},
+) => {
+  if (!cardIds.length) return Promise.resolve([]);
+
+  const query = db
+    .select({ cardId: cardBoardLinks.cardId, boardId: cardBoardLinks.boardId })
+    .from(cardBoardLinks)
+    .innerJoin(cards, eq(cards.id, cardBoardLinks.cardId))
+    .innerJoin(homeLists, eq(homeLists.id, cards.listId))
+    .innerJoin(homeBoards, eq(homeBoards.id, homeLists.boardId))
+    .innerJoin(boards, eq(boards.id, cardBoardLinks.boardId))
+    .innerJoin(lists, eq(lists.id, cardBoardLinks.listId))
+    .where(
+      and(inArray(cardBoardLinks.cardId, cardIds), visibleLinkConditions()),
+    )
+    .orderBy(asc(cardBoardLinks.cardId), asc(cardBoardLinks.boardId));
+
+  return options.lock ? query.for("share", { of: cardBoardLinks }) : query;
+};
+
 export const getByCardAndBoard = async (
   db: DbOrTransaction,
   args: { cardId: number; boardId: number },
@@ -93,6 +123,7 @@ export const getSharedCardsByBoardId = (
       cardId: cardBoardLinks.cardId,
       listId: cardBoardLinks.listId,
       index: cardBoardLinks.index,
+      homeBoardId: homeBoards.id,
       homeBoardPublicId: homeBoards.publicId,
       homeBoardName: homeBoards.name,
     })
@@ -281,6 +312,11 @@ export const move = async (
   });
 };
 
+/**
+ * Stops showing a card on a board. The labels of that board only make sense
+ * there, so they come off the card in the same transaction; the ids of the
+ * removed labels are returned for the activity log.
+ */
 export const remove = async (
   db: dbClient,
   args: { cardId: number; boardId: number },
@@ -300,15 +336,20 @@ export const remove = async (
         listId: cardBoardLinks.listId,
       });
 
-    if (removed) {
-      await savePositions(
-        tx,
-        removed.listId,
-        await getListEntries(tx, removed.listId),
-      );
-    }
+    if (!removed) return undefined;
 
-    return removed;
+    const removedLabels = await removeBoardLabels(tx, args);
+
+    await savePositions(
+      tx,
+      removed.listId,
+      await getListEntries(tx, removed.listId),
+    );
+
+    return {
+      ...removed,
+      removedLabelIds: removedLabels.map((label) => label.labelId),
+    };
   });
 };
 
@@ -339,4 +380,29 @@ export const getSelectedSharedCoverAttachments = async (
         inArray(cardAttachments.publicId, args.attachmentPublicIds),
       ),
     );
+};
+
+/**
+ * Takes the labels of a board off a card. Never call it for the card's home
+ * board: those labels belong to the card wherever it is shown.
+ */
+export const removeBoardLabels = (
+  db: DbOrTransaction,
+  args: { cardId: number; boardId: number },
+) => {
+  return db
+    .delete(cardsToLabels)
+    .where(
+      and(
+        eq(cardsToLabels.cardId, args.cardId),
+        inArray(
+          cardsToLabels.labelId,
+          db
+            .select({ id: labels.id })
+            .from(labels)
+            .where(eq(labels.boardId, args.boardId)),
+        ),
+      ),
+    )
+    .returning({ labelId: cardsToLabels.labelId });
 };

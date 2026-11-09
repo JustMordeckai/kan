@@ -5,7 +5,12 @@ import { api } from "~/utils/api";
 import LabelIcon from "~/components/LabelIcon";
 import LabelSelector from "~/views/card/components/LabelSelector";
 
-export function CardContextLabelsModal() {
+export function CardContextLabelsModal({
+  boardPublicId,
+}: {
+  // The board the card is opened from.
+  boardPublicId?: string;
+}) {
   const { entityId: cardPublicId, closeModal } = useModal();
 
   const { data: card, isLoading } = api.card.byId.useQuery(
@@ -13,8 +18,20 @@ export function CardContextLabelsModal() {
     { enabled: !!cardPublicId && cardPublicId.length >= 12 },
   );
 
-  const boardLabels = card?.list?.board?.labels ?? [];
-  const selectedLabels = card?.labels ?? [];
+  // On a board the card is shared on, it takes that board's labels.
+  const sharedBoard = card?.sharedBoards.find(
+    (board) => board.publicId === boardPublicId,
+  );
+  const labelBoardPublicId = sharedBoard
+    ? sharedBoard.publicId
+    : card?.list.board.publicId;
+  const boardLabels = sharedBoard
+    ? sharedBoard.labels
+    : (card?.list?.board?.labels ?? []);
+  const selectedLabels =
+    card?.labels.filter(
+      (label) => label.boardPublicId === labelBoardPublicId,
+    ) ?? [];
 
   const formattedLabels = boardLabels.map((label) => ({
     key: label.publicId,
@@ -37,6 +54,7 @@ export function CardContextLabelsModal() {
           cardPublicId={cardPublicId}
           labels={formattedLabels}
           isLoading={isLoading}
+          boardPublicId={labelBoardPublicId}
         />
       )}
       <div className="mt-4 flex justify-end">

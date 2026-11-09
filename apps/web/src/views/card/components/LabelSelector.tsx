@@ -18,6 +18,8 @@ interface LabelSelectorProps {
   }[];
   isLoading: boolean;
   disabled?: boolean;
+  // Board the offered labels belong to; defaults to the card's home board.
+  boardPublicId?: string;
 }
 
 export default function LabelSelector({
@@ -25,6 +27,7 @@ export default function LabelSelector({
   labels,
   isLoading,
   disabled = false,
+  boardPublicId,
 }: LabelSelectorProps) {
   const utils = api.useUtils();
   const { openModal } = useModal();
@@ -43,8 +46,8 @@ export default function LabelSelector({
           (label) => label.publicId === update.labelPublicId,
         );
 
-        const labelToAdd = oldCard.labels.find(
-          (label) => label.publicId === update.labelPublicId,
+        const labelToAdd = labels.find(
+          (label) => label.key === update.labelPublicId,
         );
 
         const updatedLabels = hasLabel
@@ -55,8 +58,9 @@ export default function LabelSelector({
               ...oldCard.labels,
               {
                 publicId: update.labelPublicId,
-                name: labelToAdd?.name ?? "",
-                colourCode: labelToAdd?.colourCode ?? "",
+                name: labelToAdd?.value ?? "",
+                colourCode: "",
+                boardPublicId: boardPublicId ?? oldCard.list.board.publicId,
               },
             ];
 

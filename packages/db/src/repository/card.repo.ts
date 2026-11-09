@@ -26,6 +26,8 @@ import {
 } from "@kan/db/schema";
 import { generateUID } from "@kan/shared/utils";
 
+import { getVisibleLinks } from "./cardBoardLink.repo";
+
 export const getCount = async (db: dbClient) => {
   const result = await db
     .select({ count: count() })
@@ -175,19 +177,27 @@ export const create = async (
 /**
  * Labels are board-scoped (labels.boardId) but _card_labels stores only
  * (cardId, labelId), so the database cannot reject a card being linked to a
- * label from another board. Every writer below goes through this, which is why
- * it lives here rather than in the routers: the permission checks upstream are
- * all workspace-scoped, and a workspace holds many boards.
+ * label from an unrelated board. Every writer below goes through this, which is
+ * why it lives here rather than in the routers: the permission checks upstream
+ * are all workspace-scoped, and a workspace holds many boards.
  *
- * A card's board is not a property of the card, it is a property of whatever
- * list its listId currently points at, and card.update can repoint that. So the
- * check and the insert run in one transaction with the CARD rows locked
- * (FOR UPDATE OF card): a concurrent card move blocks until this commits.
+ * A card may carry the labels of its home board and of every board it is
+ * shared on (card_board_links): a shared card wears the labels of the board it
+ * is shown on, and each board only displays its own.
+ *
+ * A card's home board is not a property of the card, it is a property of
+ * whatever list its listId currently points at, and card.update can repoint
+ * that. So the check and the insert run in one transaction with the CARD rows
+ * locked (FOR UPDATE OF card): a concurrent card move blocks until this
+ * commits. The card's links are read FOR SHARE, so unsharing the card from a
+ * board (which also drops that board's labels from it) waits for this insert,
+ * or this check sees the link gone.
  *
  * Scope of that lock, stated rather than implied: it covers card.listId
- * changing. It does NOT lock lists, so it would not stop a writer that
- * retargeted a list to another board without touching the card row. Nothing
- * mutates lists.boardId today, so that path does not exist yet.
+ * changing and links being removed. It does NOT lock lists, so it would not
+ * stop a writer that retargeted a list to another board without touching the
+ * card row. Nothing mutates lists.boardId today, so that path does not exist
+ * yet.
  *
  * Throws on any mismatch rather than filtering. A caller wanting a subset must
  * select it before calling, so a drop is a decision rather than a side effect.
@@ -218,11 +228,33 @@ export class CardLabelBoardError extends Error {
         ? `Card ${cardId} not found`
         : violation === "label_not_found"
           ? `Label ${labelId} not found`
-          : `Label ${labelId} does not belong to the board of card ${cardId}`,
+          : `Label ${labelId} does not belong to a board card ${cardId} is on`,
     );
     this.name = "CardLabelBoardError";
   }
 }
+
+/**
+ * Why a card may not carry a label, or null when it may. The label must still
+ * exist and belong to the card's home board or to a board it is shared on.
+ */
+export const getCardLabelViolation = (
+  card: { homeBoardId: number; sharedBoardIds: number[] } | undefined,
+  label: { boardId: number; deletedAt: Date | null } | undefined,
+): CardLabelViolation | null => {
+  // An unknown card or label fails closed: without both boards there is no
+  // evidence the link is legitimate.
+  if (!card) return "card_not_found";
+  if (!label || label.deletedAt) return "label_not_found";
+
+  if (
+    label.boardId !== card.homeBoardId &&
+    !card.sharedBoardIds.includes(label.boardId)
+  )
+    return "board_mismatch";
+
+  return null;
+};
 
 export const assertCardLabelBoardsMatch = async (
   tx: DbTransaction,
@@ -230,56 +262,49 @@ export const assertCardLabelBoardsMatch = async (
 ) => {
   if (!pairs.length) return;
 
-  {
-    const cardIds = [...new Set(pairs.map((pair) => pair.cardId))];
-    const labelIds = [...new Set(pairs.map((pair) => pair.labelId))];
+  const cardIds = [...new Set(pairs.map((pair) => pair.cardId))];
+  const labelIds = [...new Set(pairs.map((pair) => pair.labelId))];
 
-    const cardBoards = await tx
-      .select({ cardId: cards.id, boardId: lists.boardId })
-      .from(cards)
-      .innerJoin(lists, eq(cards.listId, lists.id))
-      .where(inArray(cards.id, cardIds))
-      .orderBy(cards.id)
-      .for("update", { of: cards });
+  const cardBoards = await tx
+    .select({ cardId: cards.id, boardId: lists.boardId })
+    .from(cards)
+    .innerJoin(lists, eq(cards.listId, lists.id))
+    .where(inArray(cards.id, cardIds))
+    .orderBy(cards.id)
+    .for("update", { of: cards });
 
-    const labelBoards = await tx
-      .select({ labelId: labels.id, boardId: labels.boardId })
-      .from(labels)
-      .where(inArray(labels.id, labelIds));
+  const sharedBoards = await getVisibleLinks(tx, cardIds, { lock: true });
 
-    const boardOfCard = new Map(cardBoards.map((r) => [r.cardId, r.boardId]));
-    const boardOfLabel = new Map(
-      labelBoards.map((r) => [r.labelId, r.boardId]),
+  const labelBoards = await tx
+    .select({
+      labelId: labels.id,
+      boardId: labels.boardId,
+      deletedAt: labels.deletedAt,
+    })
+    .from(labels)
+    .where(inArray(labels.id, labelIds));
+
+  const boardsOfCard = new Map(
+    cardBoards.map((r) => [
+      r.cardId,
+      {
+        homeBoardId: r.boardId,
+        sharedBoardIds: sharedBoards
+          .filter((link) => link.cardId === r.cardId)
+          .map((link) => link.boardId),
+      },
+    ]),
+  );
+  const boardOfLabel = new Map(labelBoards.map((r) => [r.labelId, r]));
+
+  for (const pair of pairs) {
+    const violation = getCardLabelViolation(
+      boardsOfCard.get(pair.cardId),
+      boardOfLabel.get(pair.labelId),
     );
 
-    for (const pair of pairs) {
-      const cardBoardId = boardOfCard.get(pair.cardId);
-      const labelBoardId = boardOfLabel.get(pair.labelId);
-
-      // An unknown card or label fails closed: without both boards there is no
-      // evidence the link is legitimate.
-      if (cardBoardId === undefined)
-        throw new CardLabelBoardError(
-          "card_not_found",
-          pair.cardId,
-          pair.labelId,
-        );
-
-      if (labelBoardId === undefined)
-        throw new CardLabelBoardError(
-          "label_not_found",
-          pair.cardId,
-          pair.labelId,
-        );
-
-      if (cardBoardId !== labelBoardId)
-        throw new CardLabelBoardError(
-          "board_mismatch",
-          pair.cardId,
-          pair.labelId,
-        );
-    }
-
+    if (violation)
+      throw new CardLabelBoardError(violation, pair.cardId, pair.labelId);
   }
 };
 
@@ -714,6 +739,14 @@ export const getWithListAndMembersByPublicId = async (
               publicId: true,
               name: true,
               colourCode: true,
+              boardId: true,
+            },
+            with: {
+              board: {
+                columns: {
+                  publicId: true,
+                },
+              },
             },
           },
         },
@@ -909,7 +942,12 @@ export const getWithListAndMembersByPublicId = async (
 
   const formattedResult = {
     ...card,
-    labels: card.labels.map((label) => label.label),
+    // A card carries the labels of its home board and of the boards it is
+    // shared on; boardPublicId tells them apart.
+    labels: card.labels.map(({ label: { board, ...label } }) => ({
+      ...label,
+      boardPublicId: board.publicId,
+    })),
     members: card.members.map((member) => member.member),
     activities: card.activities.filter(
       (activity) => !activity.comment?.deletedAt,
