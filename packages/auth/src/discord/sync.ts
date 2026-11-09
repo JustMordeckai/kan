@@ -141,6 +141,12 @@ export async function authorizeDiscordSession(
   );
 
   if (!discordUserId) {
+    // Service accounts (automation, maintenance) listed by email keep their own sign-in method.
+    const email = await discordRepo.getUserEmail(db, userId);
+    if (email && config.exemptEmails.includes(email.toLowerCase())) {
+      return true;
+    }
+
     log.info({ userId }, "Sign-in refused: no linked Discord account");
     return false;
   }

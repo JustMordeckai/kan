@@ -41,6 +41,7 @@ const config: DiscordRoleAccessConfig = {
   botToken: "bot-token",
   allowedRoleIds: ["10", "11"],
   workspacePublicId: "workspace0001",
+  exemptEmails: ["service@example.com"],
 };
 
 const memberResponse = (roles: string[]) =>
@@ -88,6 +89,17 @@ describe("discord sync", () => {
       await expect(
         authorizeDiscordSession(db, config, "user-1", options),
       ).resolves.toBe(false);
+      expect(options.fetch).not.toHaveBeenCalled();
+    });
+
+    it("lets an exempt service account in without Discord", async () => {
+      repo.getDiscordAccountIdByUserId.mockResolvedValue(undefined);
+      repo.getUserEmail.mockResolvedValue("Service@Example.com");
+      const options = fetchReturning();
+
+      await expect(
+        authorizeDiscordSession(db, config, "user-1", options),
+      ).resolves.toBe(true);
       expect(options.fetch).not.toHaveBeenCalled();
     });
 

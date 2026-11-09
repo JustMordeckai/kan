@@ -106,6 +106,7 @@ describe("getDiscordRoleAccessConfig", () => {
       botToken: "token",
       allowedRoleIds: ["1", "2"],
       workspacePublicId: "abcdefghijkl",
+      exemptEmails: [],
     });
   });
 });

@@ -7,6 +7,7 @@ export interface DiscordRoleAccessConfig {
   botToken: string;
   allowedRoleIds: string[];
   workspacePublicId: string | null;
+  exemptEmails: string[];
 }
 
 /** Parses a comma separated list of Discord ids, dropping anything else. */
@@ -16,6 +17,16 @@ export const parseRoleIds = (value: string | null | undefined): string[] => [
       .split(",")
       .map((id) => id.trim())
       .filter(isSnowflake),
+  ),
+];
+
+/** Parses a comma separated list of emails, lower-cased. */
+export const parseEmails = (value: string | null | undefined): string[] => [
+  ...new Set(
+    (value ?? "")
+      .split(",")
+      .map((email) => email.trim().toLowerCase())
+      .filter((email) => email.includes("@")),
   ),
 ];
 
@@ -34,6 +45,7 @@ export const getDiscordRoleAccessConfig =
       allowedRoleIds: parseRoleIds(process.env.DISCORD_ALLOWED_ROLE_IDS),
       workspacePublicId:
         workspacePublicId.length > 0 ? workspacePublicId : null,
+      exemptEmails: parseEmails(process.env.DISCORD_EXEMPT_EMAILS),
     };
   };
 

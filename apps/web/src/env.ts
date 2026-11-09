@@ -38,6 +38,7 @@ export const env = createEnv({
     DISCORD_ALLOWED_ROLE_IDS: z.string().optional(),
     DISCORD_WORKSPACE_PUBLIC_ID: z.string().optional(),
     DISCORD_SYNC_SECRET: z.string().optional(),
+    DISCORD_EXEMPT_EMAILS: z.string().optional(),
     GITHUB_CLIENT_ID: z.string().optional(),
     GITHUB_CLIENT_SECRET: z.string().optional(),
     GITLAB_CLIENT_ID: z.string().optional(),
