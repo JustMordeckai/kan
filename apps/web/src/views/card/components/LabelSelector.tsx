@@ -112,10 +112,19 @@ export default function LabelSelector({
                   iconLeft={label.leftIcon}
                 />
               ))}
-              <Badge value={t`Add label`} iconLeft={<HiMiniPlus size={14} />} />
+              {!disabled && (
+                <Badge
+                  value={t`Add label`}
+                  iconLeft={<HiMiniPlus size={14} />}
+                />
+              )}
+            </div>
+          ) : disabled ? (
+            <div className="flex h-full w-full items-center pl-2 text-sm text-light-800 dark:text-dark-800">
+              {t`No labels`}
             </div>
           ) : (
-            <div className={`flex h-full w-full items-center rounded-[5px] border-[1px] border-light-50 pl-2 text-left text-sm text-neutral-900 dark:border-dark-50 dark:text-dark-1000 ${disabled ? "cursor-not-allowed opacity-60" : "hover:border-light-300 hover:bg-light-200 dark:hover:border-dark-200 dark:hover:bg-dark-100"}`}>
+            <div className="flex h-full w-full items-center rounded-[5px] border-[1px] border-light-50 pl-2 text-left text-sm text-neutral-900 hover:border-light-300 hover:bg-light-200 dark:border-dark-50 dark:text-dark-1000 dark:hover:border-dark-200 dark:hover:bg-dark-100">
               <HiMiniPlus size={22} className="pr-2" />
               {t`Add label`}
             </div>

@@ -54,6 +54,31 @@ interface FormValues {
   description: string;
 }
 
+interface SharedBoardView {
+  publicId: string;
+  name: string;
+  list: { publicId: string; name: string };
+}
+
+// The shared board the card is being viewed from: the one in returnUrl, or
+// the first shared board when the viewer can't open the home board.
+function getViewedSharedBoard(
+  card:
+    | { canAccessHomeBoard: boolean; sharedBoards: SharedBoardView[] }
+    | undefined,
+  returnUrl: string | string[] | undefined,
+): SharedBoardView | null {
+  if (!card) return null;
+
+  const path = typeof returnUrl === "string" ? returnUrl.split("?")[0] : null;
+  const fromUrl = card.sharedBoards.find(
+    (sharedBoard) => path === `/boards/${sharedBoard.publicId}`,
+  );
+  if (fromUrl) return fromUrl;
+
+  return card.canAccessHomeBoard ? null : (card.sharedBoards[0] ?? null);
+}
+
 export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
   const router = useRouter();
   const { canEditCard } = usePermissions();
@@ -73,6 +98,7 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
   const canEditHome = canEdit && !!card?.canAccessHomeBoard;
 
   const board = card?.list.board;
+  const viewedSharedBoard = getViewedSharedBoard(card, router.query.returnUrl);
   const labels = board?.labels;
   const workspaceMembers = board?.workspace.members;
   const selectedLabels = card?.labels;
@@ -132,12 +158,18 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
     <div className="h-full w-[360px] border-l-[1px] border-light-300 bg-light-50 p-8 text-light-900 dark:border-dark-300 dark:bg-dark-50 dark:text-dark-900">
       <div className="mb-4 flex w-full flex-row pt-[18px]">
         <p className="my-2 mb-2 w-[100px] text-sm font-medium">{t`List`}</p>
-        <ListSelector
-          cardPublicId={cardId ?? ""}
-          lists={formattedLists}
-          isLoading={!card}
-          disabled={!canEditHome}
-        />
+        {viewedSharedBoard ? (
+          <p className="my-2 pl-2 text-sm text-neutral-900 dark:text-dark-1000">
+            {viewedSharedBoard.list.name}
+          </p>
+        ) : (
+          <ListSelector
+            cardPublicId={cardId ?? ""}
+            lists={formattedLists}
+            isLoading={!card}
+            disabled={!canEditHome}
+          />
+        )}
       </div>
       <div className="mb-4 flex w-full flex-row">
         <p className="my-2 mb-2 w-[100px] text-sm font-medium">{t`Labels`}</p>
@@ -251,9 +283,12 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
   const board = card?.list.board;
   const workspaceMembers = board?.workspace.members;
   const boardId = board?.publicId;
+  const viewedSharedBoard = getViewedSharedBoard(card, router.query.returnUrl);
   const boardReturnUrl = getBoardReturnUrl(
     router.query.returnUrl,
-    `/${isTemplate ? "templates" : "boards"}/${boardId}`,
+    viewedSharedBoard
+      ? `/boards/${viewedSharedBoard.publicId}`
+      : `/${isTemplate ? "templates" : "boards"}/${boardId}`,
     card?.sharedBoards.map((sharedBoard) => `/boards/${sharedBoard.publicId}`),
   );
 
@@ -389,7 +424,7 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
                   className="whitespace-nowrap text-sm font-bold leading-[1.5rem] text-light-900 dark:text-dark-950"
                   href={boardReturnUrl}
                 >
-                  {board?.name}
+                  {viewedSharedBoard?.name ?? board?.name}
                 </Link>
                 {card.cardNumber != null &&
                   card.list.board.workspace.cardPrefix && (
