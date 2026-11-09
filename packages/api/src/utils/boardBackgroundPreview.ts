@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import sharp from "sharp";
+import type { Metadata, Sharp } from "sharp";
 
 import {
   copyObject,
@@ -8,6 +8,10 @@ import {
   getObjectMetadata,
   putObject,
 } from "@kan/shared/utils";
+
+// Loaded on first use: the native module is only needed to build previews,
+// so a missing binary must not stop the API from starting.
+const loadSharp = async () => (await import("sharp")).default;
 
 export const boardBackgroundPreviewWidths = [480, 960, 1920] as const;
 export type BoardBackgroundPreviewWidth =
@@ -216,8 +220,9 @@ export const ensureBoardBackgroundPreviews = async (args: {
         "Board background body size is invalid or changed while being read",
       );
 
-    let image: sharp.Sharp;
-    let metadata: sharp.Metadata;
+    const sharp = await loadSharp();
+    let image: Sharp;
+    let metadata: Metadata;
     try {
       image = sharp(source, {
         failOn: "error",

@@ -1,4 +1,4 @@
-import sharp from "sharp";
+import type { Metadata, Sharp } from "sharp";
 
 import {
   deleteObject,
@@ -6,6 +6,10 @@ import {
   getObjectMetadata,
   putObject,
 } from "@kan/shared/utils";
+
+// Loaded on first use: the native module is only needed to build previews,
+// so a missing binary must not stop the API from starting.
+const loadSharp = async () => (await import("sharp")).default;
 
 export const cardCoverPreviewWidths = [320, 640, 1280] as const;
 export type CardCoverPreviewWidth = (typeof cardCoverPreviewWidths)[number];
@@ -174,8 +178,9 @@ export const ensureCardCoverPreviews = async (args: {
         "Attachment body size is invalid or changed while being read",
       );
 
-    let image: sharp.Sharp;
-    let metadata: sharp.Metadata;
+    const sharp = await loadSharp();
+    let image: Sharp;
+    let metadata: Metadata;
     try {
       image = sharp(source, {
         failOn: "error",
