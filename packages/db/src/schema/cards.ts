@@ -54,6 +54,7 @@ export const activityTypes = [
   "card.archived",
   "card.updated.board.added",
   "card.updated.board.removed",
+  "card.updated.externalUrl",
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];
@@ -94,6 +95,8 @@ export const cards = pgTable(
       onDelete: "set null",
     }),
     coverSize: cardCoverSizeEnum("coverSize").notNull().default("normal"),
+    // Link to the card's counterpart elsewhere (e.g. a Discord thread).
+    externalUrl: text("externalUrl"),
   },
   (table) => [
     index("card_list_number_idx").on(table.listId, table.cardNumber),

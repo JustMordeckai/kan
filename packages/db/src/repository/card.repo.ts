@@ -49,6 +49,7 @@ export const create = async (
     dueDate?: Date | null;
     coverColourCode?: string | null;
     coverSize?: "normal" | "full";
+    externalUrl?: string | null;
   },
 ) => {
   return db.transaction(async (tx) => {
@@ -112,6 +113,7 @@ export const create = async (
         dueDate: cardInput.dueDate ?? null,
         coverColourCode: cardInput.coverColourCode ?? null,
         coverSize: cardInput.coverSize ?? "normal",
+        externalUrl: cardInput.externalUrl ?? null,
       })
       .returning({
         id: cards.id,
@@ -352,6 +354,7 @@ export const update = async (
     title?: string;
     description?: string | null;
     dueDate?: Date | null;
+    externalUrl?: string | null;
   },
   args: {
     cardPublicId: string;
@@ -363,6 +366,7 @@ export const update = async (
       title: cardInput.title,
       description: cardInput.description,
       dueDate: cardInput.dueDate !== undefined ? cardInput.dueDate : undefined,
+      externalUrl: cardInput.externalUrl,
       updatedAt: new Date(),
     })
     .where(and(eq(cards.publicId, args.cardPublicId), isNull(cards.deletedAt)))
@@ -372,6 +376,7 @@ export const update = async (
       title: cards.title,
       description: cards.description,
       dueDate: cards.dueDate,
+      externalUrl: cards.externalUrl,
     });
 
   return result;
@@ -480,6 +485,7 @@ export const getByPublicId = (db: dbClient, cardPublicId: string) => {
       description: true,
       listId: true,
       dueDate: true,
+      externalUrl: true,
       coverColourCode: true,
       coverSize: true,
     },
@@ -720,6 +726,7 @@ export const getWithListAndMembersByPublicId = async (
       title: true,
       description: true,
       dueDate: true,
+      externalUrl: true,
       coverColourCode: true,
       coverSize: true,
       createdBy: true,
@@ -1133,6 +1140,7 @@ export const reorder = async (
         title: true,
         description: true,
         dueDate: true,
+        externalUrl: true,
       },
       where: eq(cards.id, card.id),
     });

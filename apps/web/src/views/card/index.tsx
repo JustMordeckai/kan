@@ -43,6 +43,8 @@ import { DeleteChecklistConfirmation } from "./components/DeleteChecklistConfirm
 import { DeleteCommentConfirmation } from "./components/DeleteCommentConfirmation";
 import Dropdown from "./components/Dropdown";
 import { DueDateSelector } from "./components/DueDateSelector";
+import { ExternalLinkButton } from "./components/ExternalLinkButton";
+import { ExternalLinkForm } from "./components/ExternalLinkForm";
 import LabelSelector from "./components/LabelSelector";
 import ListSelector from "./components/ListSelector";
 import MemberSelector from "./components/MemberSelector";
@@ -497,6 +499,7 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
                   listPublicId={card?.list.publicId}
                   cardIndex={card?.index}
                   canAccessHomeBoard={card.canAccessHomeBoard}
+                  hasExternalUrl={!!card.externalUrl}
                 />
                 <Link
                   href={boardReturnUrl}
@@ -550,6 +553,11 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
                       />
                     </div>
                   </form>
+                )}
+                {card?.externalUrl && (
+                  <div className="mt-3 flex">
+                    <ExternalLinkButton externalUrl={card.externalUrl} />
+                  </div>
                 )}
                 {!card && !isLoading && (
                   <p className="block p-0 py-0 font-bold leading-[2.3rem] tracking-tight text-neutral-900 dark:text-dark-1000 sm:text-[1.2rem]">
@@ -720,6 +728,16 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
             isVisible={isOpen && modalContentType === "SHARE_CARD"}
           >
             <ShareCardModal cardPublicId={cardId} />
+          </Modal>
+
+          <Modal
+            modalSize="sm"
+            isVisible={isOpen && modalContentType === "EDIT_EXTERNAL_LINK"}
+          >
+            <ExternalLinkForm
+              cardPublicId={cardId}
+              externalUrl={card?.externalUrl ?? null}
+            />
           </Modal>
 
           <Modal

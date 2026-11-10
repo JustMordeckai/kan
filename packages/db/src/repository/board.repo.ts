@@ -206,6 +206,7 @@ const boardCardQuery = (includeCardDetails: boolean) =>
       cardNumber: true,
       coverColourCode: true,
       coverSize: true,
+      externalUrl: true,
     },
     with: {
       coverAttachment: {

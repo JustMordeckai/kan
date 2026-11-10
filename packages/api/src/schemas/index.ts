@@ -13,6 +13,7 @@ export {
   cardCreateResponseSchema,
   cardCoverSchema,
   cardCoverSizeSchema,
+  cardExternalUrlSchema,
   cardUpdateResponseSchema,
   cardUpdateCoverResponseSchema,
   cardDetailSchema,
@@ -37,6 +38,7 @@ export {
   workspaceCreateResponseSchema,
   workspaceUpdateResponseSchema,
   workspaceDeleteResponseSchema,
+  workspaceDiscordAccountSchema,
 } from "./workspace";
 
 export { listCreateResponseSchema, listUpdateResponseSchema } from "./list";

@@ -9,6 +9,7 @@ import { assertPermission } from "../utils/permissions";
 import { deleteWorkspaceImage } from "../utils/workspaceImage";
 
 vi.mock("@kan/db/repository/boardMember.repo", () => ({}));
+vi.mock("@kan/db/repository/discord.repo", () => ({}));
 vi.mock("@kan/db/repository/subscription.repo", () => ({}));
 vi.mock("@kan/db/repository/workspace.repo", () => ({
   getAllByUserId: vi.fn(),

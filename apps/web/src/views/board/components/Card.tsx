@@ -1,11 +1,13 @@
 import { t } from "@lingui/core/macro";
 import { format, isBefore, isSameYear, startOfDay } from "date-fns";
+import { FaDiscord } from "react-icons/fa";
 import { HiOutlinePaperClip } from "react-icons/hi";
 import {
   HiBars3BottomLeft,
   HiChatBubbleLeft,
   HiOutlineArrowsRightLeft,
   HiOutlineClock,
+  HiOutlineLink,
 } from "react-icons/hi2";
 import { twMerge } from "tailwind-merge";
 
@@ -17,6 +19,7 @@ import { useLocalisation } from "~/hooks/useLocalisation";
 import { useCardCoverDisplay } from "~/providers/card-cover-display";
 import { getContrastingTextColour } from "~/utils/cardCovers";
 import { getCardCoverImageAttributes } from "~/utils/cardCoverUrls";
+import { parseCardExternalLink } from "~/utils/cardExternalLink";
 import { getAvatarUrl } from "~/utils/helpers";
 import { useCardCoverImage } from "./CardCoverImages";
 
@@ -34,6 +37,7 @@ const Card = ({
   sharedFrom,
   cover,
   homeLabels = [],
+  externalUrl,
 }: {
   title: string;
   ticketNumber?: string | null;
@@ -75,6 +79,7 @@ const Card = ({
     | null;
   // A shared card's home board labels, shown after this board's, dimmed.
   homeLabels?: { name: string; colourCode: string | null }[];
+  externalUrl?: string | null;
 }) => {
   const { dateLocale } = useLocalisation();
   const { display: coverDisplay, isReady: isCoverDisplayReady } =
@@ -129,6 +134,12 @@ const Card = ({
     cover.size === "normal" &&
     (!isCoverResolved || !!coverImage);
   const isFullCover = isFullColourCover || isFullImageCover;
+  const externalLink = parseCardExternalLink(externalUrl);
+  const externalLinkLabel = externalLink
+    ? externalLink.isDiscord
+      ? t`Open in Discord`
+      : `${t`Open link`} (${externalLink.hostname})`
+    : undefined;
 
   return (
     <div
@@ -252,7 +263,8 @@ const Card = ({
         cardSummary.hasDescription ||
         cardSummary.hasComments ||
         hasDueDate ||
-        cardSummary.attachmentCount > 0) ? (
+        cardSummary.attachmentCount > 0 ||
+        externalLink) ? (
         <div className="mt-2 flex flex-col justify-end">
           <div className="space-x-0.5">
             {labels.map((label) => (
@@ -309,6 +321,33 @@ const Card = ({
                 <div className="flex items-center gap-1 text-light-700 dark:text-dark-800">
                   <HiOutlinePaperClip className="h-4 w-4" />
                 </div>
+              )}
+              {externalLink && (
+                // The tile is a link that opens the card and a drag handle:
+                // the icon opens the external link instead, without either.
+                <button
+                  type="button"
+                  title={externalLinkLabel}
+                  aria-label={externalLinkLabel}
+                  className="relative z-[1] -m-0.5 flex items-center rounded p-0.5 text-light-700 hover:bg-light-200 hover:text-light-1000 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-700 dark:text-dark-800 dark:hover:bg-dark-400 dark:hover:text-dark-1000 dark:focus-visible:ring-dark-700"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(
+                      externalLink.url,
+                      "_blank",
+                      "noopener,noreferrer",
+                    );
+                  }}
+                >
+                  {externalLink.isDiscord ? (
+                    <FaDiscord className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <HiOutlineLink className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </button>
               )}
             </div>
             <div className="flex items-center justify-end gap-1">

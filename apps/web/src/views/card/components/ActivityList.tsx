@@ -9,6 +9,7 @@ import {
   HiOutlineArrowsRightLeft,
   HiOutlineCheckCircle,
   HiOutlineClock,
+  HiOutlineLink,
   HiOutlinePaperClip,
   HiOutlinePencil,
   HiOutlinePlus,
@@ -148,6 +149,7 @@ const getActivityText = ({
     "card.updated.cover": t`changed the card cover`,
     "card.updated.board.added": t`shared the card with another board`,
     "card.updated.board.removed": t`removed the card from a board`,
+    "card.updated.externalUrl": t`changed the external link`,
   } as const;
 
   if (!(type in ACTIVITY_TYPE_MAP)) return null;
@@ -375,6 +377,7 @@ const ACTIVITY_ICON_MAP: Partial<Record<ActivityType, React.ReactNode | null>> =
     "card.updated.cover": <HiOutlineSwatch />,
     "card.updated.board.added": <HiOutlineArrowsRightLeft />,
     "card.updated.board.removed": <HiOutlineArrowsRightLeft />,
+    "card.updated.externalUrl": <HiOutlineLink />,
   } as const;
 
 const getActivityIcon = (

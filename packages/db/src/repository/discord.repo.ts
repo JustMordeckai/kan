@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   eq,
   inArray,
   isNotNull,
@@ -52,6 +53,38 @@ export const getAllDiscordUsers = async (db: dbClient) => {
     .from(account)
     .innerJoin(users, eq(users.id, account.userId))
     .where(eq(account.providerId, DISCORD_PROVIDER_ID));
+};
+
+/**
+ * Active members of a workspace who signed in with Discord, with their
+ * Discord user id (better-auth stores it as the account id).
+ */
+export const getWorkspaceMemberDiscordAccounts = async (
+  db: dbClient,
+  workspaceId: number,
+) => {
+  return db
+    .select({
+      memberPublicId: workspaceMembers.publicId,
+      userId: account.userId,
+      discordId: account.accountId,
+    })
+    .from(workspaceMembers)
+    .innerJoin(
+      account,
+      and(
+        eq(account.userId, workspaceMembers.userId),
+        eq(account.providerId, DISCORD_PROVIDER_ID),
+      ),
+    )
+    .where(
+      and(
+        eq(workspaceMembers.workspaceId, workspaceId),
+        eq(workspaceMembers.status, "active"),
+        isNull(workspaceMembers.deletedAt),
+      ),
+    )
+    .orderBy(asc(workspaceMembers.id));
 };
 
 export const getUserEmail = async (db: dbClient, userId: string) => {

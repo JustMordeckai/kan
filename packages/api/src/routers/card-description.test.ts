@@ -67,6 +67,7 @@ describe("card description updates", () => {
       description: "<p>Existing description</p>",
       listId: 3,
       dueDate: null,
+      externalUrl: null,
       coverColourCode: null,
       coverAttachment: null,
       coverSize: "normal",
@@ -81,6 +82,7 @@ describe("card description updates", () => {
       title: "Card",
       description: null,
       dueDate: null,
+      externalUrl: null,
     });
     vi.mocked(cardActivityRepo.bulkCreate).mockResolvedValue([]);
     vi.mocked(sendWebhooksForWorkspace).mockResolvedValue(undefined);

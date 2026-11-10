@@ -75,6 +75,7 @@ const boardDetailCardSchema = z.object({
   index: z.number(),
   cardNumber: z.number().nullable(),
   dueDate: z.date().nullable(),
+  externalUrl: z.string().nullable(),
   cover: cardCoverSchema,
   labels: z.array(labelSchema),
   members: z.array(boardCardMemberSchema),

@@ -334,6 +334,7 @@ describe("card member workspace scoping", () => {
         description: "",
         publicId: "card-12345678",
         dueDate: null,
+        externalUrl: null,
       } as never);
       const stays = { id: 21, role: "member" };
       const leaves = { id: 22, role: "member" };

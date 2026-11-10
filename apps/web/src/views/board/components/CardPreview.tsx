@@ -24,6 +24,7 @@ export default function CardPreview({ card, cardPrefix }: CardPreviewProps) {
       sharedFrom={card.sharedFrom?.name}
       cover={card.cover}
       homeLabels={card.homeLabels}
+      externalUrl={card.externalUrl}
     />
   );
 }

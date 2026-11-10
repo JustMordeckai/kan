@@ -97,3 +97,10 @@ export const workspaceUpdateResponseSchema = z.object({
 export const workspaceDeleteResponseSchema = z.object({
   success: z.boolean(),
 });
+
+// ─── workspace.discordAccounts ───────────────────────────────
+export const workspaceDiscordAccountSchema = z.object({
+  memberPublicId: z.string(),
+  userId: z.string(),
+  discordId: z.string(),
+});

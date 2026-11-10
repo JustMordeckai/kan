@@ -8,6 +8,26 @@ import {
 
 export const cardCoverSizeSchema = z.enum(["normal", "full"]);
 
+export const CARD_EXTERNAL_URL_MAX_LENGTH = 2048;
+
+// Link to the card's counterpart elsewhere (e.g. a Discord thread): https
+// only, so that it can never run script when opened.
+export const cardExternalUrlSchema = z
+  .string()
+  .trim()
+  .max(CARD_EXTERNAL_URL_MAX_LENGTH)
+  .url()
+  .refine(
+    (value) => {
+      try {
+        return new URL(value).protocol === "https:";
+      } catch {
+        return false;
+      }
+    },
+    { message: "The link must use https" },
+  );
+
 export const cardCoverSchema = z
   .discriminatedUnion("kind", [
     z.object({
@@ -34,6 +54,7 @@ export const cardUpdateResponseSchema = z.object({
   title: z.string(),
   description: z.string().nullable(),
   dueDate: z.date().nullable(),
+  externalUrl: z.string().nullable(),
 });
 
 // ─── card.share ──────────────────────────────────────────────
@@ -78,6 +99,7 @@ export const cardDetailSchema = z.object({
   cardNumber: z.number().nullable(),
   index: z.number(),
   dueDate: z.date().nullable(),
+  externalUrl: z.string().nullable(),
   cover: cardCoverSchema,
   createdBy: z.string().nullable(),
   // Labels of the home board and of the shared boards the viewer is on.

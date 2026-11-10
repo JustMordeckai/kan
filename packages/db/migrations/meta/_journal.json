@@ -316,6 +316,13 @@
       "when": 1794264512029,
       "tag": "20261109224832_AddWorkspaceImage",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794271855323,
+      "tag": "20261110005055_AddCardExternalUrl",
+      "breakpoints": true
     }
   ]
 }

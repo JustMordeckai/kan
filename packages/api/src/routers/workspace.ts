@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import type { WorkspacePlan } from "@kan/db/schema";
 import * as boardMemberRepo from "@kan/db/repository/boardMember.repo";
+import * as discordRepo from "@kan/db/repository/discord.repo";
 import * as subscriptionRepo from "@kan/db/repository/subscription.repo";
 import * as workspaceRepo from "@kan/db/repository/workspace.repo";
 import * as workspaceSlugRepo from "@kan/db/repository/workspaceSlug.repo";
@@ -13,6 +14,7 @@ import {
   workspaceCreateResponseSchema,
   workspaceDeleteResponseSchema,
   workspaceDetailSchema,
+  workspaceDiscordAccountSchema,
   workspaceListItemSchema,
   workspaceUpdateResponseSchema,
   workspaceWithBoardsSchema,
@@ -628,6 +630,51 @@ export const workspaceRouter = createTRPCRouter({
       await deleteWorkspaceImage(input.workspacePublicId, workspace.image);
 
       return { success: true };
+    }),
+  discordAccounts: protectedProcedure
+    .meta({
+      openapi: {
+        summary: "Get the Discord accounts of workspace members",
+        method: "GET",
+        path: "/workspaces/{workspacePublicId}/discord-accounts",
+        description:
+          "Lists the active workspace members who signed in with Discord, with their Discord user ID. Workspace admins only.",
+        tags: ["Workspaces"],
+        protect: true,
+      },
+    })
+    .input(z.object({ workspacePublicId: z.string().min(12) }))
+    .output(z.array(workspaceDiscordAccountSchema))
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.user?.id;
+
+      if (!userId)
+        throw new TRPCError({
+          message: `User not authenticated`,
+          code: "UNAUTHORIZED",
+        });
+
+      const workspace = await workspaceRepo.getByPublicId(
+        ctx.db,
+        input.workspacePublicId,
+      );
+
+      if (!workspace)
+        throw new TRPCError({
+          message: `Workspace not found`,
+          code: "NOT_FOUND",
+        });
+
+      if (!(await isWorkspaceAdmin(ctx.db, userId, workspace.id)))
+        throw new TRPCError({
+          message: `Only workspace admins can list Discord accounts`,
+          code: "FORBIDDEN",
+        });
+
+      return discordRepo.getWorkspaceMemberDiscordAccounts(
+        ctx.db,
+        workspace.id,
+      );
     }),
   search: protectedProcedure
     .meta({

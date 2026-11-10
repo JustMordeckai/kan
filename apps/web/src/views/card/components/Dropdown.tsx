@@ -4,6 +4,7 @@ import {
   HiHashtag,
   HiLink,
   HiOutlineArrowsRightLeft,
+  HiOutlineArrowTopRightOnSquare,
   HiOutlineCheckCircle,
   HiOutlineDocumentDuplicate,
   HiOutlineTrash,
@@ -26,6 +27,7 @@ export default function CardDropdown({
   listPublicId,
   cardIndex,
   canAccessHomeBoard = true,
+  hasExternalUrl = false,
 }: {
   cardPublicId: string;
   isTemplate?: boolean;
@@ -35,6 +37,7 @@ export default function CardDropdown({
   listPublicId?: string;
   cardIndex?: number;
   canAccessHomeBoard?: boolean;
+  hasExternalUrl?: boolean;
 }) {
   const { openModal } = useModal();
   const { showPopup } = usePopup();
@@ -160,6 +163,19 @@ export default function CardDropdown({
             action: () => openModal("SHARE_CARD"),
             icon: (
               <HiOutlineArrowsRightLeft className="h-[16px] w-[16px] text-dark-900" />
+            ),
+          },
+        ]
+      : []),
+    ...((canEditCard || isCreator) && !isTemplate
+      ? [
+          {
+            label: hasExternalUrl
+              ? t`Edit external link`
+              : t`Add external link`,
+            action: () => openModal("EDIT_EXTERNAL_LINK"),
+            icon: (
+              <HiOutlineArrowTopRightOnSquare className="h-[16px] w-[16px] text-dark-900" />
             ),
           },
         ]
