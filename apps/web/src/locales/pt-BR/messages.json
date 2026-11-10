@@ -368,6 +368,16 @@
     "origin": [["src/views/card/components/ChecklistItemRow.tsx", 176]],
     "translation": "Adicionar detalhes..."
   },
+  "DpV4ac": {
+    "message": "Add external link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/card/components/Dropdown.tsx", 175],
+      ["src/views/card/components/ExternalLinkForm.tsx", 81]
+    ],
+    "translation": ""
+  },
   "lyqwgn": {
     "message": "Add label",
     "placeholders": {},
@@ -1631,6 +1641,13 @@
     ],
     "translation": "alterou a data de vencimento para <0>{formattedDate}</0>"
   },
+  "UrMZot": {
+    "message": "changed the external link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 152]],
+    "translation": ""
+  },
   "pFGfsR": {
     "message": "Check out some of our favorite open source projects.",
     "placeholders": {},
@@ -2746,6 +2763,16 @@
     "origin": [["src/views/card/components/Comment.tsx", 111]],
     "translation": "Editar comentário"
   },
+  "nuUs8z": {
+    "message": "Edit external link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/card/components/Dropdown.tsx", 174],
+      ["src/views/card/components/ExternalLinkForm.tsx", 81]
+    ],
+    "translation": ""
+  },
   "dgr4Kq": {
     "message": "Edit label",
     "placeholders": {},
@@ -2864,6 +2891,13 @@
     "comments": [],
     "origin": [["src/components/YouTubeEmbed/EditYouTubeModal.tsx", 131]],
     "translation": "Insira um título personalizado"
+  },
+  "0BAaFq": {
+    "message": "Enter a link starting with https://",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 55]],
+    "translation": ""
   },
   "dDyAXD": {
     "message": "Enter a new password",
@@ -4179,6 +4213,13 @@
     ],
     "translation": "Acesso limitado à API"
   },
+  "i+//kd": {
+    "message": "Link (for example a Discord thread)",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 99]],
+    "translation": ""
+  },
   "edWbV6": {
     "message": "Link copied",
     "placeholders": {},
@@ -4848,12 +4889,32 @@
     "origin": [["src/components/WorkspaceMenu.tsx", 37]],
     "translation": "Abrir menu de comandos"
   },
+  "t4RHUb": {
+    "message": "Open in Discord",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/board/components/Card.tsx", 140],
+      ["src/views/card/components/ExternalLinkButton.tsx", 28]
+    ],
+    "translation": ""
+  },
   "cFQEU/": {
     "message": "Open keyboard shortcuts",
     "placeholders": {},
     "comments": [],
     "origin": [["src/providers/keyboard-shortcuts.tsx", 172]],
     "translation": "Abrir atalhos de teclado"
+  },
+  "x57cJf": {
+    "message": "Open link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/board/components/Card.tsx", 141],
+      ["src/views/card/components/ExternalLinkButton.tsx", 33]
+    ],
+    "translation": ""
   },
   "v+Wp++": {
     "message": "Open source",
@@ -5512,6 +5573,13 @@
     "placeholders": {},
     "comments": [],
     "origin": [["src/views/settings/components/WorkspaceImage.tsx", 253]],
+    "translation": ""
+  },
+  "484LKL": {
+    "message": "Remove link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 124]],
     "translation": ""
   },
   "99VIgC": {
@@ -7342,6 +7410,13 @@
     "origin": [["src/views/card/components/LabelSelector.tsx", 74]],
     "translation": "Não foi possível atualizar as etiquetas"
   },
+  "FTmnGV": {
+    "message": "Unable to update link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 36]],
+    "translation": ""
+  },
   "I0gAKM": {
     "message": "Unable to update list",
     "placeholders": {},
@@ -8948,6 +9023,13 @@
         284
       ]
     ],
+    "translation": ""
+  },
+  "WP70A5": {
+    "message": "The link is too long.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 53]],
     "translation": ""
   },
   "g7AL2V": {

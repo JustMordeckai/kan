@@ -610,6 +610,16 @@
     ],
     "translation": "Tilføj detaljer..."
   },
+  "DpV4ac": {
+    "message": "Add external link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/card/components/Dropdown.tsx", 175],
+      ["src/views/card/components/ExternalLinkForm.tsx", 81]
+    ],
+    "translation": ""
+  },
   "lyqwgn": {
     "message": "Add label",
     "placeholders": {},
@@ -2729,6 +2739,13 @@
     ],
     "translation": "ændrede forfaldsdatoen til <0>{formattedDate}</0>"
   },
+  "UrMZot": {
+    "message": "changed the external link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 152]],
+    "translation": ""
+  },
   "pFGfsR": {
     "message": "Check out some of our favorite open source projects.",
     "placeholders": {},
@@ -4576,6 +4593,16 @@
     ],
     "translation": "Rediger kommentar"
   },
+  "nuUs8z": {
+    "message": "Edit external link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/card/components/Dropdown.tsx", 174],
+      ["src/views/card/components/ExternalLinkForm.tsx", 81]
+    ],
+    "translation": ""
+  },
   "dgr4Kq": {
     "message": "Edit label",
     "placeholders": {},
@@ -4771,6 +4798,13 @@
       ]
     ],
     "translation": "Indtast en brugerdefineret titel"
+  },
+  "0BAaFq": {
+    "message": "Enter a link starting with https://",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 55]],
+    "translation": ""
   },
   "dDyAXD": {
     "message": "Enter a new password",
@@ -6878,6 +6912,13 @@
     ],
     "translation": "Begrænset API-adgang"
   },
+  "i+//kd": {
+    "message": "Link (for example a Discord thread)",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 99]],
+    "translation": ""
+  },
   "edWbV6": {
     "message": "Link copied",
     "placeholders": {},
@@ -8029,6 +8070,16 @@
     ],
     "translation": "Åbn kommandomenu"
   },
+  "t4RHUb": {
+    "message": "Open in Discord",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/board/components/Card.tsx", 140],
+      ["src/views/card/components/ExternalLinkButton.tsx", 28]
+    ],
+    "translation": ""
+  },
   "cFQEU/": {
     "message": "Open keyboard shortcuts",
     "placeholders": {},
@@ -8040,6 +8091,16 @@
       ]
     ],
     "translation": "Åbn tastaturgenveje"
+  },
+  "x57cJf": {
+    "message": "Open link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/board/components/Card.tsx", 141],
+      ["src/views/card/components/ExternalLinkButton.tsx", 33]
+    ],
+    "translation": ""
   },
   "v+Wp++": {
     "message": "Open source",
@@ -9231,6 +9292,13 @@
     "placeholders": {},
     "comments": [],
     "origin": [["src/views/settings/components/WorkspaceImage.tsx", 253]],
+    "translation": ""
+  },
+  "484LKL": {
+    "message": "Remove link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 124]],
     "translation": ""
   },
   "99VIgC": {
@@ -12154,6 +12222,13 @@
     ],
     "translation": "Kunne ikke opdatere etiketter"
   },
+  "FTmnGV": {
+    "message": "Unable to update link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 36]],
+    "translation": ""
+  },
   "I0gAKM": {
     "message": "Unable to update list",
     "placeholders": {},
@@ -14447,6 +14522,13 @@
         284
       ]
     ],
+    "translation": ""
+  },
+  "WP70A5": {
+    "message": "The link is too long.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 53]],
     "translation": ""
   },
   "g7AL2V": {

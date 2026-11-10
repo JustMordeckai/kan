@@ -368,6 +368,16 @@
     "origin": [["src/views/card/components/ChecklistItemRow.tsx", 176]],
     "translation": "Ajouter des détails..."
   },
+  "DpV4ac": {
+    "message": "Add external link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/card/components/Dropdown.tsx", 175],
+      ["src/views/card/components/ExternalLinkForm.tsx", 81]
+    ],
+    "translation": "Ajouter un lien externe"
+  },
   "lyqwgn": {
     "message": "Add label",
     "placeholders": {},
@@ -1631,6 +1641,13 @@
     ],
     "translation": "a modifié la date d'échéance en <0>{formattedDate}</0>"
   },
+  "UrMZot": {
+    "message": "changed the external link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 152]],
+    "translation": "a modifié le lien externe"
+  },
   "pFGfsR": {
     "message": "Check out some of our favorite open source projects.",
     "placeholders": {},
@@ -2746,6 +2763,16 @@
     "origin": [["src/views/card/components/Comment.tsx", 111]],
     "translation": "Modifier le commentaire"
   },
+  "nuUs8z": {
+    "message": "Edit external link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/card/components/Dropdown.tsx", 174],
+      ["src/views/card/components/ExternalLinkForm.tsx", 81]
+    ],
+    "translation": "Modifier le lien externe"
+  },
   "dgr4Kq": {
     "message": "Edit label",
     "placeholders": {},
@@ -2864,6 +2891,13 @@
     "comments": [],
     "origin": [["src/components/YouTubeEmbed/EditYouTubeModal.tsx", 131]],
     "translation": "Saisissez un titre personnalisé"
+  },
+  "0BAaFq": {
+    "message": "Enter a link starting with https://",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 55]],
+    "translation": "Saisissez un lien commençant par https://"
   },
   "dDyAXD": {
     "message": "Enter a new password",
@@ -4179,6 +4213,13 @@
     ],
     "translation": "Accès API limité"
   },
+  "i+//kd": {
+    "message": "Link (for example a Discord thread)",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 99]],
+    "translation": "Lien (par exemple un fil Discord)"
+  },
   "edWbV6": {
     "message": "Link copied",
     "placeholders": {},
@@ -4848,12 +4889,32 @@
     "origin": [["src/components/WorkspaceMenu.tsx", 37]],
     "translation": "Ouvrir le menu de commandes"
   },
+  "t4RHUb": {
+    "message": "Open in Discord",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/board/components/Card.tsx", 140],
+      ["src/views/card/components/ExternalLinkButton.tsx", 28]
+    ],
+    "translation": "Ouvrir sur Discord"
+  },
   "cFQEU/": {
     "message": "Open keyboard shortcuts",
     "placeholders": {},
     "comments": [],
     "origin": [["src/providers/keyboard-shortcuts.tsx", 172]],
     "translation": "Ouvrir les raccourcis clavier"
+  },
+  "x57cJf": {
+    "message": "Open link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      ["src/views/board/components/Card.tsx", 141],
+      ["src/views/card/components/ExternalLinkButton.tsx", 33]
+    ],
+    "translation": "Ouvrir le lien"
   },
   "v+Wp++": {
     "message": "Open source",
@@ -5513,6 +5574,13 @@
     "comments": [],
     "origin": [["src/views/settings/components/WorkspaceImage.tsx", 253]],
     "translation": "Supprimer l'image"
+  },
+  "484LKL": {
+    "message": "Remove link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 124]],
+    "translation": "Retirer le lien"
   },
   "99VIgC": {
     "message": "Remove member",
@@ -7342,6 +7410,13 @@
     "origin": [["src/views/card/components/LabelSelector.tsx", 74]],
     "translation": "Impossible de mettre à jour les étiquettes"
   },
+  "FTmnGV": {
+    "message": "Unable to update link",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 36]],
+    "translation": "Impossible de mettre à jour le lien"
+  },
   "I0gAKM": {
     "message": "Unable to update list",
     "placeholders": {},
@@ -8949,6 +9024,13 @@
       ]
     ],
     "translation": "L'image est chargée depuis son site d'origine à chaque affichage du tableau."
+  },
+  "WP70A5": {
+    "message": "The link is too long.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 53]],
+    "translation": "Le lien est trop long."
   },
   "g7AL2V": {
     "message": "Unable to save Discord roles",
