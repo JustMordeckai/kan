@@ -107,6 +107,9 @@ export const workspaceMembers = pgTable("workspace_members", {
     { onDelete: "restrict" },
   ),
   status: memberStatusEnum("status").default("invited").notNull(),
+  // Discord role ids the user held at the last role sync (null until then).
+  discordRoleIds: text("discordRoleIds").array(),
+  discordRolesSyncedAt: timestamp("discordRolesSyncedAt"),
 }).enableRLS();
 
 export const workspaceMembersRelations = relations(

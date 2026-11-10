@@ -40,6 +40,7 @@ export {
   workspaceUpdateResponseSchema,
   workspaceDeleteResponseSchema,
   workspaceDiscordAccountSchema,
+  workspaceMemberBoardAccessSchema,
 } from "./workspace";
 
 export { listCreateResponseSchema, listUpdateResponseSchema } from "./list";

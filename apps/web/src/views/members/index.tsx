@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { t } from "@lingui/core/macro";
 import { env } from "next-runtime-env";
+import { Fragment, useState } from "react";
 import {
   HiBolt,
   HiChevronDown,
@@ -17,6 +18,7 @@ import {
   hasUnlimitedSeats,
 } from "@kan/shared/utils";
 
+import type { MemberBoardAccessEntry } from "./components/MemberBoardAccess";
 import Avatar from "~/components/Avatar";
 import Button from "~/components/Button";
 import Dropdown from "~/components/Dropdown";
@@ -30,9 +32,14 @@ import { usePopup } from "~/providers/popup";
 import { useWorkspace } from "~/providers/workspace";
 import { api } from "~/utils/api";
 import { getAvatarUrl } from "~/utils/helpers";
+import { boardsForFilter } from "~/utils/memberBoardAccess";
 import { DeleteMemberConfirmation } from "./components/DeleteMemberConfirmation";
 import { EditMemberPermissionsModal } from "./components/EditMemberPermissionsModal";
 import { InviteMemberForm } from "./components/InviteMemberForm";
+import {
+  BoardAccessFilter,
+  MemberBoardAccessList,
+} from "./components/MemberBoardAccess";
 
 export default function MembersPage() {
   const { modalContentType, openModal, isOpen } = useModal();
@@ -49,6 +56,41 @@ export default function MembersPage() {
   const { canEditMember } = usePermissions();
 
   const utils = api.useUtils();
+
+  // Admins see which boards each member reaches, and why.
+  const isWorkspaceAdmin = workspace.role === "admin";
+  const { data: boardAccess } = api.workspace.memberBoardAccess.useQuery(
+    { workspacePublicId: workspace.publicId },
+    {
+      enabled: isWorkspaceAdmin && workspace.publicId.length >= 12,
+      retry: false,
+    },
+  );
+  const [boardFilter, setBoardFilter] = useState<string | null>(null);
+  const [expandedMembers, setExpandedMembers] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const activeBoardFilter = boardAccess?.boards.some(
+    (board) => board.boardPublicId === boardFilter,
+  )
+    ? boardFilter
+    : null;
+  const accessByMember = new Map(
+    (boardAccess?.members ?? []).map((member) => [
+      member.memberPublicId,
+      member,
+    ]),
+  );
+  const toggleExpanded = (memberPublicId: string) =>
+    setExpandedMembers((current) => {
+      const next = new Set(current);
+      if (next.has(memberPublicId)) next.delete(memberPublicId);
+      else next.add(memberPublicId);
+      return next;
+    });
+  const isAccessShown = (memberPublicId: string) =>
+    accessByMember.has(memberPublicId) &&
+    (!!activeBoardFilter || expandedMembers.has(memberPublicId));
 
   const updateRoleMutation = api.member.updateRole.useMutation({
     onSuccess: async () => {
@@ -108,6 +150,8 @@ export default function MembersPage() {
     isLastRow,
     showSkeleton,
     showPendingIcon,
+    access,
+    showAccess,
   }: {
     memberPublicId?: string;
     memberId?: string | null | undefined;
@@ -119,6 +163,8 @@ export default function MembersPage() {
     isLastRow?: boolean;
     showSkeleton?: boolean;
     showPendingIcon?: boolean;
+    access?: MemberBoardAccessEntry;
+    showAccess?: boolean;
   }) => {
     const handleRoleChange = (newRole: "admin" | "member" | "guest") => {
       if (!memberPublicId) return;
@@ -135,7 +181,7 @@ export default function MembersPage() {
         <td
           className={twMerge(
             "w-full sm:w-[65%]",
-            isLastRow ? "rounded-bl-lg" : "",
+            isLastRow && !showAccess ? "rounded-bl-lg" : "",
           )}
         >
           <div className="flex items-center p-2 sm:p-4">
@@ -178,6 +224,23 @@ export default function MembersPage() {
                     {memberEmail}
                   </p>
                 )}
+                {access && !activeBoardFilter && memberPublicId && (
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(memberPublicId)}
+                    aria-expanded={!!showAccess}
+                    className="mt-1 inline-flex items-center gap-0.5 rounded-sm text-[11px] text-light-900 hover:text-light-1000 focus:outline-none focus-visible:ring-1 focus-visible:ring-light-700 dark:text-dark-900 dark:hover:text-dark-1000 dark:focus-visible:ring-dark-700 sm:text-xs"
+                  >
+                    {t`Boards (${access.boards.length})`}
+                    <HiChevronDown
+                      aria-hidden
+                      className={twMerge(
+                        "h-3 w-3 transition-transform",
+                        showAccess && "rotate-180",
+                      )}
+                    />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -185,7 +248,7 @@ export default function MembersPage() {
         <td
           className={twMerge(
             "w-auto min-w-[120px] overflow-visible sm:w-[35%] sm:min-w-[150px]",
-            isLastRow && "rounded-br-lg",
+            isLastRow && !showAccess && "rounded-br-lg",
           )}
         >
           <div className="flex w-full items-center justify-between px-2 sm:px-3">
@@ -274,6 +337,12 @@ export default function MembersPage() {
     );
   };
 
+  const visibleMembers = (data?.members ?? []).filter((member) => {
+    if (!activeBoardFilter) return true;
+    const access = accessByMember.get(member.publicId);
+    return !!access && !!boardsForFilter(access.boards, activeBoardFilter);
+  });
+
   return (
     <>
       <PageHead title={t`Members | ${workspace.name ?? t`Workspace`}`} />
@@ -333,6 +402,14 @@ export default function MembersPage() {
           </div>
         </div>
 
+        {isWorkspaceAdmin && !!boardAccess?.boards.length && (
+          <BoardAccessFilter
+            data={boardAccess}
+            value={activeBoardFilter}
+            onChange={setBoardFilter}
+          />
+        )}
+
         <div className="mt-8 flow-root">
           <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full overflow-x-auto px-4 py-2 pb-16 align-middle sm:px-6 lg:px-8">
@@ -356,22 +433,52 @@ export default function MembersPage() {
                   </thead>
                   <tbody className="divide-y divide-light-600 overflow-visible bg-light-50 dark:divide-dark-600 dark:bg-dark-100">
                     {!isLoading &&
-                      data?.members.map((member, index) => {
+                      visibleMembers.map((member, index) => {
                         const isPendingInvite = member.status === "invited";
+                        const access = accessByMember.get(member.publicId);
+                        const showAccess = isAccessShown(member.publicId);
+                        const isLastRow = index === visibleMembers.length - 1;
 
                         return (
-                          <TableRow
-                            key={member.publicId}
-                            memberPublicId={member.publicId}
-                            memberId={member.user?.id}
-                            memberName={member.user?.name}
-                            memberEmail={member.user?.email ?? member.email}
-                            memberImage={member.user?.image}
-                            memberRole={member.role}
-                            memberStatus={member.status}
-                            isLastRow={index === data.members.length - 1}
-                            showPendingIcon={isPendingInvite}
-                          />
+                          <Fragment key={member.publicId}>
+                            <TableRow
+                              memberPublicId={member.publicId}
+                              memberId={member.user?.id}
+                              memberName={member.user?.name}
+                              memberEmail={member.user?.email ?? member.email}
+                              memberImage={member.user?.image}
+                              memberRole={member.role}
+                              memberStatus={member.status}
+                              isLastRow={isLastRow}
+                              showPendingIcon={isPendingInvite}
+                              access={access}
+                              showAccess={showAccess}
+                            />
+                            {showAccess && access && (
+                              <tr className="!border-t-0">
+                                <td
+                                  colSpan={2}
+                                  className={twMerge(
+                                    isLastRow && "rounded-b-lg",
+                                  )}
+                                >
+                                  <MemberBoardAccessList
+                                    member={access}
+                                    boards={
+                                      boardsForFilter(
+                                        access.boards,
+                                        activeBoardFilter,
+                                      ) ?? []
+                                    }
+                                    showDiscordStatus={
+                                      boardAccess?.discordRoleAccessEnabled ??
+                                      false
+                                    }
+                                  />
+                                </td>
+                              </tr>
+                            )}
+                          </Fragment>
                         );
                       })}
 

@@ -24,6 +24,13 @@ export interface DiscordClientOptions {
   maxRetries?: number;
 }
 
+export interface DiscordGuildRole {
+  id: string;
+  name: string;
+  colour: number;
+  position: number;
+}
+
 const defaultSleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -47,23 +54,19 @@ const toWaitMs = (seconds: unknown) => {
 };
 
 /**
- * Returns the role ids the user holds in the configured guild, or null when
- * they are not a member. Throws DiscordApiError on any other failure so that
- * callers can fail closed.
+ * GET on the Discord API with the bot token, retrying on rate limits.
+ * Returns the first response that is not a 429; throws DiscordApiError when
+ * Discord cannot be reached or keeps rate limiting.
  */
-export async function fetchGuildMemberRoleIds(
-  config: Pick<DiscordRoleAccessConfig, "guildId" | "botToken">,
-  discordUserId: string,
-  options: DiscordClientOptions = {},
-): Promise<string[] | null> {
-  if (!config.botToken) throw new DiscordApiError("Discord bot token missing");
-  if (!isSnowflake(config.guildId) || !isSnowflake(discordUserId))
-    throw new DiscordApiError("Invalid Discord id");
-
+async function discordGet(
+  config: Pick<DiscordRoleAccessConfig, "botToken">,
+  path: string,
+  options: DiscordClientOptions,
+): Promise<{ status: number; ok: boolean; body: unknown }> {
   const fetchFn = options.fetch ?? fetch;
   const sleep = options.sleep ?? defaultSleep;
   const maxRetries = options.maxRetries ?? 3;
-  const url = `${DISCORD_API_URL}/guilds/${config.guildId}/members/${discordUserId}`;
+  const url = `${DISCORD_API_URL}${path}`;
 
   for (let attempt = 0; ; attempt++) {
     let response: Response;
@@ -92,27 +95,90 @@ export async function fetchGuildMemberRoleIds(
 
     const body = await readJson(response);
 
-    if (response.status === 404) {
-      const code = Number(getField(body, "code"));
-      if (NOT_A_MEMBER_CODES.has(code)) return null;
-      throw new DiscordApiError(`Discord responded with 404 (${code})`, 404);
-    }
-
-    if (!response.ok)
-      throw new DiscordApiError(
-        `Discord responded with ${response.status}`,
-        response.status,
-      );
-
-    const roles = getField(body, "roles");
-    if (!Array.isArray(roles))
-      throw new DiscordApiError("Unexpected Discord member payload");
-
     // Spread consecutive calls (bulk sync) over the bucket's reset window.
-    if (response.headers.get("x-ratelimit-remaining") === "0") {
+    if (response.ok && response.headers.get("x-ratelimit-remaining") === "0") {
       await sleep(toWaitMs(response.headers.get("x-ratelimit-reset-after")));
     }
 
-    return roles.filter((role): role is string => typeof role === "string");
+    return { status: response.status, ok: response.ok, body };
   }
+}
+
+/**
+ * Returns the role ids the user holds in the configured guild, or null when
+ * they are not a member. Throws DiscordApiError on any other failure so that
+ * callers can fail closed.
+ */
+export async function fetchGuildMemberRoleIds(
+  config: Pick<DiscordRoleAccessConfig, "guildId" | "botToken">,
+  discordUserId: string,
+  options: DiscordClientOptions = {},
+): Promise<string[] | null> {
+  if (!config.botToken) throw new DiscordApiError("Discord bot token missing");
+  if (!isSnowflake(config.guildId) || !isSnowflake(discordUserId))
+    throw new DiscordApiError("Invalid Discord id");
+
+  const { status, ok, body } = await discordGet(
+    config,
+    `/guilds/${config.guildId}/members/${discordUserId}`,
+    options,
+  );
+
+  if (status === 404) {
+    const code = Number(getField(body, "code"));
+    if (NOT_A_MEMBER_CODES.has(code)) return null;
+    throw new DiscordApiError(`Discord responded with 404 (${code})`, 404);
+  }
+
+  if (!ok)
+    throw new DiscordApiError(`Discord responded with ${status}`, status);
+
+  const roles = getField(body, "roles");
+  if (!Array.isArray(roles))
+    throw new DiscordApiError("Unexpected Discord member payload");
+
+  return roles.filter((role): role is string => typeof role === "string");
+}
+
+const toInteger = (value: unknown) =>
+  typeof value === "number" && Number.isInteger(value) ? value : 0;
+
+/**
+ * Returns every role of the configured guild with its name, colour and
+ * position. Throws DiscordApiError on any failure.
+ */
+export async function fetchGuildRoles(
+  config: Pick<DiscordRoleAccessConfig, "guildId" | "botToken">,
+  options: DiscordClientOptions = {},
+): Promise<DiscordGuildRole[]> {
+  if (!config.botToken) throw new DiscordApiError("Discord bot token missing");
+  if (!isSnowflake(config.guildId))
+    throw new DiscordApiError("Invalid Discord id");
+
+  const { status, ok, body } = await discordGet(
+    config,
+    `/guilds/${config.guildId}/roles`,
+    options,
+  );
+
+  if (!ok)
+    throw new DiscordApiError(`Discord responded with ${status}`, status);
+  if (!Array.isArray(body))
+    throw new DiscordApiError("Unexpected Discord roles payload");
+
+  const roles: DiscordGuildRole[] = [];
+  for (const role of body as unknown[]) {
+    const id = getField(role, "id");
+    const name = getField(role, "name");
+    if (typeof id !== "string" || !isSnowflake(id) || typeof name !== "string")
+      continue;
+    roles.push({
+      id,
+      name,
+      colour: toInteger(getField(role, "color")),
+      position: toInteger(getField(role, "position")),
+    });
+  }
+
+  return roles;
 }

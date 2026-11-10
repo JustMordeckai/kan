@@ -6,6 +6,7 @@ import {
   isNotNull,
   isNull,
   notExists,
+  notInArray,
   sql,
 } from "drizzle-orm";
 
@@ -14,6 +15,7 @@ import {
   account,
   boardMembers,
   boards,
+  discordRoles,
   session,
   users,
   workspaceMembers,
@@ -321,4 +323,82 @@ export const removeBoardMembers = async (
   }
 
   return removed;
+};
+
+/**
+ * Records the Discord roles a user currently holds on each of their
+ * workspace memberships, so that admins can see why they reach a board.
+ */
+export const storeMemberDiscordRoleIds = async (
+  db: dbClient,
+  args: { userId: string; roleIds: string[] },
+) => {
+  const updated = await db
+    .update(workspaceMembers)
+    .set({
+      discordRoleIds: [...new Set(args.roleIds)],
+      discordRolesSyncedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(workspaceMembers.userId, args.userId),
+        isNull(workspaceMembers.deletedAt),
+      ),
+    )
+    .returning({ id: workspaceMembers.id });
+
+  return updated.length;
+};
+
+/**
+ * Mirrors the guild's roles: upserts every role given and deletes the ones
+ * that no longer exist.
+ */
+export const replaceDiscordRoles = async (
+  db: dbClient,
+  args: {
+    guildId: string;
+    roles: { id: string; name: string; colour: number; position: number }[];
+  },
+) => {
+  return db.transaction(async (tx) => {
+    const now = new Date();
+
+    for (const role of args.roles) {
+      const values = {
+        guildId: args.guildId,
+        name: role.name,
+        colour: role.colour,
+        position: role.position,
+        updatedAt: now,
+      };
+      await tx
+        .insert(discordRoles)
+        .values({ roleId: role.id, ...values })
+        .onConflictDoUpdate({ target: discordRoles.roleId, set: values });
+    }
+
+    const roleIds = args.roles.map((role) => role.id);
+    await tx
+      .delete(discordRoles)
+      .where(
+        roleIds.length ? notInArray(discordRoles.roleId, roleIds) : undefined,
+      );
+
+    return args.roles.length;
+  });
+};
+
+export const getDiscordRolesByIds = async (db: dbClient, roleIds: string[]) => {
+  if (!roleIds.length) return [];
+
+  return db
+    .select({
+      roleId: discordRoles.roleId,
+      name: discordRoles.name,
+      colour: discordRoles.colour,
+      position: discordRoles.position,
+    })
+    .from(discordRoles)
+    .where(inArray(discordRoles.roleId, [...new Set(roleIds)]));
 };

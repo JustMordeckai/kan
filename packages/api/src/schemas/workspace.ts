@@ -104,3 +104,57 @@ export const workspaceDiscordAccountSchema = z.object({
   userId: z.string(),
   discordId: z.string(),
 });
+
+// ─── workspace.memberBoardAccess ─────────────────────────────
+const discordRoleRefSchema = z.object({
+  roleId: z.string(),
+  name: z.string().nullable(),
+  colour: z.number().int().nullable(),
+});
+
+export const boardAccessReasonSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("workspace_admin") }),
+  discordRoleRefSchema.extend({ type: z.literal("discord_role") }),
+  z.object({ type: z.literal("discord_sync"), addedAt: z.date() }),
+  z.object({
+    type: z.literal("manual"),
+    addedBy: z
+      .object({ name: z.string().nullable(), email: z.string() })
+      .nullable(),
+    addedAt: z.date(),
+  }),
+]);
+
+export const workspaceMemberBoardAccessSchema = z.object({
+  discordRoleAccessEnabled: z.boolean(),
+  boards: z.array(
+    z.object({
+      boardPublicId: z.string(),
+      name: z.string(),
+      isArchived: z.boolean(),
+      discordRoles: z.array(discordRoleRefSchema),
+    }),
+  ),
+  members: z.array(
+    z.object({
+      memberPublicId: z.string(),
+      userId: z.string().nullable(),
+      name: z.string().nullable(),
+      email: z.string(),
+      image: z.string().nullable(),
+      workspaceRole: z.string(),
+      hasDiscordAccount: z.boolean(),
+      discordExempt: z.boolean(),
+      discordRolesSyncedAt: z.date().nullable(),
+      boards: z.array(
+        z.object({
+          boardPublicId: z.string(),
+          name: z.string(),
+          isArchived: z.boolean(),
+          boardRole: z.enum(["admin", "member"]).nullable(),
+          reasons: z.array(boardAccessReasonSchema),
+        }),
+      ),
+    }),
+  ),
+});

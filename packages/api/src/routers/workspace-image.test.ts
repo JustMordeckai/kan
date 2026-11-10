@@ -8,6 +8,7 @@ import { generateAvatarUrl } from "@kan/shared/utils";
 import { assertPermission } from "../utils/permissions";
 import { deleteWorkspaceImage } from "../utils/workspaceImage";
 
+vi.mock("@kan/db/repository/boardAccess.repo", () => ({}));
 vi.mock("@kan/db/repository/boardMember.repo", () => ({}));
 vi.mock("@kan/db/repository/discord.repo", () => ({}));
 vi.mock("@kan/db/repository/subscription.repo", () => ({}));

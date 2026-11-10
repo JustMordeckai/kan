@@ -6,7 +6,7 @@ import { createLogger } from "@kan/logger";
 import type { DiscordClientOptions } from "./client";
 import type { DiscordRoleAccessConfig } from "./config";
 import { computeBoardMembershipChanges, hasAllowedRole } from "./access";
-import { fetchGuildMemberRoleIds } from "./client";
+import { fetchGuildMemberRoleIds, fetchGuildRoles } from "./client";
 
 const log = createLogger("discord");
 
@@ -99,7 +99,41 @@ export async function applyDiscordAccess(
     changes.remove,
   );
 
+  // Only explains access to admins: a failure here must not fail the sync.
+  try {
+    await discordRepo.storeMemberDiscordRoleIds(db, {
+      userId: user.userId,
+      roleIds: memberRoleIds ?? [],
+    });
+  } catch (error) {
+    log.warn(
+      { err: error, userId: user.userId },
+      "Storing Discord roles failed",
+    );
+  }
+
   return result;
+}
+
+/**
+ * Refreshes the stored names and colours of the guild's roles. Returns the
+ * number of roles stored, or null when Discord or the database failed.
+ */
+export async function syncDiscordGuildRoles(
+  db: dbClient,
+  config: DiscordRoleAccessConfig,
+  options?: DiscordClientOptions,
+): Promise<number | null> {
+  try {
+    const roles = await fetchGuildRoles(config, options);
+    return await discordRepo.replaceDiscordRoles(db, {
+      guildId: config.guildId,
+      roles,
+    });
+  } catch (error) {
+    log.warn({ err: error }, "Discord guild roles sync failed");
+    return null;
+  }
 }
 
 /**
@@ -189,6 +223,7 @@ export interface DiscordSyncSummary {
   sessionsDeleted: number;
   boardMembershipsAdded: number;
   boardMembershipsRemoved: number;
+  guildRoles: number | null;
 }
 
 /** Re-checks every user with a Discord account, one at a time. */
@@ -197,6 +232,7 @@ export async function syncAllDiscordUsers(
   config: DiscordRoleAccessConfig,
   options?: DiscordClientOptions,
 ): Promise<DiscordSyncSummary> {
+  const guildRoles = await syncDiscordGuildRoles(db, config, options);
   const users = await discordRepo.getAllDiscordUsers(db);
   const summary: DiscordSyncSummary = {
     users: users.length,
@@ -208,6 +244,7 @@ export async function syncAllDiscordUsers(
     sessionsDeleted: 0,
     boardMembershipsAdded: 0,
     boardMembershipsRemoved: 0,
+    guildRoles,
   };
 
   for (const user of users) {

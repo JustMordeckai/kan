@@ -9,6 +9,7 @@ import {
   applyDiscordAccess,
   authorizeDiscordSession,
   syncAllDiscordUsers,
+  syncDiscordGuildRoles,
 } from "./sync";
 
 vi.mock("@kan/logger", () => ({
@@ -25,6 +26,8 @@ vi.mock("@kan/db/repository/discord.repo", () => ({
   getRoleSyncedBoardsForUser: vi.fn(),
   addBoardMembers: vi.fn(),
   removeBoardMembers: vi.fn(),
+  storeMemberDiscordRoleIds: vi.fn(),
+  replaceDiscordRoles: vi.fn(),
 }));
 
 vi.mock("@kan/db/repository/workspace.repo", () => ({
@@ -46,6 +49,10 @@ const config: DiscordRoleAccessConfig = {
 
 const memberResponse = (roles: string[]) =>
   new Response(JSON.stringify({ roles }), { status: 200 });
+
+const guildRolesResponse = (
+  roles: { id: string; name: string; color?: number; position?: number }[],
+) => new Response(JSON.stringify(roles), { status: 200 });
 
 const fetchReturning = (...responses: (Response | Error)[]) => {
   const fetch = vi.fn<typeof globalThis.fetch>();
@@ -79,6 +86,10 @@ describe("discord sync", () => {
     );
     repo.removeBoardMembers.mockImplementation((_db, rows) =>
       Promise.resolve(rows.length),
+    );
+    repo.storeMemberDiscordRoleIds.mockResolvedValue(1);
+    repo.replaceDiscordRoles.mockImplementation((_db, args) =>
+      Promise.resolve(args.roles.length),
     );
   });
 
@@ -204,6 +215,55 @@ describe("discord sync", () => {
       });
     });
 
+    it("stores the member's current Discord roles", async () => {
+      await applyDiscordAccess(
+        db,
+        config,
+        { userId: "user-1", email: "user@example.com" },
+        ["10", "12"],
+      );
+
+      expect(repo.storeMemberDiscordRoleIds).toHaveBeenCalledWith(db, {
+        userId: "user-1",
+        roleIds: ["10", "12"],
+      });
+    });
+
+    it("stores no role for a user who left the guild", async () => {
+      await applyDiscordAccess(
+        db,
+        config,
+        { userId: "user-1", email: "user@example.com" },
+        null,
+      );
+
+      expect(repo.storeMemberDiscordRoleIds).toHaveBeenCalledWith(db, {
+        userId: "user-1",
+        roleIds: [],
+      });
+    });
+
+    it("still applies access when storing the roles fails", async () => {
+      repo.storeMemberDiscordRoleIds.mockRejectedValue(new Error("db down"));
+      repo.getRoleSyncedBoardsForUser.mockResolvedValue([
+        {
+          boardId: 1,
+          workspaceMemberId: 5,
+          discordRoleIds: ["11"],
+          role: null,
+        },
+      ]);
+
+      await expect(
+        applyDiscordAccess(
+          db,
+          config,
+          { userId: "user-1", email: "user@example.com" },
+          ["11"],
+        ),
+      ).resolves.toMatchObject({ allowed: true, boardMembershipsAdded: 1 });
+    });
+
     it("skips the workspace when none is configured", async () => {
       await applyDiscordAccess(
         db,
@@ -228,6 +288,10 @@ describe("discord sync", () => {
       repo.removeWorkspaceMember.mockResolvedValue(true);
       repo.deleteSessionsByUserId.mockResolvedValue(2);
       const options = fetchReturning(
+        guildRolesResponse([
+          { id: "10", name: "Staff", color: 0xff0000, position: 3 },
+          { id: "11", name: "Dev", position: 2 },
+        ]),
         memberResponse(["10"]),
         memberResponse([]),
         new Response(JSON.stringify({ message: "boom" }), { status: 500 }),
@@ -245,9 +309,65 @@ describe("discord sync", () => {
         sessionsDeleted: 2,
         boardMembershipsAdded: 0,
         boardMembershipsRemoved: 0,
+        guildRoles: 2,
       });
+      expect(repo.replaceDiscordRoles).toHaveBeenCalledWith(db, {
+        guildId: "100",
+        roles: [
+          { id: "10", name: "Staff", colour: 0xff0000, position: 3 },
+          { id: "11", name: "Dev", colour: 0, position: 2 },
+        ],
+      });
+      // The user Discord failed on keeps the roles stored last time.
+      expect(repo.storeMemberDiscordRoleIds).toHaveBeenCalledTimes(2);
+      expect(repo.storeMemberDiscordRoleIds).not.toHaveBeenCalledWith(
+        db,
+        expect.objectContaining({ userId: "u3" }),
+      );
       expect(repo.deleteSessionsByUserId).toHaveBeenCalledTimes(1);
       expect(repo.deleteSessionsByUserId).toHaveBeenCalledWith(db, "u2");
+    });
+  });
+
+  describe("syncDiscordGuildRoles", () => {
+    it("keeps going when Discord refuses the roles request", async () => {
+      const options = fetchReturning(
+        new Response(JSON.stringify({ message: "Missing Access" }), {
+          status: 403,
+        }),
+      );
+
+      await expect(syncDiscordGuildRoles(db, config, options)).resolves.toBe(
+        null,
+      );
+      expect(repo.replaceDiscordRoles).not.toHaveBeenCalled();
+    });
+
+    it("returns null when storing the roles fails", async () => {
+      repo.replaceDiscordRoles.mockRejectedValue(new Error("db down"));
+      const options = fetchReturning(guildRolesResponse([]));
+
+      await expect(syncDiscordGuildRoles(db, config, options)).resolves.toBe(
+        null,
+      );
+    });
+
+    it("still syncs every user when the roles request fails", async () => {
+      repo.getAllDiscordUsers.mockResolvedValue([
+        { userId: "u1", email: "a@example.com", discordUserId: "1" },
+      ]);
+      const options = fetchReturning(
+        new TypeError("fetch failed"),
+        memberResponse(["10"]),
+      );
+
+      const summary = await syncAllDiscordUsers(db, config, options);
+
+      expect(summary).toMatchObject({ users: 1, allowed: 1, guildRoles: null });
+      expect(repo.storeMemberDiscordRoleIds).toHaveBeenCalledWith(db, {
+        userId: "u1",
+        roleIds: ["10"],
+      });
     });
   });
 });

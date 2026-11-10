@@ -330,6 +330,13 @@
       "when": 1794317352458,
       "tag": "20261110132912_AddCardHomeBoardActivity",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1794318340275,
+      "tag": "20261110134540_AddDiscordRoleData",
+      "breakpoints": true
     }
   ]
 }

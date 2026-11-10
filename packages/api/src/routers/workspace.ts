@@ -3,6 +3,8 @@ import { env } from "next-runtime-env";
 import { z } from "zod";
 
 import type { WorkspacePlan } from "@kan/db/schema";
+import { getDiscordRoleAccessConfig } from "@kan/auth/discord/config";
+import * as boardAccessRepo from "@kan/db/repository/boardAccess.repo";
 import * as boardMemberRepo from "@kan/db/repository/boardMember.repo";
 import * as discordRepo from "@kan/db/repository/discord.repo";
 import * as subscriptionRepo from "@kan/db/repository/subscription.repo";
@@ -16,12 +18,17 @@ import {
   workspaceDetailSchema,
   workspaceDiscordAccountSchema,
   workspaceListItemSchema,
+  workspaceMemberBoardAccessSchema,
   workspaceUpdateResponseSchema,
   workspaceWithBoardsSchema,
 } from "../schemas";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { createAvatarUrlResolver } from "../utils/avatarUrls";
 import { formatBoardBackground } from "../utils/boardBackground";
+import {
+  collectBoardDiscordRoleIds,
+  computeMemberBoardAccess,
+} from "../utils/memberBoardAccess";
 import { assertPermission, isWorkspaceAdmin } from "../utils/permissions";
 import { deleteWorkspaceImage } from "../utils/workspaceImage";
 
@@ -675,6 +682,76 @@ export const workspaceRouter = createTRPCRouter({
         ctx.db,
         workspace.id,
       );
+    }),
+  memberBoardAccess: protectedProcedure
+    .meta({
+      openapi: {
+        summary: "Get the boards each workspace member can access",
+        method: "GET",
+        path: "/workspaces/{workspacePublicId}/members/board-access",
+        description:
+          "Lists, for every active workspace member, the boards they can access and why: a Discord role of the board, the Discord role sync, a manual addition, or being a workspace admin. Workspace admins only.",
+        tags: ["Workspaces"],
+        protect: true,
+      },
+    })
+    .input(z.object({ workspacePublicId: z.string().min(12) }))
+    .output(workspaceMemberBoardAccessSchema)
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.user?.id;
+
+      if (!userId)
+        throw new TRPCError({
+          message: `User not authenticated`,
+          code: "UNAUTHORIZED",
+        });
+
+      const workspace = await workspaceRepo.getByPublicId(
+        ctx.db,
+        input.workspacePublicId,
+      );
+
+      if (!workspace)
+        throw new TRPCError({
+          message: `Workspace not found`,
+          code: "NOT_FOUND",
+        });
+
+      if (!(await isWorkspaceAdmin(ctx.db, userId, workspace.id)))
+        throw new TRPCError({
+          message: `Only workspace admins can list board access`,
+          code: "FORBIDDEN",
+        });
+
+      const data = await boardAccessRepo.getWorkspaceBoardAccessData(
+        ctx.db,
+        workspace.id,
+      );
+      const discordRoles = await discordRepo.getDiscordRolesByIds(
+        ctx.db,
+        collectBoardDiscordRoleIds(data.boards),
+      );
+      const config = getDiscordRoleAccessConfig();
+
+      const result = computeMemberBoardAccess({
+        ...data,
+        discordRoles,
+        exemptEmails: config?.exemptEmails ?? [],
+      });
+
+      const resolveAvatarUrl = createAvatarUrlResolver();
+      const members = await Promise.all(
+        result.members.map(async (member) => ({
+          ...member,
+          image: member.image ? await resolveAvatarUrl(member.image) : null,
+        })),
+      );
+
+      return {
+        discordRoleAccessEnabled: config !== null,
+        boards: result.boards,
+        members,
+      };
     }),
   search: protectedProcedure
     .meta({

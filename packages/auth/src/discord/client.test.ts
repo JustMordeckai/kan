@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { DiscordApiError, fetchGuildMemberRoleIds } from "./client";
+import {
+  DiscordApiError,
+  fetchGuildMemberRoleIds,
+  fetchGuildRoles,
+} from "./client";
 
 const config = { guildId: "100", botToken: "bot-token" };
 
@@ -118,6 +122,74 @@ describe("fetchGuildMemberRoleIds", () => {
     ).rejects.toBeInstanceOf(DiscordApiError);
     await expect(
       fetchGuildMemberRoleIds(config, "../42", options),
+    ).rejects.toBeInstanceOf(DiscordApiError);
+    expect(options.fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("fetchGuildRoles", () => {
+  it("returns the guild roles with their name, colour and position", async () => {
+    const options = setup(
+      jsonResponse(200, [
+        { id: "100", name: "@everyone", color: 0, position: 0 },
+        { id: "200", name: "Staff", color: 15158332, position: 5 },
+        { id: "300", name: "Dev" },
+      ]),
+    );
+
+    await expect(fetchGuildRoles(config, options)).resolves.toEqual([
+      { id: "100", name: "@everyone", colour: 0, position: 0 },
+      { id: "200", name: "Staff", colour: 15158332, position: 5 },
+      { id: "300", name: "Dev", colour: 0, position: 0 },
+    ]);
+
+    const [url, init] = options.fetch.mock.calls[0] ?? [];
+    expect(url).toBe("https://discord.com/api/v10/guilds/100/roles");
+    expect(init?.headers).toEqual({ Authorization: "Bot bot-token" });
+  });
+
+  it("skips malformed roles", async () => {
+    const options = setup(
+      jsonResponse(200, [
+        { id: "abc", name: "Bad id" },
+        { id: "200" },
+        null,
+        { id: "300", name: "Ok", color: 1.5 },
+      ]),
+    );
+
+    await expect(fetchGuildRoles(config, options)).resolves.toEqual([
+      { id: "300", name: "Ok", colour: 0, position: 0 },
+    ]);
+  });
+
+  it("retries when rate limited", async () => {
+    const options = setup(
+      jsonResponse(429, { retry_after: 0.5 }),
+      jsonResponse(200, []),
+    );
+
+    await expect(fetchGuildRoles(config, options)).resolves.toEqual([]);
+    expect(options.sleep).toHaveBeenCalledWith(500);
+  });
+
+  it("throws on an error response or an unexpected payload", async () => {
+    await expect(
+      fetchGuildRoles(config, setup(jsonResponse(403, { code: 50001 }))),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      fetchGuildRoles(config, setup(jsonResponse(200, { roles: [] }))),
+    ).rejects.toBeInstanceOf(DiscordApiError);
+  });
+
+  it("refuses to call Discord without a bot token or with a bad guild id", async () => {
+    const options = setup();
+
+    await expect(
+      fetchGuildRoles({ ...config, botToken: "" }, options),
+    ).rejects.toBeInstanceOf(DiscordApiError);
+    await expect(
+      fetchGuildRoles({ ...config, guildId: "x" }, options),
     ).rejects.toBeInstanceOf(DiscordApiError);
     expect(options.fetch).not.toHaveBeenCalled();
   });
