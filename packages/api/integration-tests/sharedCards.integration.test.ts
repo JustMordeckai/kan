@@ -696,4 +696,367 @@ describe("shared cards", () => {
       }),
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
+
+  describe("changing the home board", () => {
+    const ownIndices = async (listId: number) =>
+      (
+        await db
+          .select({ title: schema.cards.title, index: schema.cards.index })
+          .from(schema.cards)
+          .where(eq(schema.cards.listId, listId))
+      )
+        .sort((a, b) => a.index - b.index)
+        .map((card) => [card.title, card.index]);
+
+    const homeBoardView = async () => {
+      const board = await boardRepo.getByPublicId(
+        db,
+        homeBoard.publicId,
+        owner.id,
+        { members: [], labels: [], lists: [], dueDate: [], type: "regular" },
+      );
+      return board!.lists[0]!.cards.map((card) => [
+        card.title,
+        card.sharedFrom?.name ?? null,
+      ]);
+    };
+
+    const shareInTheMiddle = async () => {
+      await makeCard("Home A", homeList.id);
+      const card = await makeCard("From dev", homeList.id);
+      await makeCard("Home B", homeList.id);
+      await makeCard("Own A", sharedTodo.id);
+      await makeCard("Own B", sharedTodo.id);
+      await caller(owner).share({
+        cardPublicId: card.publicId,
+        boardPublicId: sharedBoard.publicId,
+        listPublicId: sharedTodo.publicId,
+      });
+      await caller(owner).update({
+        cardPublicId: card.publicId,
+        listPublicId: sharedTodo.publicId,
+        index: 1,
+      });
+      return card;
+    };
+
+    it("swaps the home board with a shared board, keeping both boards' order", async () => {
+      const card = await shareInTheMiddle();
+      const cardNumber = async () =>
+        (
+          await db
+            .select({ cardNumber: schema.cards.cardNumber })
+            .from(schema.cards)
+            .where(eq(schema.cards.id, card.id))
+        )[0]?.cardNumber;
+      const numberBefore = await cardNumber();
+
+      await expect(
+        caller(owner).setHomeBoard({
+          cardPublicId: card.publicId,
+          boardPublicId: sharedBoard.publicId,
+        }),
+      ).resolves.toEqual({
+        boardPublicId: sharedBoard.publicId,
+        listPublicId: sharedTodo.publicId,
+      });
+
+      const stored = await cardRepo.getByPublicId(db, card.publicId);
+      expect(stored?.listId).toBe(sharedTodo.id);
+      expect(await cardNumber()).toBe(numberBefore);
+
+      expect(
+        await cardBoardLinkRepo.getByCardAndBoard(db, {
+          cardId: card.id,
+          boardId: sharedBoard.id,
+        }),
+      ).toBeUndefined();
+      expect(
+        await cardBoardLinkRepo.getByCardAndBoard(db, {
+          cardId: card.id,
+          boardId: homeBoard.id,
+        }),
+      ).toMatchObject({ listId: homeList.id, index: 1 });
+
+      // Both boards show the cards in the same order as before.
+      expect((await sharedBoardView())[0]!.cards).toEqual([
+        ["Own A", 0, null],
+        ["From dev", 1, null],
+        ["Own B", 2, null],
+      ]);
+      expect(await homeBoardView()).toEqual([
+        ["Home A", null],
+        ["From dev", "Exchanges"],
+        ["Home B", null],
+      ]);
+      expect(await ownIndices(sharedTodo.id)).toEqual([
+        ["Own A", 0],
+        ["From dev", 1],
+        ["Own B", 2],
+      ]);
+      expect(await ownIndices(homeList.id)).toEqual([
+        ["Home A", 0],
+        ["Home B", 1],
+      ]);
+
+      const activity = await caller(owner).getActivities({
+        cardPublicId: card.publicId,
+        limit: 20,
+      });
+      expect(
+        activity.activities
+          .filter((item) => item.type === "card.updated.board.home")
+          .map((item) => [item.fromTitle, item.toTitle]),
+      ).toEqual([["Dev", "Exchanges"]]);
+
+      // And back again.
+      await caller(owner).setHomeBoard({
+        cardPublicId: card.publicId,
+        boardPublicId: homeBoard.publicId,
+      });
+      expect((await cardRepo.getByPublicId(db, card.publicId))?.listId).toBe(
+        homeList.id,
+      );
+      expect(await homeBoardView()).toEqual([
+        ["Home A", null],
+        ["From dev", null],
+        ["Home B", null],
+      ]);
+      expect((await sharedBoardView())[0]!.cards).toEqual([
+        ["Own A", 0, null],
+        ["From dev", 1, "Dev"],
+        ["Own B", 2, null],
+      ]);
+      expect(await cardBoardLinkRepo.getBoardsByCardId(db, card.id)).toEqual([
+        expect.objectContaining({ id: sharedBoard.id, listId: sharedTodo.id }),
+      ]);
+    });
+
+    it("keeps the card's labels, which follow the shared-card label rules", async () => {
+      const makeLabel = async (
+        publicId: string,
+        name: string,
+        boardId: number,
+      ) => {
+        const [label] = await db
+          .insert(schema.labels)
+          .values({ publicId, name, boardId, createdBy: owner.id })
+          .returning();
+        return label!;
+      };
+      const cardLabelIds = async (cardId: number) =>
+        (
+          await db
+            .select({ labelId: schema.cardsToLabels.labelId })
+            .from(schema.cardsToLabels)
+            .where(eq(schema.cardsToLabels.cardId, cardId))
+        )
+          .map((row) => row.labelId)
+          .sort();
+
+      const homeLabel = await makeLabel("lbhome123456", "Bug", homeBoard.id);
+      const fromDev = await makeLabel("lbfromdev123", "De Dev", sharedBoard.id);
+      const homeMember = (await addMember("wmhome123456", [homeBoard.id])).user;
+      const card = await makeCard("From dev", homeList.id);
+
+      await caller(owner).addOrRemoveLabel({
+        cardPublicId: card.publicId,
+        labelPublicId: homeLabel.publicId,
+      });
+      await caller(owner).share({
+        cardPublicId: card.publicId,
+        boardPublicId: sharedBoard.publicId,
+        listPublicId: sharedTodo.publicId,
+      });
+      await caller(sharedMember).addOrRemoveLabel({
+        cardPublicId: card.publicId,
+        labelPublicId: fromDev.publicId,
+      });
+
+      await caller(owner).setHomeBoard({
+        cardPublicId: card.publicId,
+        boardPublicId: sharedBoard.publicId,
+      });
+
+      const labelIds = [homeLabel.id, fromDev.id].sort();
+      expect(await cardLabelIds(card.id)).toEqual(labelIds);
+      // The existing check accepts every label the card carries.
+      await db.transaction((tx) =>
+        cardRepo.assertCardLabelBoardsMatch(
+          tx,
+          labelIds.map((labelId) => ({ cardId: card.id, labelId })),
+        ),
+      );
+
+      // The old home labels are now those of a board the card is shared on:
+      // only members of that board see them, next to the new home labels.
+      const asHomeMember = await caller(homeMember).byId({
+        cardPublicId: card.publicId,
+      });
+      expect(asHomeMember.canAccessHomeBoard).toBe(false);
+      expect(asHomeMember.sharedBoards[0]!.publicId).toBe(homeBoard.publicId);
+      expect(
+        asHomeMember.labels.map((label) => [label.name, label.boardPublicId]),
+      ).toEqual(
+        expect.arrayContaining([
+          ["Bug", homeBoard.publicId],
+          ["De Dev", sharedBoard.publicId],
+        ]),
+      );
+      expect(asHomeMember.labels).toHaveLength(2);
+      const asSharedMember = await caller(sharedMember).byId({
+        cardPublicId: card.publicId,
+      });
+      expect(asSharedMember.canAccessHomeBoard).toBe(true);
+      expect(asSharedMember.labels.map((label) => label.name)).toEqual([
+        "De Dev",
+      ]);
+
+      // Label edits follow the new roles of each board.
+      await expect(
+        caller(homeMember).addOrRemoveLabel({
+          cardPublicId: card.publicId,
+          labelPublicId: homeLabel.publicId,
+        }),
+      ).resolves.toEqual({ newLabel: false });
+      await expect(
+        caller(homeMember).addOrRemoveLabel({
+          cardPublicId: card.publicId,
+          labelPublicId: fromDev.publicId,
+        }),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+
+      // Unsharing the old home board now takes its labels off.
+      await caller(owner).unshare({
+        cardPublicId: card.publicId,
+        boardPublicId: homeBoard.publicId,
+      });
+      expect(await cardLabelIds(card.id)).toEqual([fromDev.id]);
+    });
+
+    it("only accepts a board the card is shared with", async () => {
+      const card = await makeCard("Card", homeList.id);
+      await makeList("ltother12345", otherBoard.id, 0);
+
+      await expect(
+        caller(owner).setHomeBoard({
+          cardPublicId: card.publicId,
+          boardPublicId: otherBoard.publicId,
+        }),
+      ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+      await expect(
+        caller(owner).setHomeBoard({
+          cardPublicId: card.publicId,
+          boardPublicId: homeBoard.publicId,
+        }),
+      ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+      await expect(
+        caller(owner).setHomeBoard({
+          cardPublicId: card.publicId,
+          boardPublicId: "bdunknown123",
+        }),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+      expect((await cardRepo.getByPublicId(db, card.publicId))?.listId).toBe(
+        homeList.id,
+      );
+    });
+
+    it("takes access to both the home board and the target board", async () => {
+      const card = await makeCard("Card", homeList.id);
+      await caller(owner).share({
+        cardPublicId: card.publicId,
+        boardPublicId: sharedBoard.publicId,
+        listPublicId: sharedTodo.publicId,
+      });
+      const homeMember = (await addMember("wmhome123456", [homeBoard.id])).user;
+      const setHome = (user: {
+        id: string;
+        name: string | null;
+        email: string;
+      }) =>
+        caller(user).setHomeBoard({
+          cardPublicId: card.publicId,
+          boardPublicId: sharedBoard.publicId,
+        });
+
+      // On the target board only, on the home board only, on neither.
+      await expect(setHome(sharedMember)).rejects.toMatchObject({
+        code: "NOT_FOUND",
+      });
+      await expect(setHome(homeMember)).rejects.toMatchObject({
+        code: "NOT_FOUND",
+      });
+      await expect(setHome(outsider)).rejects.toMatchObject({
+        code: "NOT_FOUND",
+      });
+
+      expect((await cardRepo.getByPublicId(db, card.publicId))?.listId).toBe(
+        homeList.id,
+      );
+      expect(
+        (
+          await db
+            .select({ type: schema.cardActivities.type })
+            .from(schema.cardActivities)
+            .where(eq(schema.cardActivities.cardId, card.id))
+        ).map((item) => item.type),
+      ).not.toContain("card.updated.board.home");
+
+      // On both boards, it works.
+      const bothMember = (
+        await addMember("wmboth123456", [homeBoard.id, sharedBoard.id])
+      ).user;
+      await expect(setHome(bothMember)).resolves.toMatchObject({
+        boardPublicId: sharedBoard.publicId,
+      });
+    });
+
+    it("refuses template boards", async () => {
+      const [template] = await db
+        .insert(schema.boards)
+        .values({
+          publicId: "bdtemplate12",
+          name: "Template",
+          slug: "bdtemplate12",
+          workspaceId: workspace.id,
+          createdBy: owner.id,
+          type: "template",
+        })
+        .returning();
+      const templateList = await makeList("lttemplate12", template!.id, 0);
+
+      // A link to a template board cannot be made through the API; insert
+      // one to make sure it is refused anyway.
+      const card = await makeCard("Card", homeList.id);
+      await db.insert(schema.cardBoardLinks).values({
+        cardId: card.id,
+        boardId: template!.id,
+        listId: templateList.id,
+        index: 0,
+        createdBy: owner.id,
+      });
+      await expect(
+        caller(owner).setHomeBoard({
+          cardPublicId: card.publicId,
+          boardPublicId: template!.publicId,
+        }),
+      ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+      // Nor can a template card move to a regular board.
+      const templateCard = await makeCard("Template card", templateList.id);
+      await db.insert(schema.cardBoardLinks).values({
+        cardId: templateCard.id,
+        boardId: sharedBoard.id,
+        listId: sharedTodo.id,
+        index: 0,
+        createdBy: owner.id,
+      });
+      await expect(
+        caller(owner).setHomeBoard({
+          cardPublicId: templateCard.publicId,
+          boardPublicId: sharedBoard.publicId,
+        }),
+      ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    });
+  });
 });

@@ -20,6 +20,7 @@ import {
   cardCreateResponseSchema,
   cardDetailSchema,
   cardExternalUrlSchema,
+  cardHomeBoardResponseSchema,
   cardShareResponseSchema,
   cardUpdateCoverResponseSchema,
   cardUpdateResponseSchema,
@@ -2239,5 +2240,114 @@ export const cardRouter = createTRPCRouter({
       ]);
 
       return { success: true };
+    }),
+  setHomeBoard: protectedProcedure
+    .meta({
+      openapi: {
+        summary: "Make a board the card is shared with its home board",
+        method: "PUT",
+        path: "/cards/{cardPublicId}/home-board",
+        description:
+          "Swaps the card's home board with one of the boards it is shared with. The card moves to the list it was shared in, and stays shared with its previous home board, in the list and at the place it had there. Labels, members and the card number are kept.",
+        tags: ["Cards"],
+        protect: true,
+      },
+    })
+    .input(
+      z.object({
+        cardPublicId: z.string().min(12),
+        boardPublicId: z.string().min(12),
+      }),
+    )
+    .output(cardHomeBoardResponseSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.user?.id;
+
+      if (!userId)
+        throw new TRPCError({
+          message: `User not authenticated`,
+          code: "UNAUTHORIZED",
+        });
+
+      const card = await cardRepo.getWorkspaceAndCardIdByCardPublicId(
+        ctx.db,
+        input.cardPublicId,
+      );
+
+      if (!card)
+        throw new TRPCError({
+          message: `Card with public ID ${input.cardPublicId} not found`,
+          code: "NOT_FOUND",
+        });
+
+      await assertPermission(ctx.db, userId, card.workspaceId, "card:edit");
+      await assertCardAccess(ctx.db, userId, card);
+
+      const board = await boardRepo.getWorkspaceAndBoardIdByBoardPublicId(
+        ctx.db,
+        input.boardPublicId,
+      );
+
+      if (!board || board.deletedAt || board.workspaceId !== card.workspaceId)
+        throw new TRPCError({
+          message: `Board with public ID ${input.boardPublicId} not found`,
+          code: "NOT_FOUND",
+        });
+
+      // Moving the card takes being on both the board it leaves and the one
+      // it moves to.
+      await assertBoardAccess(ctx.db, userId, board);
+      await assertBoardAccess(ctx.db, userId, {
+        id: card.boardId,
+        workspaceId: card.workspaceId,
+        type: card.boardType,
+      });
+
+      if (board.type !== "regular" || card.boardType !== "regular")
+        throw new TRPCError({
+          message: `Template cards and boards cannot change home board`,
+          code: "BAD_REQUEST",
+        });
+
+      if (board.id === card.boardId)
+        throw new TRPCError({
+          message: `This board is already the card's home board`,
+          code: "BAD_REQUEST",
+        });
+
+      const sharedBoard = (
+        await cardBoardLinkRepo.getBoardsByCardId(ctx.db, card.id)
+      ).find((linked) => linked.id === board.id);
+
+      if (!sharedBoard)
+        throw new TRPCError({
+          message: `Card is not shared with board ${input.boardPublicId}`,
+          code: "BAD_REQUEST",
+        });
+
+      const result = await cardBoardLinkRepo.setHomeBoard(ctx.db, {
+        cardId: card.id,
+        boardId: board.id,
+        createdBy: userId,
+      });
+
+      if (!result)
+        throw new TRPCError({
+          message: `Card is not shared with board ${input.boardPublicId}`,
+          code: "BAD_REQUEST",
+        });
+
+      await cardActivityRepo.create(ctx.db, {
+        type: "card.updated.board.home",
+        cardId: card.id,
+        fromTitle: card.boardName,
+        toTitle: sharedBoard.name,
+        createdBy: userId,
+      });
+
+      return {
+        boardPublicId: sharedBoard.publicId,
+        listPublicId: sharedBoard.listPublicId,
+      };
     }),
 });

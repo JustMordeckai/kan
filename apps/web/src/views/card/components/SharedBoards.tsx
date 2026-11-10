@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { t } from "@lingui/core/macro";
-import { HiXMark } from "react-icons/hi2";
+import { HiEllipsisHorizontal, HiOutlineHome, HiXMark } from "react-icons/hi2";
 
+import Dropdown from "~/components/Dropdown";
 import { usePopup } from "~/providers/popup";
 import { api } from "~/utils/api";
 import { invalidateCard } from "~/utils/cardInvalidation";
@@ -40,6 +41,24 @@ export default function SharedBoards({
     },
   });
 
+  const setHomeBoard = api.card.setHomeBoard.useMutation({
+    onError: (error) => {
+      showPopup({
+        header: t`Unable to change the origin board`,
+        message: error.message,
+        icon: "error",
+      });
+    },
+    onSettled: async () => {
+      await invalidateCard(utils, cardPublicId);
+      await utils.board.byId.invalidate();
+    },
+  });
+
+  // Moving the card takes being on its current home board too; sharedBoards
+  // only lists boards the viewer is on.
+  const canSetHome = canEdit && homeBoard.canAccess;
+
   const boardLinkClass =
     "truncate text-sm text-light-1000 hover:underline dark:text-dark-1000";
 
@@ -71,6 +90,30 @@ export default function SharedBoards({
           >
             {name}
           </Link>
+          {canSetHome && (
+            <div className="-my-1 ml-auto shrink-0">
+              <Dropdown
+                ariaLabel={t`Board options for ${name}`}
+                disabled={setHomeBoard.isPending}
+                items={[
+                  {
+                    label: t`Make this the origin board`,
+                    action: () =>
+                      setHomeBoard.mutate({
+                        cardPublicId,
+                        boardPublicId: publicId,
+                      }),
+                    icon: (
+                      <HiOutlineHome className="h-[16px] w-[16px] text-dark-900" />
+                    ),
+                    disabled: setHomeBoard.isPending,
+                  },
+                ]}
+              >
+                <HiEllipsisHorizontal className="h-3.5 w-3.5 text-light-800 dark:text-dark-800" />
+              </Dropdown>
+            </div>
+          )}
           {canEdit && (
             <button
               type="button"
@@ -80,7 +123,7 @@ export default function SharedBoards({
               disabled={unshare.isPending}
               aria-label={t`Remove from ${name}`}
               title={t`Remove from ${name}`}
-              className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded text-light-800 hover:bg-light-200 disabled:opacity-50 dark:text-dark-800 dark:hover:bg-dark-200"
+              className={`${canSetHome ? "" : "ml-auto"}flex h-5 w-5 shrink-0 items-center justify-center rounded text-light-800 hover:bg-light-200 disabled:opacity-50 dark:text-dark-800 dark:hover:bg-dark-200`}
             >
               <HiXMark className="h-3.5 w-3.5" />
             </button>

@@ -64,6 +64,12 @@ export const cardShareResponseSchema = z.object({
   index: z.number(),
 });
 
+// ─── card.setHomeBoard ───────────────────────────────────────
+export const cardHomeBoardResponseSchema = z.object({
+  boardPublicId: z.string(),
+  listPublicId: z.string(),
+});
+
 export const cardUpdateCoverResponseSchema = z.object({
   publicId: z.string(),
   cover: cardCoverSchema,

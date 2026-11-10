@@ -9,6 +9,7 @@ import {
   HiOutlineArrowsRightLeft,
   HiOutlineCheckCircle,
   HiOutlineClock,
+  HiOutlineHome,
   HiOutlineLink,
   HiOutlinePaperClip,
   HiOutlinePencil,
@@ -150,6 +151,7 @@ const getActivityText = ({
     "card.updated.board.added": t`shared the card with another board`,
     "card.updated.board.removed": t`removed the card from a board`,
     "card.updated.externalUrl": t`changed the external link`,
+    "card.updated.board.home": t`changed the card's origin board`,
   } as const;
 
   if (!(type in ACTIVITY_TYPE_MAP)) return null;
@@ -296,6 +298,14 @@ const getActivityText = ({
     );
   }
 
+  if (type === "card.updated.board.home" && toTitle) {
+    return (
+      <Trans>
+        made <TextHighlight>{truncate(toTitle)}</TextHighlight> the origin board
+      </Trans>
+    );
+  }
+
   if (type === "card.updated.attachment.added") {
     const filename = attachmentName ?? toTitle;
     if (!filename) return baseText;
@@ -378,6 +388,7 @@ const ACTIVITY_ICON_MAP: Partial<Record<ActivityType, React.ReactNode | null>> =
     "card.updated.board.added": <HiOutlineArrowsRightLeft />,
     "card.updated.board.removed": <HiOutlineArrowsRightLeft />,
     "card.updated.externalUrl": <HiOutlineLink />,
+    "card.updated.board.home": <HiOutlineHome />,
   } as const;
 
 const getActivityIcon = (

@@ -323,6 +323,13 @@
       "when": 1794271855323,
       "tag": "20261110005055_AddCardExternalUrl",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1794317352458,
+      "tag": "20261110132912_AddCardHomeBoardActivity",
+      "breakpoints": true
     }
   ]
 }

@@ -354,6 +354,129 @@ export const remove = async (
 };
 
 /**
+ * Makes a board the card is shared on its home board. The card moves into
+ * the list it was shared in, at the place it was shown there, and stays
+ * shown on its previous home board as a shared card, at the place it had
+ * there: both boards look the same afterwards. The card's labels stay as
+ * they are, since a card carries the labels of its home board and of the
+ * boards it is shared on. Returns undefined when the card is not shared on
+ * that board.
+ */
+export const setHomeBoard = async (
+  db: dbClient,
+  args: { cardId: number; boardId: number; createdBy: string },
+) => {
+  return db.transaction(async (tx) => {
+    const [card] = await tx
+      .select({
+        id: cards.id,
+        listId: cards.listId,
+        boardId: lists.boardId,
+      })
+      .from(cards)
+      .innerJoin(lists, eq(lists.id, cards.listId))
+      .where(and(eq(cards.id, args.cardId), isNull(cards.deletedAt)))
+      .for("update", { of: cards });
+
+    const link = await getByCardAndBoard(tx, args);
+
+    if (!card || !link || link.boardId === card.boardId) return undefined;
+
+    // The card's place on its previous home list becomes the shared copy's.
+    const previousEntries = (await getListEntries(tx, card.listId)).map(
+      (entry) =>
+        !entry.shared && entry.cardId === card.id
+          ? { cardId: card.id, shared: true }
+          : entry,
+    );
+    const previousPosition = previousEntries.findIndex(
+      (entry) => entry.shared && entry.cardId === card.id,
+    );
+    const position = (await getListEntries(tx, link.listId)).findIndex(
+      (entry) => entry.shared && entry.cardId === card.id,
+    );
+
+    await tx
+      .delete(cardBoardLinks)
+      .where(
+        and(
+          eq(cardBoardLinks.cardId, card.id),
+          eq(cardBoardLinks.boardId, link.boardId),
+        ),
+      );
+
+    const placement = await placeOwnCard(tx, {
+      cardId: card.id,
+      listId: link.listId,
+      position: position === -1 ? undefined : position,
+    });
+
+    // Own cards are renumbered in display order on both lists, so their
+    // indices stay contiguous once the card has left one for the other.
+    await tx
+      .update(cards)
+      .set({ listId: link.listId })
+      .where(eq(cards.id, card.id));
+    await saveOwnPositions(tx, link.listId, placement.entries);
+    await saveOwnPositions(
+      tx,
+      card.listId,
+      previousEntries.filter(
+        (entry) => entry.shared || entry.cardId !== card.id,
+      ),
+    );
+
+    await tx
+      .insert(cardBoardLinks)
+      .values({
+        cardId: card.id,
+        boardId: card.boardId,
+        listId: card.listId,
+        index: Math.max(previousPosition, 0),
+        createdBy: args.createdBy,
+      })
+      .onConflictDoUpdate({
+        target: [cardBoardLinks.cardId, cardBoardLinks.boardId],
+        set: {
+          listId: card.listId,
+          index: Math.max(previousPosition, 0),
+          createdBy: args.createdBy,
+          createdAt: new Date(),
+        },
+      });
+
+    await savePositions(tx, link.listId, placement.entries);
+    await savePositions(tx, card.listId, previousEntries);
+
+    return {
+      cardId: card.id,
+      boardId: link.boardId,
+      listId: link.listId,
+      previousBoardId: card.boardId,
+      previousListId: card.listId,
+    };
+  });
+};
+
+/**
+ * Numbers a list's own cards in the order given by `entries`.
+ */
+const saveOwnPositions = async (
+  db: DbOrTransaction,
+  listId: number,
+  entries: ListEntry[],
+) => {
+  const own = entries.filter((entry) => !entry.shared);
+
+  for (const [index, entry] of own.entries()) {
+    await db
+      .update(cards)
+      .set({ index })
+      .where(and(eq(cards.id, entry.cardId), eq(cards.listId, listId)));
+  }
+};
+
+/**
  * Cover attachments, among the given ones, of cards currently shared onto a
  * board. Used to resolve cover previews of shared cards on that board.
  */

@@ -55,6 +55,7 @@ export const activityTypes = [
   "card.updated.board.added",
   "card.updated.board.removed",
   "card.updated.externalUrl",
+  "card.updated.board.home",
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];
