@@ -468,6 +468,25 @@
     "origin": [["src/views/card/components/ActivityList.tsx", 279]],
     "translation": "a ajouté une pièce jointe <0>{0}</0>"
   },
+  "F4tubH": {
+    "message": "Added by {author} on {date}",
+    "placeholders": {
+      "author": ["author"],
+      "date": ["date"]
+    },
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 64]],
+    "translation": "Ajouté par {author} le {date}"
+  },
+  "gioxbn": {
+    "message": "Added by the Discord sync on {date}",
+    "placeholders": {
+      "date": ["date"]
+    },
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 53]],
+    "translation": "Ajouté par la synchro Discord le {date}"
+  },
   "wakO3W": {
     "message": "added checklist <0>{0}</0>",
     "placeholders": {
@@ -494,6 +513,15 @@
     "comments": [],
     "origin": [["src/views/card/components/ActivityList.tsx", 193]],
     "translation": "a ajouté l'étiquette <0>{0}</0>"
+  },
+  "EET2SD": {
+    "message": "Added on {date}",
+    "placeholders": {
+      "date": ["date"]
+    },
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 64]],
+    "translation": "Ajouté le {date}"
   },
   "pL78ec": {
     "message": "Added to favorites",
@@ -572,6 +600,13 @@
     "comments": [],
     "origin": [["src/views/pricing/components/PricingTiers.tsx", 76]],
     "translation": "Sécurité avancée, conformité et assistance dédiée pour les grandes organisations."
+  },
+  "me3LEG": {
+    "message": "All boards",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 165]],
+    "translation": "Tous les tableaux"
   },
   "h2ztFt": {
     "message": "All Free features +",
@@ -1033,6 +1068,20 @@
     ],
     "translation": "Tableau"
   },
+  "KpDzAl": {
+    "message": "Board access",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 157]],
+    "translation": "Accès aux tableaux"
+  },
+  "7e+yei": {
+    "message": "Board admin",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 119]],
+    "translation": "Admin du tableau"
+  },
   "YhvWXb": {
     "message": "Board analytics",
     "placeholders": {},
@@ -1211,6 +1260,15 @@
       ["src/views/pricing/components/FeatureComparisonTable.tsx", 83]
     ],
     "translation": "Tableaux"
+  },
+  "TsA6kP": {
+    "message": "Boards ({0})",
+    "placeholders": {
+      "0": ["access.boards.length"]
+    },
+    "comments": [],
+    "origin": [["src/views/members/index.tsx", 234]],
+    "translation": "Tableaux ({0})"
   },
   "0RE1AJ": {
     "message": "Boards you archive will appear here.",
@@ -3207,6 +3265,13 @@
     "origin": [["src/views/boards/components/TemplateBoards.tsx", 91]],
     "translation": "Exécution"
   },
+  "ceCKPl": {
+    "message": "Exempt from the Discord role sync",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 85]],
+    "translation": "Exempté de la synchro des rôles Discord"
+  },
   "GwNIE2": {
     "message": "Extended Roadmap",
     "placeholders": {},
@@ -4758,6 +4823,13 @@
     "origin": [["src/components/AuthForm.tsx", 379]],
     "translation": "Aucune méthode d'authentification n'est actuellement disponible"
   },
+  "MqTmJw": {
+    "message": "No board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 98]],
+    "translation": "Aucun tableau"
+  },
   "2Bu8xj": {
     "message": "No boards found",
     "placeholders": {},
@@ -4785,6 +4857,13 @@
     "comments": [],
     "origin": [["src/views/board/components/Filters.tsx", 134]],
     "translation": "Aucune date"
+  },
+  "XBbD3i": {
+    "message": "No Discord role: members are added by hand",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 185]],
+    "translation": "Aucun rôle Discord : membres ajoutés à la main"
   },
   "sY2lzr": {
     "message": "No download URL available for this attachment.",
@@ -7523,6 +7602,13 @@
     "origin": [["src/views/boards/components/TemplateBoards.tsx", 35]],
     "translation": "En cours de révision"
   },
+  "C52+JH": {
+    "message": "Unknown role",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 31]],
+    "translation": "Rôle inconnu"
+  },
   "M9p3Vw": {
     "message": "Unlimited activity log",
     "placeholders": {},
@@ -8067,6 +8153,13 @@
       ["src/views/public/boards/index.tsx", 75]
     ],
     "translation": "Espace de travail"
+  },
+  "r+Xbq6": {
+    "message": "Workspace admin",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 46]],
+    "translation": "Admin de l'espace de travail"
   },
   "LTGE7Y": {
     "message": "Workspace created successfully. You can upgrade later in settings.",
@@ -8848,6 +8941,13 @@
     ],
     "translation": "Rôles Discord (identifiants)"
   },
+  "ai9MXB": {
+    "message": "Discord roles not synced yet",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 93]],
+    "translation": "Rôles Discord pas encore synchronisés"
+  },
   "S3cCf1": {
     "message": "Discord roles saved",
     "placeholders": {},
@@ -8859,6 +8959,13 @@
       ]
     ],
     "translation": "Rôles Discord enregistrés"
+  },
+  "qk4LG6": {
+    "message": "Discord roles:",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 177]],
+    "translation": "Rôles Discord :"
   },
   "vby8Mc": {
     "message": "Enter a valid https image URL.",

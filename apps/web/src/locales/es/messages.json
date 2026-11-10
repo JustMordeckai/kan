@@ -468,6 +468,25 @@
     "origin": [["src/views/card/components/ActivityList.tsx", 279]],
     "translation": "añadió un archivo adjunto <0>{0}</0>"
   },
+  "F4tubH": {
+    "message": "Added by {author} on {date}",
+    "placeholders": {
+      "author": ["author"],
+      "date": ["date"]
+    },
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 64]],
+    "translation": ""
+  },
+  "gioxbn": {
+    "message": "Added by the Discord sync on {date}",
+    "placeholders": {
+      "date": ["date"]
+    },
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 53]],
+    "translation": ""
+  },
   "wakO3W": {
     "message": "added checklist <0>{0}</0>",
     "placeholders": {
@@ -494,6 +513,15 @@
     "comments": [],
     "origin": [["src/views/card/components/ActivityList.tsx", 193]],
     "translation": "añadió la etiqueta <0>{0}</0>"
+  },
+  "EET2SD": {
+    "message": "Added on {date}",
+    "placeholders": {
+      "date": ["date"]
+    },
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 64]],
+    "translation": ""
   },
   "pL78ec": {
     "message": "Added to favorites",
@@ -572,6 +600,13 @@
     "comments": [],
     "origin": [["src/views/pricing/components/PricingTiers.tsx", 76]],
     "translation": "Seguridad avanzada, cumplimiento normativo y soporte dedicado para grandes organizaciones."
+  },
+  "me3LEG": {
+    "message": "All boards",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 165]],
+    "translation": ""
   },
   "h2ztFt": {
     "message": "All Free features +",
@@ -1033,6 +1068,20 @@
     ],
     "translation": "Tablero"
   },
+  "KpDzAl": {
+    "message": "Board access",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 157]],
+    "translation": ""
+  },
+  "7e+yei": {
+    "message": "Board admin",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 119]],
+    "translation": ""
+  },
   "YhvWXb": {
     "message": "Board analytics",
     "placeholders": {},
@@ -1211,6 +1260,15 @@
       ["src/views/pricing/components/FeatureComparisonTable.tsx", 83]
     ],
     "translation": "Tableros"
+  },
+  "TsA6kP": {
+    "message": "Boards ({0})",
+    "placeholders": {
+      "0": ["access.boards.length"]
+    },
+    "comments": [],
+    "origin": [["src/views/members/index.tsx", 234]],
+    "translation": ""
   },
   "0RE1AJ": {
     "message": "Boards you archive will appear here.",
@@ -3207,6 +3265,13 @@
     "origin": [["src/views/boards/components/TemplateBoards.tsx", 91]],
     "translation": "Ejecución"
   },
+  "ceCKPl": {
+    "message": "Exempt from the Discord role sync",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 85]],
+    "translation": ""
+  },
   "GwNIE2": {
     "message": "Extended Roadmap",
     "placeholders": {},
@@ -4758,6 +4823,13 @@
     "origin": [["src/components/AuthForm.tsx", 379]],
     "translation": "No hay métodos de autenticación disponibles actualmente"
   },
+  "MqTmJw": {
+    "message": "No board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 98]],
+    "translation": ""
+  },
   "2Bu8xj": {
     "message": "No boards found",
     "placeholders": {},
@@ -4785,6 +4857,13 @@
     "comments": [],
     "origin": [["src/views/board/components/Filters.tsx", 134]],
     "translation": "Sin fechas"
+  },
+  "XBbD3i": {
+    "message": "No Discord role: members are added by hand",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 185]],
+    "translation": ""
   },
   "sY2lzr": {
     "message": "No download URL available for this attachment.",
@@ -7523,6 +7602,13 @@
     "origin": [["src/views/boards/components/TemplateBoards.tsx", 35]],
     "translation": "En revisión"
   },
+  "C52+JH": {
+    "message": "Unknown role",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 31]],
+    "translation": ""
+  },
   "M9p3Vw": {
     "message": "Unlimited activity log",
     "placeholders": {},
@@ -8067,6 +8153,13 @@
       ["src/views/public/boards/index.tsx", 75]
     ],
     "translation": "Espacio de trabajo"
+  },
+  "r+Xbq6": {
+    "message": "Workspace admin",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 46]],
+    "translation": ""
   },
   "LTGE7Y": {
     "message": "Workspace created successfully. You can upgrade later in settings.",
@@ -8848,6 +8941,13 @@
     ],
     "translation": ""
   },
+  "ai9MXB": {
+    "message": "Discord roles not synced yet",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 93]],
+    "translation": ""
+  },
   "S3cCf1": {
     "message": "Discord roles saved",
     "placeholders": {},
@@ -8858,6 +8958,13 @@
         41
       ]
     ],
+    "translation": ""
+  },
+  "qk4LG6": {
+    "message": "Discord roles:",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/members/components/MemberBoardAccess.tsx", 177]],
     "translation": ""
   },
   "vby8Mc": {
