@@ -1118,6 +1118,15 @@
     "origin": [["src/views/board/components/BoardDropdown.tsx", 231]],
     "translation": "Options du tableau"
   },
+  "Piet7G": {
+    "message": "Board options for {name}",
+    "placeholders": {
+      "name": ["name"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 96]],
+    "translation": "Options du tableau {name}"
+  },
   "XNxYxq": {
     "message": "Board templates",
     "placeholders": {},
@@ -4329,6 +4338,15 @@
     "origin": [["src/views/boards/components/TemplateBoards.tsx", 18]],
     "translation": "Priorité basse"
   },
+  "AhoN5i": {
+    "message": "made <0>{0}</0> the origin board",
+    "placeholders": {
+      "0": ["truncate(toTitle)"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 303]],
+    "translation": "a défini <0>{0}</0> comme tableau d'origine"
+  },
   "JnWJXY": {
     "message": "magic link",
     "placeholders": {},
@@ -4342,6 +4360,13 @@
     "comments": [],
     "origin": [["src/views/board/components/BoardDropdown.tsx", 162]],
     "translation": "Créer un modèle"
+  },
+  "HUP2Gg": {
+    "message": "Make this the origin board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 100]],
+    "translation": "Définir comme tableau d'origine"
   },
   "hB02vO": {
     "message": "Manage members",
@@ -7115,6 +7140,13 @@
     ],
     "translation": "Impossible d'ajouter le membre"
   },
+  "OSWvQu": {
+    "message": "Unable to change the origin board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 47]],
+    "translation": "Impossible de changer le tableau d'origine"
+  },
   "LeM5RY": {
     "message": "Unable to clear overrides",
     "placeholders": {},
@@ -8724,6 +8756,13 @@
       ]
     ],
     "translation": "a modifié la couverture de la carte"
+  },
+  "DsC+kT": {
+    "message": "changed the card's origin board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 154]],
+    "translation": "a changé le tableau d'origine de la carte"
   },
   "jM7ASy": {
     "message": "Choose a JPEG, PNG, WebP, GIF, or AVIF image.",

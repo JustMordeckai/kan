@@ -1850,6 +1850,15 @@
     ],
     "translation": ""
   },
+  "Piet7G": {
+    "message": "Board options for {name}",
+    "placeholders": {
+      "name": ["name"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 96]],
+    "translation": ""
+  },
   "XNxYxq": {
     "message": "Board templates",
     "placeholders": {},
@@ -7107,6 +7116,15 @@
     ],
     "translation": "Lav prioritet"
   },
+  "AhoN5i": {
+    "message": "made <0>{0}</0> the origin board",
+    "placeholders": {
+      "0": ["truncate(toTitle)"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 303]],
+    "translation": ""
+  },
   "JnWJXY": {
     "message": "magic link",
     "placeholders": {},
@@ -7130,6 +7148,13 @@
       ]
     ],
     "translation": "Gør til skabelon"
+  },
+  "HUP2Gg": {
+    "message": "Make this the origin board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 100]],
+    "translation": ""
   },
   "hB02vO": {
     "message": "Manage members",
@@ -11754,6 +11779,13 @@
     ],
     "translation": ""
   },
+  "OSWvQu": {
+    "message": "Unable to change the origin board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 47]],
+    "translation": ""
+  },
   "LeM5RY": {
     "message": "Unable to clear overrides",
     "placeholders": {},
@@ -14222,6 +14254,13 @@
         148
       ]
     ],
+    "translation": ""
+  },
+  "DsC+kT": {
+    "message": "changed the card's origin board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 154]],
     "translation": ""
   },
   "jM7ASy": {
