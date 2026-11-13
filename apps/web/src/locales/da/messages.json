@@ -502,6 +502,13 @@
     ],
     "translation": "Tilføj et kort"
   },
+  "Bu+slg": {
+    "message": "Add a link on this board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 170]],
+    "translation": ""
+  },
   "qtE5nt": {
     "message": "Add an item...",
     "placeholders": {},
@@ -618,6 +625,15 @@
       ["src/views/card/components/Dropdown.tsx", 175],
       ["src/views/card/components/ExternalLinkForm.tsx", 81]
     ],
+    "translation": ""
+  },
+  "6GeTBh": {
+    "message": "Add external link on {sharedBoardName}",
+    "placeholders": {
+      "sharedBoardName": ["sharedBoardName"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 71]],
     "translation": ""
   },
   "lyqwgn": {
@@ -2820,6 +2836,22 @@
     "origin": [["src/views/card/components/ActivityList.tsx", 152]],
     "translation": ""
   },
+  "iOUd8A": {
+    "message": "changed the external link on <0>{0}</0>",
+    "placeholders": {
+      "0": ["truncate(toTitle)"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 312]],
+    "translation": ""
+  },
+  "XIJDgM": {
+    "message": "changed the external link on a board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 155]],
+    "translation": ""
+  },
   "pFGfsR": {
     "message": "Check out some of our favorite open source projects.",
     "placeholders": {},
@@ -4685,6 +4717,15 @@
     ],
     "translation": ""
   },
+  "YSLT85": {
+    "message": "Edit external link on {sharedBoardName}",
+    "placeholders": {
+      "sharedBoardName": ["sharedBoardName"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 70]],
+    "translation": ""
+  },
   "dgr4Kq": {
     "message": "Edit label",
     "placeholders": {},
@@ -4712,6 +4753,13 @@
       ]
     ],
     "translation": "Rediger rettigheder"
+  },
+  "ZqsK1f": {
+    "message": "Edit the link on this board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 169]],
+    "translation": ""
   },
   "fW5sSv": {
     "message": "Edit webhook",
@@ -8234,6 +8282,15 @@
     ],
     "translation": ""
   },
+  "ML8Tym": {
+    "message": "Open in Discord ({boardName})",
+    "placeholders": {
+      "boardName": ["boardName"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 39]],
+    "translation": ""
+  },
   "cFQEU/": {
     "message": "Open keyboard shortcuts",
     "placeholders": {},
@@ -8254,6 +8311,15 @@
       ["src/views/board/components/Card.tsx", 141],
       ["src/views/card/components/ExternalLinkButton.tsx", 33]
     ],
+    "translation": ""
+  },
+  "LYPq8L": {
+    "message": "Open link ({boardName})",
+    "placeholders": {
+      "boardName": ["boardName"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 40]],
     "translation": ""
   },
   "v+Wp++": {

@@ -502,6 +502,13 @@
     ],
     "translation": "Add a card"
   },
+  "Bu+slg": {
+    "message": "Add a link on this board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 170]],
+    "translation": "Add a link on this board"
+  },
   "qtE5nt": {
     "message": "Add an item...",
     "placeholders": {},
@@ -619,6 +626,15 @@
       ["src/views/card/components/ExternalLinkForm.tsx", 81]
     ],
     "translation": "Add external link"
+  },
+  "6GeTBh": {
+    "message": "Add external link on {sharedBoardName}",
+    "placeholders": {
+      "sharedBoardName": ["sharedBoardName"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 71]],
+    "translation": "Add external link on {sharedBoardName}"
   },
   "lyqwgn": {
     "message": "Add label",
@@ -2820,6 +2836,22 @@
     "origin": [["src/views/card/components/ActivityList.tsx", 152]],
     "translation": "changed the external link"
   },
+  "iOUd8A": {
+    "message": "changed the external link on <0>{0}</0>",
+    "placeholders": {
+      "0": ["truncate(toTitle)"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 312]],
+    "translation": "changed the external link on <0>{0}</0>"
+  },
+  "XIJDgM": {
+    "message": "changed the external link on a board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 155]],
+    "translation": "changed the external link on a board"
+  },
   "pFGfsR": {
     "message": "Check out some of our favorite open source projects.",
     "placeholders": {},
@@ -4724,6 +4756,15 @@
     ],
     "translation": "Edit external link"
   },
+  "YSLT85": {
+    "message": "Edit external link on {sharedBoardName}",
+    "placeholders": {
+      "sharedBoardName": ["sharedBoardName"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/ExternalLinkForm.tsx", 70]],
+    "translation": "Edit external link on {sharedBoardName}"
+  },
   "dgr4Kq": {
     "message": "Edit label",
     "placeholders": {},
@@ -4751,6 +4792,13 @@
       ]
     ],
     "translation": "Edit permissions"
+  },
+  "ZqsK1f": {
+    "message": "Edit the link on this board",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 169]],
+    "translation": "Edit the link on this board"
   },
   "fW5sSv": {
     "message": "Edit webhook",
@@ -8312,6 +8360,15 @@
     ],
     "translation": "Open in Discord"
   },
+  "ML8Tym": {
+    "message": "Open in Discord ({boardName})",
+    "placeholders": {
+      "boardName": ["boardName"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 39]],
+    "translation": "Open in Discord ({boardName})"
+  },
   "cFQEU/": {
     "message": "Open keyboard shortcuts",
     "placeholders": {},
@@ -8333,6 +8390,15 @@
       ["src/views/card/components/ExternalLinkButton.tsx", 33]
     ],
     "translation": "Open link"
+  },
+  "LYPq8L": {
+    "message": "Open link ({boardName})",
+    "placeholders": {
+      "boardName": ["boardName"]
+    },
+    "comments": [],
+    "origin": [["src/views/card/components/SharedBoards.tsx", 40]],
+    "translation": "Open link ({boardName})"
   },
   "v+Wp++": {
     "message": "Open source",
