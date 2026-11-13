@@ -1645,6 +1645,13 @@
     ],
     "translation": ""
   },
+  "trre7j": {
+    "message": "Card status",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/board/components/Filters.tsx", 194]],
+    "translation": ""
+  },
   "ZH7TVS": {
     "message": "Card title",
     "placeholders": {},
@@ -1892,6 +1899,14 @@
     "comments": [],
     "origin": [["src/views/home/components/Footer.tsx", 96]],
     "translation": "Azienda"
+  },
+  "tD5+XG": {
+    "message": "Complete",
+    "context": "card status",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/board/components/Filters.tsx", 144], ["src/views/public/board/CardModal.tsx", 126]],
+    "translation": ""
   },
   "bD8I7O": {
     "message": "Complete",
@@ -3958,6 +3973,13 @@
     "origin": [["src/views/settings/components/WebhookList.tsx", 104]],
     "translation": "Inattivo"
   },
+  "mtGDyy": {
+    "message": "Incomplete",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/board/components/Filters.tsx", 149]],
+    "translation": ""
+  },
   "6mbe4b": {
     "message": "Individuals",
     "placeholders": {},
@@ -4443,6 +4465,20 @@
     ],
     "translation": "Gestisci membri"
   },
+  "p2sp9h": {
+    "message": "Mark card as complete",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/CardCompletionToggle.tsx", 53]],
+    "translation": ""
+  },
+  "Y87wQu": {
+    "message": "Mark card as incomplete",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/CardCompletionToggle.tsx", 52]],
+    "translation": ""
+  },
   "IDvohQ": {
     "message": "marked a checklist item as incomplete",
     "placeholders": {},
@@ -4458,6 +4494,20 @@
     "comments": [],
     "origin": [["src/views/card/components/ActivityList.tsx", 259]],
     "translation": "ha contrassegnato l'elemento della checklist <0>{0}</0> come incompleto"
+  },
+  "sQKPzt": {
+    "message": "marked the card as complete",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 155]],
+    "translation": ""
+  },
+  "383Sst": {
+    "message": "marked the card as incomplete",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/ActivityList.tsx", 156]],
+    "translation": ""
   },
   "vo2a+a": {
     "message": "Marketing",
@@ -9212,6 +9262,13 @@
         85
       ]
     ],
+    "translation": ""
+  },
+  "pM/Lb/": {
+    "message": "Unable to update card status",
+    "placeholders": {},
+    "comments": [],
+    "origin": [["src/views/card/components/CardCompletionToggle.tsx", 38]],
     "translation": ""
   },
   "8a8jKE": {
