@@ -71,6 +71,7 @@ describe("card access through shared boards", () => {
     listId: 200,
     listPublicId: "sharedlist01",
     listName: "To do",
+    externalUrl: null,
   };
 
   const memberOf = (...boardIds: number[]) =>

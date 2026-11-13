@@ -18,6 +18,7 @@ export {
   cardUpdateCoverResponseSchema,
   cardDetailSchema,
   cardShareResponseSchema,
+  cardSharedBoardUpdateResponseSchema,
   cardHomeBoardResponseSchema,
   commentResponseSchema,
   commentDeleteResponseSchema,

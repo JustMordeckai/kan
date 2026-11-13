@@ -50,6 +50,7 @@ export const getBoardsByCardId = (db: DbOrTransaction, cardId: number) => {
       listId: lists.id,
       listPublicId: lists.publicId,
       listName: lists.name,
+      externalUrl: cardBoardLinks.externalUrl,
     })
     .from(cardBoardLinks)
     .innerJoin(cards, eq(cards.id, cardBoardLinks.cardId))
@@ -99,6 +100,7 @@ export const getByCardAndBoard = async (
       boardId: cardBoardLinks.boardId,
       listId: cardBoardLinks.listId,
       index: cardBoardLinks.index,
+      externalUrl: cardBoardLinks.externalUrl,
     })
     .from(cardBoardLinks)
     .where(
@@ -126,6 +128,7 @@ export const getSharedCardsByBoardId = (
       homeBoardId: homeBoards.id,
       homeBoardPublicId: homeBoards.publicId,
       homeBoardName: homeBoards.name,
+      externalUrl: cardBoardLinks.externalUrl,
     })
     .from(cardBoardLinks)
     .innerJoin(cards, eq(cards.id, cardBoardLinks.cardId))
@@ -313,6 +316,32 @@ export const move = async (
 };
 
 /**
+ * Sets the link of a card's share on a board (null removes it). Returns
+ * undefined when the card is not shared on that board.
+ */
+export const setExternalUrl = async (
+  db: DbOrTransaction,
+  args: { cardId: number; boardId: number; externalUrl: string | null },
+) => {
+  const [link] = await db
+    .update(cardBoardLinks)
+    .set({ externalUrl: args.externalUrl })
+    .where(
+      and(
+        eq(cardBoardLinks.cardId, args.cardId),
+        eq(cardBoardLinks.boardId, args.boardId),
+      ),
+    )
+    .returning({
+      cardId: cardBoardLinks.cardId,
+      boardId: cardBoardLinks.boardId,
+      externalUrl: cardBoardLinks.externalUrl,
+    });
+
+  return link;
+};
+
+/**
  * Stops showing a card on a board. The labels of that board only make sense
  * there, so they come off the card in the same transaction; the ids of the
  * removed labels are returned for the activity log.
@@ -359,7 +388,9 @@ export const remove = async (
  * shown on its previous home board as a shared card, at the place it had
  * there: both boards look the same afterwards. The card's labels stay as
  * they are, since a card carries the labels of its home board and of the
- * boards it is shared on. Returns undefined when the card is not shared on
+ * boards it is shared on. The links follow their boards: the share's link
+ * becomes the card's own and the card's link goes onto the share of its
+ * previous home board. Returns undefined when the card is not shared on
  * that board.
  */
 export const setHomeBoard = async (
@@ -372,6 +403,7 @@ export const setHomeBoard = async (
         id: cards.id,
         listId: cards.listId,
         boardId: lists.boardId,
+        externalUrl: cards.externalUrl,
       })
       .from(cards)
       .innerJoin(lists, eq(lists.id, cards.listId))
@@ -415,7 +447,7 @@ export const setHomeBoard = async (
     // indices stay contiguous once the card has left one for the other.
     await tx
       .update(cards)
-      .set({ listId: link.listId })
+      .set({ listId: link.listId, externalUrl: link.externalUrl })
       .where(eq(cards.id, card.id));
     await saveOwnPositions(tx, link.listId, placement.entries);
     await saveOwnPositions(
@@ -433,6 +465,7 @@ export const setHomeBoard = async (
         boardId: card.boardId,
         listId: card.listId,
         index: Math.max(previousPosition, 0),
+        externalUrl: card.externalUrl,
         createdBy: args.createdBy,
       })
       .onConflictDoUpdate({
@@ -440,6 +473,7 @@ export const setHomeBoard = async (
         set: {
           listId: card.listId,
           index: Math.max(previousPosition, 0),
+          externalUrl: card.externalUrl,
           createdBy: args.createdBy,
           createdAt: new Date(),
         },

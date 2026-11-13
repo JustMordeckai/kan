@@ -10,12 +10,16 @@ import { api } from "~/utils/api";
 import { getCardExternalUrlError } from "~/utils/cardExternalLink";
 import { invalidateCard } from "~/utils/cardInvalidation";
 
+// Edits the card's own link, or with `sharedBoard` the card's link on a
+// board it is shared with.
 export function ExternalLinkForm({
   cardPublicId,
   externalUrl,
+  sharedBoard,
 }: {
   cardPublicId: string;
   externalUrl: string | null;
+  sharedBoard?: { publicId: string; name: string };
 }) {
   const { closeModal } = useModal();
   const { showPopup } = usePopup();
@@ -27,7 +31,7 @@ export function ExternalLinkForm({
     document.querySelector<HTMLElement>("#card-external-url")?.focus();
   }, []);
 
-  const updateLink = api.card.update.useMutation({
+  const mutationOptions = {
     onSuccess: () => {
       closeModal();
     },
@@ -44,7 +48,30 @@ export function ExternalLinkForm({
         utils.board.byId.invalidate(),
       ]);
     },
-  });
+  };
+  const updateCardLink = api.card.update.useMutation(mutationOptions);
+  const updateSharedBoardLink =
+    api.card.updateSharedBoard.useMutation(mutationOptions);
+  const isPending = updateCardLink.isPending || updateSharedBoardLink.isPending;
+
+  const updateLink = (next: string | null) => {
+    if (sharedBoard)
+      updateSharedBoardLink.mutate({
+        cardPublicId,
+        boardPublicId: sharedBoard.publicId,
+        externalUrl: next,
+      });
+    else updateCardLink.mutate({ cardPublicId, externalUrl: next });
+  };
+
+  const sharedBoardName = sharedBoard?.name;
+  const heading = sharedBoardName
+    ? externalUrl
+      ? t`Edit external link on ${sharedBoardName}`
+      : t`Add external link on ${sharedBoardName}`
+    : externalUrl
+      ? t`Edit external link`
+      : t`Add external link`;
 
   const trimmed = value.trim();
   const error = trimmed ? getCardExternalUrlError(trimmed) : null;
@@ -65,7 +92,7 @@ export function ExternalLinkForm({
       return;
     }
 
-    updateLink.mutate({ cardPublicId, externalUrl: next });
+    updateLink(next);
   };
 
   return (
@@ -78,7 +105,7 @@ export function ExternalLinkForm({
       <div className="px-5 pt-5">
         <div className="flex w-full items-center justify-between pb-4">
           <h2 className="text-sm font-bold text-neutral-900 dark:text-dark-1000">
-            {externalUrl ? t`Edit external link` : t`Add external link`}
+            {heading}
           </h2>
           <button
             type="button"
@@ -116,10 +143,8 @@ export function ExternalLinkForm({
             <Button
               type="button"
               variant="secondary"
-              disabled={updateLink.isPending}
-              onClick={() =>
-                updateLink.mutate({ cardPublicId, externalUrl: null })
-              }
+              disabled={isPending}
+              onClick={() => updateLink(null)}
             >
               {t`Remove link`}
             </Button>
@@ -135,8 +160,8 @@ export function ExternalLinkForm({
           </Button>
           <Button
             type="submit"
-            isLoading={updateLink.isPending}
-            disabled={updateLink.isPending || (!trimmed && !externalUrl)}
+            isLoading={isPending}
+            disabled={isPending || (!trimmed && !externalUrl)}
           >
             {t`Save`}
           </Button>

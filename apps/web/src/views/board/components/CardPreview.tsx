@@ -24,7 +24,8 @@ export default function CardPreview({ card, cardPrefix }: CardPreviewProps) {
       sharedFrom={card.sharedFrom?.name}
       cover={card.cover}
       homeLabels={card.homeLabels}
-      externalUrl={card.externalUrl}
+      // A shared card opens its link on this board when it has one.
+      externalUrl={card.boardExternalUrl ?? card.externalUrl}
       completed={card.completed}
     />
   );

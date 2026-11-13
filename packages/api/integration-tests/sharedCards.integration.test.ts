@@ -483,6 +483,7 @@ describe("shared cards", () => {
         name: "Exchanges",
         list: { publicId: sharedTodo.publicId, name: sharedTodo.publicId },
         labels: [],
+        externalUrl: null,
       },
     ]);
 

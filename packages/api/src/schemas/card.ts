@@ -65,6 +65,12 @@ export const cardShareResponseSchema = z.object({
   index: z.number(),
 });
 
+// ─── card.updateSharedBoard ──────────────────────────────────
+export const cardSharedBoardUpdateResponseSchema = z.object({
+  boardPublicId: z.string(),
+  externalUrl: z.string().nullable(),
+});
+
 // ─── card.setHomeBoard ───────────────────────────────────────
 export const cardHomeBoardResponseSchema = z.object({
   boardPublicId: z.string(),
@@ -154,6 +160,9 @@ export const cardDetailSchema = z.object({
         name: z.string(),
       }),
       labels: z.array(labelSchema),
+      // The card's link on that board (e.g. its thread in that board's
+      // Discord forum).
+      externalUrl: z.string().nullable(),
     }),
   ),
   activities: z.array(

@@ -616,6 +616,9 @@ export const getByPublicId = async (
                   name: link.homeBoardName,
                 },
                 homeLabels: labelsOfBoard(card.labels, link.homeBoardId),
+                // The card's link on this board; externalUrl stays the one
+                // of its home board.
+                boardExternalUrl: link.externalUrl,
               },
             ]
           : [];
@@ -628,6 +631,7 @@ export const getByPublicId = async (
             ...formatCard(card),
             sharedFrom: null,
             homeLabels: [],
+            boardExternalUrl: null,
           })),
           shared,
         ).map((card, position) => ({

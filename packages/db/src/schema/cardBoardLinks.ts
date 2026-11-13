@@ -5,6 +5,7 @@ import {
   integer,
   pgTable,
   primaryKey,
+  text,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
@@ -32,6 +33,9 @@ export const cardBoardLinks = pgTable(
       .notNull()
       .references(() => lists.id, { onDelete: "cascade" }),
     index: integer("index").notNull(),
+    // The card's counterpart on this board (e.g. its thread in this board's
+    // Discord forum), next to the card's own externalUrl for its home board.
+    externalUrl: text("externalUrl"),
     createdBy: uuid("createdBy").references(() => users.id, {
       onDelete: "set null",
     }),

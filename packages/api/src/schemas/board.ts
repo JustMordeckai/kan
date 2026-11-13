@@ -101,6 +101,10 @@ const boardDetailCardSchema = z.object({
   // On a shared card, the labels of its home board (`labels` holds this
   // board's). Empty on the board's own cards.
   homeLabels: z.array(labelSchema),
+  // On a shared card, its link on this board (e.g. its thread in this
+  // board's Discord forum); `externalUrl` stays the home board's. Null on
+  // the board's own cards.
+  boardExternalUrl: z.string().nullable(),
 });
 
 // ─── board.byId ──────────────────────────────────────────────

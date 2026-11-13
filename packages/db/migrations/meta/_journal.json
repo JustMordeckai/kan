@@ -344,6 +344,13 @@
       "when": 1794606424443,
       "tag": "20261113214704_AddCardCompletion",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1794610073838,
+      "tag": "20261113224753_AddCardBoardLinkExternalUrl",
+      "breakpoints": true
     }
   ]
 }

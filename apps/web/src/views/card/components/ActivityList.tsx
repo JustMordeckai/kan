@@ -154,6 +154,7 @@ const getActivityText = ({
     "card.updated.board.home": t`changed the card's origin board`,
     "card.updated.completed": t`marked the card as complete`,
     "card.updated.uncompleted": t`marked the card as incomplete`,
+    "card.updated.board.externalUrl": t`changed the external link on a board`,
   } as const;
 
   if (!(type in ACTIVITY_TYPE_MAP)) return null;
@@ -308,6 +309,15 @@ const getActivityText = ({
     );
   }
 
+  if (type === "card.updated.board.externalUrl" && toTitle) {
+    return (
+      <Trans>
+        changed the external link on{" "}
+        <TextHighlight>{truncate(toTitle)}</TextHighlight>
+      </Trans>
+    );
+  }
+
   if (type === "card.updated.attachment.added") {
     const filename = attachmentName ?? toTitle;
     if (!filename) return baseText;
@@ -393,6 +403,7 @@ const ACTIVITY_ICON_MAP: Partial<Record<ActivityType, React.ReactNode | null>> =
     "card.updated.board.removed": <HiOutlineArrowsRightLeft />,
     "card.updated.externalUrl": <HiOutlineLink />,
     "card.updated.board.home": <HiOutlineHome />,
+    "card.updated.board.externalUrl": <HiOutlineLink />,
   } as const;
 
 const getActivityIcon = (

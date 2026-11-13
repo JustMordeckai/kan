@@ -65,6 +65,7 @@ interface SharedBoardView {
   name: string;
   list: { publicId: string; name: string };
   labels: { publicId: string; name: string; colourCode: string | null }[];
+  externalUrl: string | null;
 }
 
 // The shared board the card is being viewed from: the one in returnUrl, or
@@ -260,6 +261,7 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
               canAccess: card.canAccessHomeBoard,
             }}
             sharedBoards={card.sharedBoards}
+            homeExternalUrl={card.externalUrl}
             canEdit={!!canEdit}
           />
         </div>
@@ -340,6 +342,16 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
       : `/${isTemplate ? "templates" : "boards"}/${boardId}`,
     card?.sharedBoards.map((sharedBoard) => `/boards/${sharedBoard.publicId}`),
   );
+  // Seen from a board it is shared with, the card opens its link on that
+  // board (e.g. that board's Discord thread) when it has one.
+  const viewedExternalUrl =
+    viewedSharedBoard?.externalUrl ?? card?.externalUrl ?? null;
+  const linkSharedBoard =
+    modalContentType === "EDIT_SHARED_BOARD_LINK"
+      ? card?.sharedBoards.find(
+          (sharedBoard) => sharedBoard.publicId === entityId,
+        )
+      : undefined;
 
   const editorWorkspaceMembers =
     workspaceMembers
@@ -562,9 +574,9 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
                     </div>
                   </form>
                 )}
-                {card?.externalUrl && (
+                {viewedExternalUrl && (
                   <div className="mt-3 flex">
-                    <ExternalLinkButton externalUrl={card.externalUrl} />
+                    <ExternalLinkButton externalUrl={viewedExternalUrl} />
                   </div>
                 )}
                 {!card && !isLoading && (
@@ -746,6 +758,23 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
               cardPublicId={cardId}
               externalUrl={card?.externalUrl ?? null}
             />
+          </Modal>
+
+          <Modal
+            modalSize="sm"
+            isVisible={
+              isOpen &&
+              modalContentType === "EDIT_SHARED_BOARD_LINK" &&
+              !!linkSharedBoard
+            }
+          >
+            {linkSharedBoard && (
+              <ExternalLinkForm
+                cardPublicId={cardId}
+                externalUrl={linkSharedBoard.externalUrl}
+                sharedBoard={linkSharedBoard}
+              />
+            )}
           </Modal>
 
           <Modal

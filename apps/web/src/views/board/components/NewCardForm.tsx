@@ -184,6 +184,7 @@ export function NewCardForm({
               index: position === "start" ? 0 : list.cards.length,
               sharedFrom: null,
               homeLabels: [],
+              boardExternalUrl: null,
             };
 
             const updatedCards =

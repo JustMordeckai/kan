@@ -21,6 +21,7 @@ import {
   cardDetailSchema,
   cardExternalUrlSchema,
   cardHomeBoardResponseSchema,
+  cardSharedBoardUpdateResponseSchema,
   cardShareResponseSchema,
   cardUpdateCoverResponseSchema,
   cardUpdateResponseSchema,
@@ -892,6 +893,7 @@ export const cardRouter = createTRPCRouter({
             name,
             colourCode,
           })),
+        externalUrl: board.externalUrl,
       }));
 
       // The home board's labels, plus those of the shared boards the viewer
@@ -2271,6 +2273,92 @@ export const cardRouter = createTRPCRouter({
       ]);
 
       return { success: true };
+    }),
+  updateSharedBoard: protectedProcedure
+    .meta({
+      openapi: {
+        summary: "Update a card's share on a board",
+        method: "PUT",
+        path: "/cards/{cardPublicId}/boards/{boardPublicId}",
+        description:
+          "Sets the card's link on a board it is shared with (for example its thread in that board's Discord forum), next to the card's own externalUrl, which belongs to its home board. Null removes the link.",
+        tags: ["Cards"],
+        protect: true,
+      },
+    })
+    .input(
+      z.object({
+        cardPublicId: z.string().min(12),
+        boardPublicId: z.string().min(12),
+        // null removes the link.
+        externalUrl: cardExternalUrlSchema.nullable(),
+      }),
+    )
+    .output(cardSharedBoardUpdateResponseSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.user?.id;
+
+      if (!userId)
+        throw new TRPCError({
+          message: `User not authenticated`,
+          code: "UNAUTHORIZED",
+        });
+
+      const card = await cardRepo.getWorkspaceAndCardIdByCardPublicId(
+        ctx.db,
+        input.cardPublicId,
+      );
+
+      if (!card)
+        throw new TRPCError({
+          message: `Card with public ID ${input.cardPublicId} not found`,
+          code: "NOT_FOUND",
+        });
+
+      // Same rule as the card's own link, taken on the board the link
+      // belongs to.
+      await assertCanEdit(
+        ctx.db,
+        userId,
+        card.workspaceId,
+        "card:edit",
+        card.createdBy,
+      );
+
+      const sharedBoard = (
+        await cardBoardLinkRepo.getBoardsByCardId(ctx.db, card.id)
+      ).find((board) => board.publicId === input.boardPublicId);
+
+      if (!sharedBoard || !(await hasBoardAccess(ctx.db, userId, sharedBoard)))
+        throw new TRPCError({
+          message: `Card is not shared with board ${input.boardPublicId}`,
+          code: "NOT_FOUND",
+        });
+
+      const updated = await cardBoardLinkRepo.setExternalUrl(ctx.db, {
+        cardId: card.id,
+        boardId: sharedBoard.id,
+        externalUrl: input.externalUrl,
+      });
+
+      if (!updated)
+        throw new TRPCError({
+          message: `Card is not shared with board ${input.boardPublicId}`,
+          code: "NOT_FOUND",
+        });
+
+      if (sharedBoard.externalUrl !== updated.externalUrl)
+        await cardActivityRepo.create(ctx.db, {
+          type: "card.updated.board.externalUrl",
+          cardId: card.id,
+          toTitle: sharedBoard.name,
+          createdBy: userId,
+        });
+
+      return {
+        boardPublicId: sharedBoard.publicId,
+        externalUrl: updated.externalUrl,
+      };
     }),
   setHomeBoard: protectedProcedure
     .meta({
